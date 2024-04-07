@@ -1,0 +1,55 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1712529367402,
+      "tag": "0000_panoramic_penance",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1712529469775,
+      "tag": "0001_solid_shadowcat",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1712529523185,
+      "tag": "0002_yummy_centennial",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1712529541641,
+      "tag": "0003_tiny_wildside",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1712529719280,
+      "tag": "0004_majestic_frightful_four",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1712529746563,
+      "tag": "0005_light_pixie",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1712529769600,
+      "tag": "0006_empty_may_parker",
+      "breakpoints": true
+    }
+  ]
+}

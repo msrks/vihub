@@ -8,5 +8,6 @@ export default {
   dbCredentials: {
     connectionString: env.DATABASE_URL,
   },
+  out: "./drizzle",
   tablesFilter: ["vihub_*"],
 } satisfies Config;

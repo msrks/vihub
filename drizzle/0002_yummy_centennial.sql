@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "image_store_createdAt_idx" ON "vihub_image_store" ("created_at");

@@ -1,82 +1,59 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   integer,
+  jsonb,
+  pgEnum,
   pgTableCreator,
   primaryKey,
-  serial,
   text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const createTable = pgTableCreator((name) => `vihub_${name}`);
 
-export const posts = createTable(
-  "post",
-  {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("createdById", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt"),
-  },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
-);
-
 export const users = createTable("user", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
+  id: varchar("id").notNull().primaryKey(),
+  name: varchar("name"),
+  email: varchar("email").notNull(),
   emailVerified: timestamp("emailVerified", {
     mode: "date",
   }).default(sql`CURRENT_TIMESTAMP`),
-  image: varchar("image", { length: 255 }),
+  image: varchar("image"),
+  apiKey: varchar("apiKey"),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  usersToWorkspaces: many(usersToWorkspaces),
 }));
 
 export const accounts = createTable(
   "account",
   {
-    userId: varchar("userId", { length: 255 })
+    userId: varchar("userId")
       .notNull()
       .references(() => users.id),
-    type: varchar("type", { length: 255 })
-      .$type<AdapterAccount["type"]>()
-      .notNull(),
-    provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
+    type: varchar("type").$type<AdapterAccount["type"]>().notNull(),
+    provider: varchar("provider").notNull(),
+    providerAccountId: varchar("providerAccountId").notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: integer("expires_at"),
-    token_type: varchar("token_type", { length: 255 }),
-    scope: varchar("scope", { length: 255 }),
+    token_type: varchar("token_type"),
+    scope: varchar("scope"),
     id_token: text("id_token"),
-    session_state: varchar("session_state", { length: 255 }),
+    session_state: varchar("session_state"),
   },
   (account) => ({
-    compoundKey: primaryKey({
+    pk: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_userId_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -86,17 +63,15 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   {
-    sessionToken: varchar("sessionToken", { length: 255 })
-      .notNull()
-      .primaryKey(),
-    userId: varchar("userId", { length: 255 })
+    sessionToken: varchar("sessionToken").notNull().primaryKey(),
+    userId: varchar("userId")
       .notNull()
       .references(() => users.id),
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -106,11 +81,173 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const verificationTokens = createTable(
   "verificationToken",
   {
-    identifier: varchar("identifier", { length: 255 }).notNull(),
-    token: varchar("token", { length: 255 }).notNull(),
+    identifier: varchar("identifier").notNull(),
+    token: varchar("token").notNull(),
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+    pk: primaryKey({ columns: [vt.identifier, vt.token] }),
+  }),
 );
+
+export const workspaces = createTable(
+  "workspace",
+  {
+    id: varchar("id").notNull().primaryKey(),
+    name: varchar("name").notNull().unique(),
+    personal: boolean("personal").default(false).notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at"),
+  },
+  (table) => ({
+    createdAtIdx: index("workspace_createdAt_idx").on(table.createdAt),
+  }),
+);
+
+export const workspacesRelations = relations(workspaces, ({ many }) => ({
+  usersToWorkspaces: many(usersToWorkspaces),
+  imageStores: many(imageStores),
+}));
+
+export const roleEnum = pgEnum("role", ["member", "admin"]);
+
+export const usersToWorkspaces = createTable(
+  "users_to_workspaces",
+  {
+    userId: varchar("userId")
+      .notNull()
+      .references(() => users.id),
+    workspaceId: varchar("workspaceId")
+      .notNull()
+      .references(() => workspaces.id),
+    role: roleEnum("role"),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.workspaceId] }),
+    userIdIdx: index("user_workspace_userId_idx").on(t.userId),
+    workspaceIdIdx: index("user_workspace_workspaceId_idx").on(t.workspaceId),
+  }),
+);
+
+export const usersToWorkspacesRelations = relations(
+  usersToWorkspaces,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [usersToWorkspaces.userId],
+      references: [users.id],
+    }),
+    workspace: one(workspaces, {
+      fields: [usersToWorkspaces.workspaceId],
+      references: [workspaces.id],
+    }),
+  }),
+);
+
+export const imageStores = createTable(
+  "image_store",
+  {
+    id: varchar("id").notNull().primaryKey(),
+    name: varchar("name").notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at"),
+
+    thumbnailId: varchar("thumbnailId"),
+    workspaceId: varchar("workspaceId").notNull(),
+  },
+  (t) => ({
+    createdAtIdx: index("image_store_createdAt_idx").on(t.createdAt),
+  }),
+);
+
+export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
+  workspace: one(workspaces, {
+    fields: [imageStores.workspaceId],
+    references: [workspaces.id],
+  }),
+  thumbnail: one(images, {
+    fields: [imageStores.thumbnailId],
+    references: [images.id],
+  }),
+  images: many(images),
+  labelClasses: many(labelClasses),
+}));
+
+export const labelClasses = createTable("label_class", {
+  id: varchar("id").notNull().primaryKey(),
+  key: varchar("key").notNull(),
+  displayName: varchar("displayName").notNull(),
+
+  imageStoreId: varchar("imageStoreId").notNull(),
+});
+
+export const labelClassesRelations = relations(
+  labelClasses,
+  ({ one, many }) => ({
+    imageStore: one(imageStores, {
+      fields: [labelClasses.imageStoreId],
+      references: [imageStores.id],
+    }),
+    labels: many(labels),
+  }),
+);
+
+export const images = createTable(
+  "image",
+  {
+    id: varchar("id").notNull().primaryKey(),
+    url: varchar("url").notNull().unique(),
+    downloadUrl: varchar("downloadUrl").notNull().unique(),
+    pathname: varchar("pathname").notNull().unique(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+
+    imageStoreId: varchar("imageStoreId").notNull(),
+    aiLabelId: varchar("aiLabelId"),
+    humanLabelId: varchar("humanLabelId"),
+  },
+  (t) => ({
+    createdAtIdx: index("image_createdAt_idx").on(t.createdAt),
+  }),
+);
+
+export const imagesRelations = relations(images, ({ one }) => ({
+  imageStore: one(imageStores, {
+    fields: [images.imageStoreId],
+    references: [imageStores.id],
+  }),
+  aiLabel: one(labels, {
+    fields: [images.aiLabelId],
+    references: [labels.id],
+  }),
+  humanLabel: one(labels, {
+    fields: [images.humanLabelId],
+    references: [labels.id],
+  }),
+}));
+
+export const labels = createTable("label", {
+  id: varchar("id").notNull().primaryKey(),
+  detail: jsonb("detail"),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+
+  imageId: varchar("imageId").notNull(),
+  labelClassId: varchar("labelClassId").notNull(),
+});
+
+export const labelsRelations = relations(labels, ({ one }) => ({
+  image: one(images, {
+    fields: [labels.imageId],
+    references: [images.id],
+  }),
+  labelClass: one(labelClasses, {
+    fields: [labels.labelClassId],
+    references: [labelClasses.id],
+  }),
+}));
