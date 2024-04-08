@@ -11,23 +11,37 @@ export const workspaceRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const ret = await ctx.db
-        .insert(workspaces)
-        .values({
-          name: input.name,
-        })
-        .returning();
+      try {
+        const ret = await ctx.db
+          .insert(workspaces)
+          .values({
+            name: input.name,
+          })
+          .returning();
 
-      if (!ret[0]) throw new Error("try another name!");
+        if (!ret[0]) throw new Error("try another name!");
 
-      const { id } = ret[0];
+        const { id } = ret[0];
 
-      await ctx.db.insert(usersToWorkspaces).values({
-        userId: ctx.session.user.id,
-        workspaceId: id,
-      });
+        await ctx.db.insert(usersToWorkspaces).values({
+          userId: ctx.session.user.id,
+          workspaceId: id,
+        });
 
-      return { id };
+        return { id };
+      } catch (error) {
+        // return { error: JSON.stringify(error) };
+        if (
+          error instanceof Error &&
+          error.message ===
+            'duplicate key value violates unique constraint "vihub_workspace_name_unique"'
+        ) {
+          return {
+            error: "your name has been already taken. try another one!",
+          };
+        }
+        return { error: "error: something wrong has happend.." };
+      }
     }),
 
   update: protectedProcedure
