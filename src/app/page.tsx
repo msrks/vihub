@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Smile } from "lucide-react";
-import ProjectRoot from "./project-root";
+import WorkspaceRoot from "./_components/workspace-root";
 import { useSession } from "next-auth/react";
 
 const LandingPage = () => {
@@ -49,7 +49,7 @@ export default function Home() {
   const session = useSession();
 
   if (session.data?.user) {
-    return <ProjectRoot />;
+    return <WorkspaceRoot />;
   } else {
     return <LandingPage />;
   }
