@@ -55,7 +55,9 @@ export const workspaceRouter = createTRPCRouter({
         },
       },
     });
-    return _res[0]?.usersToWorkspaces.map((u2w) => u2w.workspace);
+    if (!_res[0]) return [];
+
+    return _res[0].usersToWorkspaces.map((u2w) => u2w.workspace);
   }),
 
   getById: protectedProcedure
