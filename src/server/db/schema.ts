@@ -7,6 +7,7 @@ import {
   pgEnum,
   pgTableCreator,
   primaryKey,
+  serial,
   text,
   timestamp,
   varchar,
@@ -93,7 +94,7 @@ export const verificationTokens = createTable(
 export const workspaces = createTable(
   "workspace",
   {
-    id: varchar("id").notNull().primaryKey(),
+    id: serial("id").primaryKey(),
     name: varchar("name").notNull().unique(),
     personal: boolean("personal").default(false).notNull(),
     createdAt: timestamp("created_at")
@@ -116,13 +117,9 @@ export const roleEnum = pgEnum("role", ["member", "admin"]);
 export const usersToWorkspaces = createTable(
   "users_to_workspaces",
   {
-    userId: varchar("userId")
-      .notNull()
-      .references(() => users.id),
-    workspaceId: varchar("workspaceId")
-      .notNull()
-      .references(() => workspaces.id),
-    role: roleEnum("role"),
+    userId: varchar("userId").references(() => users.id),
+    workspaceId: integer("workspaceId").references(() => workspaces.id),
+    role: roleEnum("role").default("member").notNull(),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.userId, t.workspaceId] }),
@@ -148,15 +145,15 @@ export const usersToWorkspacesRelations = relations(
 export const imageStores = createTable(
   "image_store",
   {
-    id: varchar("id").notNull().primaryKey(),
+    id: serial("id").primaryKey(),
     name: varchar("name").notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at"),
 
-    thumbnailId: varchar("thumbnailId"),
-    workspaceId: varchar("workspaceId").notNull(),
+    thumbnailId: integer("thumbnailId"),
+    workspaceId: integer("workspaceId").notNull(),
   },
   (t) => ({
     createdAtIdx: index("image_store_createdAt_idx").on(t.createdAt),
@@ -177,11 +174,11 @@ export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
 }));
 
 export const labelClasses = createTable("label_class", {
-  id: varchar("id").notNull().primaryKey(),
+  id: serial("id").primaryKey(),
   key: varchar("key").notNull(),
   displayName: varchar("displayName").notNull(),
 
-  imageStoreId: varchar("imageStoreId").notNull(),
+  imageStoreId: integer("imageStoreId").notNull(),
 });
 
 export const labelClassesRelations = relations(
@@ -198,7 +195,7 @@ export const labelClassesRelations = relations(
 export const images = createTable(
   "image",
   {
-    id: varchar("id").notNull().primaryKey(),
+    id: serial("id").primaryKey(),
     url: varchar("url").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     pathname: varchar("pathname").notNull().unique(),
@@ -206,9 +203,9 @@ export const images = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
 
-    imageStoreId: varchar("imageStoreId").notNull(),
-    aiLabelId: varchar("aiLabelId"),
-    humanLabelId: varchar("humanLabelId"),
+    imageStoreId: integer("imageStoreId").notNull(),
+    aiLabelId: integer("aiLabelId"),
+    humanLabelId: integer("humanLabelId"),
   },
   (t) => ({
     createdAtIdx: index("image_createdAt_idx").on(t.createdAt),
@@ -231,14 +228,14 @@ export const imagesRelations = relations(images, ({ one }) => ({
 }));
 
 export const labels = createTable("label", {
-  id: varchar("id").notNull().primaryKey(),
+  id: serial("id").primaryKey(),
   detail: jsonb("detail"),
   createdAt: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 
-  imageId: varchar("imageId").notNull(),
-  labelClassId: varchar("labelClassId").notNull(),
+  imageId: integer("imageId").notNull(),
+  labelClassId: integer("labelClassId").notNull(),
 });
 
 export const labelsRelations = relations(labels, ({ one }) => ({
