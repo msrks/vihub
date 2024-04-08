@@ -50,6 +50,20 @@
       "when": 1712529769600,
       "tag": "0006_empty_may_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1712536040700,
+      "tag": "0007_soft_mariko_yashida",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1712536832308,
+      "tag": "0008_eager_colonel_america",
+      "breakpoints": true
     }
   ]
 }

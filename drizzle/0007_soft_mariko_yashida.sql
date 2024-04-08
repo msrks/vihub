@@ -1,0 +1,1 @@
+ALTER TABLE "vihub_workspace" ALTER COLUMN "id" SET DATA TYPE serial;
