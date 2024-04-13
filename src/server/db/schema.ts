@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -202,11 +203,10 @@ export const images = createTable(
     id: serial("id").primaryKey(),
     url: varchar("url").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
-    pathname: varchar("pathname").notNull().unique(),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-
+    // pathname: varchar("pathname").notNull().unique(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAtDate: date("created_at_date").defaultNow().notNull(),
+    // createdAtDateString: varchar("created_at_date_string").notNull(),
     imageStoreId: integer("imageStoreId").notNull(),
     aiLabelId: integer("aiLabelId"),
     humanLabelId: integer("humanLabelId"),
