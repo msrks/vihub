@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { eq, and, count, gte } from "drizzle-orm";
 import { images } from "@/server/db/schema";
+import { del } from "@vercel/blob";
 
 export const imageRouter = createTRPCRouter({
   // create: protectedProcedure
@@ -28,6 +29,19 @@ export const imageRouter = createTRPCRouter({
   //       return { error: "something went wrong.." };
   //     }
   //   }),
+
+  deleteById: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        url: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { id, url } }) => {
+      await ctx.db.delete(images).where(eq(images.id, id));
+      await del(url);
+      return { success: true };
+    }),
 
   getAll: protectedProcedure
     .input(
