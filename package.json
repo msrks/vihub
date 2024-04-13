@@ -16,6 +16,7 @@
   "dependencies": {
     "@auth/drizzle-adapter": "^0.7.0",
     "@hookform/resolvers": "^3.3.4",
+    "@mantine/hooks": "^7.8.0",
     "@pinecone-database/pinecone": "^2.2.0",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -42,14 +43,17 @@
     "next-themes": "^0.3.0",
     "postgres": "^3.4.3",
     "react": "18.2.0",
+    "react-activity-calendar": "^2.2.8",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.51.2",
+    "react-tooltip": "^5.26.3",
     "replicate": "^0.29.1",
     "server-only": "^0.0.1",
     "sonner": "^1.4.41",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
+    "use-debounce": "^10.0.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
