@@ -1,9 +1,15 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { workspaceRouter } from "./routers/workspace";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import { imageStoreRouter } from "./routers/imageStore";
+import { imageRouter } from "./routers/image";
+import { aiRouter } from "./routers/ai";
 
 export const appRouter = createTRPCRouter({
+  ai: aiRouter,
   workspace: workspaceRouter,
+  imageStore: imageStoreRouter,
+  image: imageRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { users, usersToWorkspaces, workspaces } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export const workspaceRouter = createTRPCRouter({
   create: protectedProcedure
@@ -89,19 +89,28 @@ export const workspaceRouter = createTRPCRouter({
       });
     }),
 
-  getIdByTitleAndOwner: protectedProcedure
+  getByName: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const res = await ctx.db.query.workspaces.findFirst({
-        where: eq(workspaces.name, input.name),
-      });
+      const res = await ctx.db
+        .select()
+        .from(workspaces)
+        .innerJoin(
+          usersToWorkspaces,
+          eq(workspaces.id, usersToWorkspaces.workspaceId),
+        )
+        .where(
+          and(
+            eq(workspaces.name, input.name),
+            eq(usersToWorkspaces.userId, ctx.session.user.id),
+          ),
+        );
 
-      if (!res) throw new Error("Project not found");
-
-      return res.id;
+      if (!res[0] || res.length !== 1) throw new Error("Project not found");
+      return res[0].workspace;
     }),
 });
