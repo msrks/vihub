@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { eq, and } from "drizzle-orm";
-import { imageStores, workspaces } from "@/server/db/schema";
+import { imageStores, images, workspaces } from "@/server/db/schema";
+import { del } from "@vercel/blob";
+import { vdb } from "@/server/pinecone";
 
 export const imageStoreRouter = createTRPCRouter({
   create: protectedProcedure
@@ -57,6 +59,40 @@ export const imageStoreRouter = createTRPCRouter({
         .where(eq(imageStores.id, id));
     }),
 
+  deleteById: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { id } }) => {
+      // delete all images in the image store
+      const allImages = await ctx.db
+        .select()
+        .from(images)
+        .where(eq(images.imageStoreId, id));
+      await Promise.all(
+        allImages.map(async (image) => {
+          const ret = await ctx.db
+            .delete(images)
+            .where(eq(images.id, image.id))
+            .returning();
+          if (!ret[0]) throw new Error("something went wrong..");
+          // delete from vercel blob
+          await del(ret[0].url);
+          // delete from pinecone
+          await vdb(ret[0].imageStoreId.toString()).deleteOne(ret[0].vectorId);
+        }),
+      );
+
+      // delete the image store
+      const ret = await ctx.db
+        .delete(imageStores)
+        .where(eq(imageStores.id, id))
+        .returning();
+      if (!ret[0]) throw new Error("something went wrong..");
+    }),
+
   getAll: protectedProcedure
     .input(
       z.object({
@@ -69,21 +105,6 @@ export const imageStoreRouter = createTRPCRouter({
         .from(imageStores)
         .where(eq(imageStores.workspaceId, input.workspaceId));
     }),
-
-  // getById: protectedProcedure
-  //   .input(
-  //     z.object({
-  //       id: z.number(),
-  //     }),
-  //   )
-  //   .query(({ ctx, input }) => {
-  //     return ctx.db.query.imageStores.findFirst({
-  //       where: eq(imageStores.id, input.id),
-  //       with: {
-  //         imageStores: true,
-  //       },
-  //     });
-  //   }),
 
   getByName: protectedProcedure
     .input(

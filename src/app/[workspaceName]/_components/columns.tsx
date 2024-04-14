@@ -40,7 +40,7 @@ export const getColumns = (workspaceName: string): ColumnDef<ImageStore>[] => [
       const { thumbnailUrl } = row.original;
       return (
         <Image
-          src={`${thumbnailUrl}`}
+          src={`${thumbnailUrl ?? ""}`}
           alt="thumbnail image"
           className="h-10 w-10"
           width={40}
