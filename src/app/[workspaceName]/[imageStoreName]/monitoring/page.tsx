@@ -1,6 +1,5 @@
 "use client";
 
-import { Separator } from "@/components/ui/separator";
 import { api } from "@/trpc/react";
 import { ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import type { searchImages } from "@/app/actions/searchImages";
 import Image from "next/image";
 import { ImageUploader } from "../_components/image-uploader";
-import { ImageViewerComponent } from "./[date]/imageViewerComponent";
+import { ImageViewerComponent } from "../../../../components/imageViewerComponent";
 
 type SearchResults = Awaited<ReturnType<typeof searchImages>>;
 
