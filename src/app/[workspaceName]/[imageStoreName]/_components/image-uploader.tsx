@@ -18,8 +18,9 @@ export function ImageUploader({ imageStoreId }: { imageStoreId: number }) {
     <form
       ref={formRef}
       action={async (f) => {
-        const res = await uploadImage(imageStoreId, f);
+        toast.info("Uploading image...");
         formRef.current!.reset();
+        const res = await uploadImage(imageStoreId, f);
         toast.success(res.message);
         await utils.image.invalidate();
       }}

@@ -47,7 +47,7 @@ export default async function RootLayout({
             <NextAuthProvider>
               <Header session={session} />
               {children}
-              <Toaster />
+              <Toaster richColors />
               {/* <Footer /> */}
               <ThemeToggle className="absolute bottom-2 left-2" />
             </NextAuthProvider>
