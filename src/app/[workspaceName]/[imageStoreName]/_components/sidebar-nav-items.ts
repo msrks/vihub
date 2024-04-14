@@ -11,4 +11,8 @@ export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
     title: "LLM Playground",
     href: `/${wsName}/${imageStoreName}/llm-playground`,
   },
+  {
+    title: "Settings",
+    href: `/${wsName}/${imageStoreName}/settings`,
+  },
 ];
