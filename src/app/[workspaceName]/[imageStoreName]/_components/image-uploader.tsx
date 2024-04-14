@@ -24,7 +24,7 @@ export function ImageUploader({ imageStoreId }: { imageStoreId: number }) {
         toast.success(res.message);
         await utils.image.invalidate();
       }}
-      className="m-10 space-y-2 p-4"
+      className="space-y-2 p-4"
     >
       <Label htmlFor="image">Upload Image wo/ Label</Label>
       <Input type="file" id="image" name="image" required multiple />
