@@ -4,6 +4,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import {
@@ -20,6 +21,7 @@ import { Button } from "./ui/button";
 import { api } from "@/trpc/react";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
+import { getSidebarNavItems } from "@/app/[workspaceName]/[imageStoreName]/_components/sidebar-nav-items";
 
 function WorkspaceNav({ current }: { current: string }) {
   const { data } = api.workspace.getAll.useQuery();
@@ -47,13 +49,15 @@ function WorkspaceNav({ current }: { current: string }) {
 }
 
 function ImageStoreNav({
-  wsName,
+  workspaceName,
   current,
 }: {
-  wsName: string;
+  workspaceName: string;
   current: string;
 }) {
-  const { data: ws } = api.workspace.getByName.useQuery({ name: wsName });
+  const { data: ws } = api.workspace.getByName.useQuery({
+    name: workspaceName,
+  });
   const { data } = api.imageStore.getAll.useQuery(
     { workspaceId: ws?.id ?? 0 },
     { enabled: !!ws },
@@ -69,9 +73,42 @@ function ImageStoreNav({
             <ChevronDown className="size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {data?.map((imageStore, i) => (
-              <Link key={i} href={`/${wsName}/${imageStore.name}`}>
-                <DropdownMenuItem>{imageStore.name}</DropdownMenuItem>
+            {data?.map((d, i) => (
+              <Link key={i} href={`/${workspaceName}/${d.name}`}>
+                <DropdownMenuItem>{d.name}</DropdownMenuItem>
+              </Link>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </BreadcrumbItem>
+    </>
+  );
+}
+
+function MenuItemNav({
+  workspaceName,
+  imageStoreName,
+  current,
+}: {
+  workspaceName: string;
+  imageStoreName: string;
+  current: string;
+}) {
+  const items = getSidebarNavItems(workspaceName, imageStoreName);
+
+  return (
+    <>
+      <BreadcrumbSeparator>/</BreadcrumbSeparator>
+      <BreadcrumbItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-1">
+            {current}
+            <ChevronDown className="size-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {items?.map((item, i) => (
+              <Link key={i} href={item.href}>
+                <DropdownMenuItem>{item.title}</DropdownMenuItem>
               </Link>
             ))}
           </DropdownMenuContent>
@@ -122,8 +159,9 @@ function UserMenu({ session }: { session: Session | null }) {
 
 const Header = ({ session }: { session: Session | null }) => {
   const pathname = usePathname();
-  const wsName = pathname.split("/")[1];
+  const workspaceName = pathname.split("/")[1];
   const imageStoreName = pathname.split("/")[2];
+  const menuItem = pathname.split("/")[3];
 
   return (
     <div className="min-h-[48px] w-full border-b">
@@ -131,9 +169,25 @@ const Header = ({ session }: { session: Session | null }) => {
         <Breadcrumb>
           <BreadcrumbList>
             <Hero />
-            {session?.user && wsName && <WorkspaceNav current={wsName} />}
-            {session?.user && imageStoreName && wsName && (
-              <ImageStoreNav wsName={wsName} current={imageStoreName} />
+            {session?.user && workspaceName && (
+              <>
+                <WorkspaceNav current={workspaceName} />
+                {imageStoreName && (
+                  <>
+                    <ImageStoreNav
+                      workspaceName={workspaceName}
+                      current={imageStoreName}
+                    />
+                    {menuItem && (
+                      <MenuItemNav
+                        workspaceName={workspaceName}
+                        imageStoreName={imageStoreName}
+                        current={menuItem}
+                      />
+                    )}
+                  </>
+                )}
+              </>
             )}
           </BreadcrumbList>
         </Breadcrumb>
