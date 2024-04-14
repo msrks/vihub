@@ -2,44 +2,71 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { eq, and, count, gte } from "drizzle-orm";
 import { images } from "@/server/db/schema";
-import { del } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
+import { getVectorByReplicate } from "@/server/replicate";
+import { vdb } from "@/server/pinecone";
+import { createHash } from "crypto";
+import { type PineconeRecord } from "@pinecone-database/pinecone";
 
 export const imageRouter = createTRPCRouter({
-  // create: protectedProcedure
-  //   .input(
-  //     z.object({
-  //       name: z.string().min(1),
-  //       workspaceId: z.number(),
-  //     }),
-  //   )
-  //   .mutation(async ({ ctx, input }) => {
-  //     try {
-  //       const ret = await ctx.db
-  //         .insert(images)
-  //         .values({
-  //           name: input.name,
-  //           workspaceId: input.workspaceId,
-  //         })
-  //         .returning();
+  create: protectedProcedure
+    .input(
+      z.object({
+        imageStoreId: z.number(),
+        file: z.custom<File>(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { imageStoreId, file } }) => {
+      const filename = `${process.env.BLOB_NAME_SPACE!}/${file.name}`;
 
-  //       if (!ret[0]) throw new Error("something went wrong..");
+      // upload to vercel blob
+      const blob = await put(filename, file, { access: "public" });
+      const { url, downloadUrl } = blob;
 
-  //       return { id: ret[0].id };
-  //     } catch (error) {
-  //       return { error: "something went wrong.." };
-  //     }
-  //   }),
+      // get vector embedding & store it to pinecone
+      const vector = await getVectorByReplicate(url);
+      const vectorId = createHash("md5").update(url).digest("hex");
+      await vdb(imageStoreId.toString()).upsert([
+        {
+          id: vectorId,
+          metadata: { imagePath: url },
+          values: vector,
+        } satisfies PineconeRecord,
+      ]);
+
+      // save to db
+      const ret = await ctx.db
+        .insert(images)
+        .values({
+          url,
+          downloadUrl,
+          imageStoreId,
+          vectorId,
+        })
+        .returning();
+      if (!ret[0]) throw new Error("something went wrong..");
+      return { id: ret[0].id };
+    }),
 
   deleteById: protectedProcedure
     .input(
       z.object({
         id: z.number(),
-        url: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input: { id, url } }) => {
-      await ctx.db.delete(images).where(eq(images.id, id));
-      await del(url);
+    .mutation(async ({ ctx, input: { id } }) => {
+      const ret = await ctx.db
+        .delete(images)
+        .where(eq(images.id, id))
+        .returning();
+      if (!ret[0]) throw new Error("something went wrong..");
+
+      // delete from vercel blob
+      await del(ret[0].url);
+
+      // delete from pinecone
+      await vdb(ret[0].imageStoreId.toString()).deleteOne(ret[0].vectorId);
+
       return { success: true };
     }),
 
