@@ -84,25 +84,16 @@ export default function Page({ params }: Props) {
   if (!imageStore) return null;
 
   return (
-    <div className="flex w-full grow flex-col items-center">
-      <div className="container">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold tracking-tight">
-            {imageStore.name}
-          </h2>
-          <Button asChild size="sm">
-            <Link
-              href="https://pypi.org/project/vihub/"
-              className="flex items-center"
-            >
-              <span> Python SDK </span>
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-
-        <Separator className="mb-2 mt-1" />
-      </div>
+    <div className="relative flex w-full grow flex-col items-center">
+      <Button asChild size="sm" className="absolute right-0 top-0">
+        <Link
+          href="https://pypi.org/project/vihub/"
+          className="flex items-center"
+        >
+          <span> Python SDK </span>
+          <ExternalLink className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
 
       {/* dev only */}
       {process.env.NODE_ENV === "development" && (
