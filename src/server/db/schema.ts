@@ -202,6 +202,7 @@ export const images = createTable(
   {
     id: serial("id").primaryKey(),
     url: varchar("url").notNull().unique(),
+    vectorId: varchar("vectorId").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     // pathname: varchar("pathname").notNull().unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
