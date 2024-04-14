@@ -156,8 +156,8 @@ export const imageStores = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at"),
+    thumbnailUrl: varchar("thumbnailUrl"),
 
-    thumbnailId: integer("thumbnailId"),
     workspaceId: integer("workspaceId").notNull(),
   },
   (t) => ({
@@ -170,10 +170,10 @@ export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
     fields: [imageStores.workspaceId],
     references: [workspaces.id],
   }),
-  thumbnail: one(images, {
-    fields: [imageStores.thumbnailId],
-    references: [images.id],
-  }),
+  // thumbnail: one(images, {
+  //   fields: [imageStores.thumbnailId],
+  //   references: [images.id],
+  // }),
   images: many(images),
   labelClasses: many(labelClasses),
 }));

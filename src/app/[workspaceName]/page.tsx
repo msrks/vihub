@@ -26,7 +26,7 @@ export default function Page({ params: { workspaceName } }: Props) {
     <div className="flex w-full grow flex-col items-center">
       <div className="container mt-2 flex items-center justify-between">
         <h2 className="my-2 text-2xl font-semibold tracking-tight">
-          {ws?.name ?? "Loading..."}
+          ImageStores
         </h2>
         <div className="ml-auto mr-4 ">
           {ws && <NewImageStore workspaceId={ws?.id} />}

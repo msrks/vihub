@@ -43,6 +43,20 @@ export const imageStoreRouter = createTRPCRouter({
         .where(eq(imageStores.id, input.id));
     }),
 
+  setThumbnail: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        thumbnailUrl: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { id, thumbnailUrl } }) => {
+      await ctx.db
+        .update(imageStores)
+        .set({ thumbnailUrl })
+        .where(eq(imageStores.id, id));
+    }),
+
   getAll: protectedProcedure
     .input(
       z.object({

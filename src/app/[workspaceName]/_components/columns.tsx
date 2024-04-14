@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { type RouterOutputs } from "@/server/api/root";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import Image from "next/image";
 import Link from "next/link";
 
 export type ImageStore = RouterOutputs["imageStore"]["getAll"][number];
@@ -33,11 +34,19 @@ export const getColumns = (workspaceName: string): ColumnDef<ImageStore>[] => [
     },
   },
   {
-    accessorKey: "thumbnailId",
+    accessorKey: "thumbnailUrl",
     header: "Thumbnail",
     cell: ({ row }) => {
-      const { thumbnailId } = row.original;
-      return <img src={`${thumbnailId}`} className="h-10 w-10" />;
+      const { thumbnailUrl } = row.original;
+      return (
+        <Image
+          src={`${thumbnailUrl}`}
+          alt="thumbnail image"
+          className="h-10 w-10"
+          width={40}
+          height={40}
+        />
+      );
     },
   },
 ];

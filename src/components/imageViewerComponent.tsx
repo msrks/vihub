@@ -41,6 +41,9 @@ export function ImageViewerComponent({
 
   const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
 
+  const { mutateAsync: setThumbnail } =
+    api.imageStore.setThumbnail.useMutation();
+
   return (
     <div className="flex w-full grow flex-col items-center">
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -85,6 +88,20 @@ export function ImageViewerComponent({
                       Download
                     </ContextMenuItem>
                   </a>
+                  <ContextMenuItem
+                    onClick={async () => {
+                      toast.info("Setting as thumbnail...");
+                      await setThumbnail({
+                        id: imageStoreId,
+                        thumbnailUrl: image.url,
+                      });
+                      toast.success("Thumbnail set");
+                      await utils.imageStore.invalidate();
+                    }}
+                  >
+                    <ImageIcon className="mr-2 size-4" />
+                    Set as thumbnail
+                  </ContextMenuItem>
                 </ContextMenuContent>
               </ContextMenu>
             </div>
