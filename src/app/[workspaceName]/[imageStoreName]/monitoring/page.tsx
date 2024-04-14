@@ -48,7 +48,7 @@ export default function Page({ params }: Props) {
 
   const { mutateAsync } = api.ai.searchImages.useMutation();
 
-  const handleImageClick = async (url: string) => {
+  const setAsQueryImage = async (url: string) => {
     if (imageStore === undefined) return;
 
     setText("");
@@ -211,7 +211,7 @@ export default function Page({ params }: Props) {
           ) : searchResults.length === 0 ? (
             <ImageViewerComponent
               imageStoreId={imageStore.id}
-              handleImageClick={handleImageClick}
+              setAsQueryImage={setAsQueryImage}
             />
           ) : (
             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -220,7 +220,7 @@ export default function Page({ params }: Props) {
                   <div
                     key={i}
                     className="relative h-[150px] w-[200px] overflow-hidden"
-                    onClick={() => handleImageClick?.(result.src)}
+                    onClick={() => setAsQueryImage?.(result.src)}
                   >
                     <Image
                       src={result.src}

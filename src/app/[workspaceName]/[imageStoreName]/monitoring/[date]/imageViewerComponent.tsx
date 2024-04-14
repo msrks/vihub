@@ -16,11 +16,11 @@ import { toast } from "sonner";
 export function ImageViewerComponent({
   imageStoreId,
   date,
-  handleImageClick,
+  setAsQueryImage,
 }: {
   imageStoreId: number;
   date?: string;
-  handleImageClick?: (url: string) => void;
+  setAsQueryImage?: (url: string) => void;
 }) {
   const utils = api.useUtils();
 
@@ -64,9 +64,7 @@ export function ImageViewerComponent({
                   />
                 </ContextMenuTrigger>
                 <ContextMenuContent>
-                  <ContextMenuItem
-                    onClick={() => handleImageClick?.(image.url)}
-                  >
+                  <ContextMenuItem onClick={() => setAsQueryImage?.(image.url)}>
                     <ImageIcon className="mr-2 size-4" />
                     Set as queryImage
                   </ContextMenuItem>
