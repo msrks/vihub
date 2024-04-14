@@ -29,19 +29,19 @@ export const imageStoreRouter = createTRPCRouter({
       }
     }),
 
-  // update: protectedProcedure
-  //   .input(
-  //     z.object({
-  //       id: z.number(),
-  //       name: z.string().min(1),
-  //     }),
-  //   )
-  //   .mutation(async ({ ctx, input: { id, name } }) => {
-  //     await ctx.db
-  //       .update(imageStores)
-  //       .set({ ...(name && { name }) })
-  //       .where(eq(imageStores.id, id));
-  //   }),
+  rename: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(imageStores)
+        .set({ name: input.name })
+        .where(eq(imageStores.id, input.id));
+    }),
 
   getAll: protectedProcedure
     .input(
