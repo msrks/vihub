@@ -72,6 +72,7 @@ export function ImageViewerComponent({
                   </ContextMenuItem>
                   <ContextMenuItem
                     onClick={async () => {
+                      toast.info("Deleting image...");
                       await deleteImage({ id: image.id });
                       toast.success("Image deleted");
                       await utils.image.invalidate();
