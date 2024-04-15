@@ -2,9 +2,9 @@
 
 import { api } from "@/trpc/react";
 import { useIntersection } from "@mantine/hooks";
-import { Download, ImageIcon, Loader2, Trash2 } from "lucide-react";
+import { Check, Download, ImageIcon, Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -12,6 +12,15 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 export function ImageViewerComponent({
   imageStoreId,
@@ -25,6 +34,7 @@ export function ImageViewerComponent({
   onlyUnlabeled?: boolean;
 }) {
   const utils = api.useUtils();
+  const [selectedImages, setSelectedImages] = useState<number[]>([]);
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     api.image.getInfiniteByImageStoreId.useInfiniteQuery(
@@ -46,14 +56,73 @@ export function ImageViewerComponent({
   const { mutateAsync: setThumbnail } =
     api.imageStore.setThumbnail.useMutation();
 
+  const handleImageClick = (imageId: number) => {
+    if (selectedImages.includes(imageId)) {
+      setSelectedImages((prev) => prev.filter((id) => id !== imageId));
+    } else {
+      setSelectedImages((prev) => [...prev, imageId]);
+    }
+  };
+
+  const { data: labelClasses } = api.labelClass.getAll.useQuery({
+    imageStoreId,
+  });
+  const { mutateAsync: updateImage } = api.image.update.useMutation();
+  const [labelClass, setLabelClass] = useState<string | undefined>(undefined);
+
   return (
-    <div className="flex w-full grow flex-col items-center">
+    <div className="flex w-full grow flex-col items-center gap-2">
+      {selectedImages.length > 0 && (
+        <div className="mr-12 flex w-full items-center justify-end gap-4">
+          <p>{selectedImages.length} images selected</p>
+          {onlyUnlabeled && (
+            <form
+              className="flex items-center gap-2"
+              action={async () => {
+                if (!labelClass) return toast.error("Please select a class");
+
+                toast.info("Setting as labeled...");
+                await Promise.all(
+                  selectedImages.map((id) =>
+                    updateImage({ id, humanLabelId: parseInt(labelClass) }),
+                  ),
+                );
+                toast.success("Images labeled");
+                setSelectedImages([]);
+                setLabelClass(undefined);
+                await utils.image.invalidate();
+              }}
+            >
+              <Select
+                required
+                value={labelClass}
+                onValueChange={(value) => setLabelClass(value)}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder=" -- class -- " />
+                </SelectTrigger>
+                <SelectContent>
+                  {labelClasses?.map((lc) => (
+                    <SelectItem key={lc.id} value={lc.id.toString()}>
+                      {lc.displayName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button disabled={!labelClass}>Assign ClassLabel</Button>
+            </form>
+          )}
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {data?.pages.flatMap((page) =>
           page.items.map((image) => (
             <div
               key={image.id}
-              className="relative h-[150px] w-[200px] overflow-hidden"
+              className={cn(
+                "relative h-[150px] w-[200px] cursor-pointer overflow-hidden outline-2 outline-primary hover:outline",
+              )}
+              onClick={() => handleImageClick(image.id)}
             >
               <ContextMenu>
                 <ContextMenuTrigger>
@@ -67,6 +136,11 @@ export function ImageViewerComponent({
                     }}
                     sizes="200px"
                   />
+                  {selectedImages.includes(image.id) && (
+                    <div className="absolute bg-primary">
+                      <Check className="size-5" />
+                    </div>
+                  )}
                 </ContextMenuTrigger>
                 <ContextMenuContent>
                   <ContextMenuItem onClick={() => setAsQueryImage?.(image.url)}>

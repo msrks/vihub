@@ -50,6 +50,23 @@ export const imageRouter = createTRPCRouter({
       return { id: ret[0].id };
     }),
 
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        humanLabelId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { id, humanLabelId } }) => {
+      const ret = await ctx.db
+        .update(images)
+        .set({ humanLabelId })
+        .where(eq(images.id, id))
+        .returning();
+      if (!ret[0]) throw new Error("something went wrong..");
+      return { success: true };
+    }),
+
   deleteById: protectedProcedure
     .input(
       z.object({
