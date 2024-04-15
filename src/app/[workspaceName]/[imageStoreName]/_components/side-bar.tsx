@@ -7,8 +7,9 @@ import { usePathname } from "next/navigation";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
-    href: string;
     title: string;
+    href: string;
+    icon: JSX.Element;
   }[];
 }
 
@@ -32,7 +33,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
             "justify-start",
           )}
         >
-          {item.title}
+          {item.icon} {item.title}
         </Link>
       ))}
     </nav>
