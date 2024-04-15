@@ -21,6 +21,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Badge } from "./ui/badge";
+import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/classes/_components/columns";
+
+function LabelBadge({ labelClass }: { labelClass: LabelClass }) {
+  return (
+    <Badge
+      className="absolute bottom-0 right-0"
+      style={{ backgroundColor: labelClass.color ?? "" }}
+    >
+      {labelClass.key}
+    </Badge>
+  );
+}
 
 export function ImageViewerComponent({
   imageStoreId,
@@ -74,46 +87,48 @@ export function ImageViewerComponent({
 
   return (
     <div className="flex w-full grow flex-col items-center gap-2">
-      {selectedImages.length > 0 && (
+      {selectedImages.length > 0 ? (
         <div className="mr-12 flex w-full items-center justify-end gap-4">
           <p>{selectedImages.length} images selected</p>
-          {onlyUnlabeled && (
-            <form
-              className="flex items-center gap-2"
-              action={async () => {
-                if (!labelClass) return toast.error("Please select a class");
+          <form
+            className="flex items-center gap-2"
+            action={async () => {
+              if (!labelClass) return toast.error("Please select a class");
 
-                toast.info("Setting as labeled...");
-                await Promise.all(
-                  selectedImages.map((id) =>
-                    updateImage({ id, humanLabelId: parseInt(labelClass) }),
-                  ),
-                );
-                toast.success("Images labeled");
-                setSelectedImages([]);
-                setLabelClass(undefined);
-                await utils.image.invalidate();
-              }}
+              toast.info("Setting as labeled...");
+              await Promise.all(
+                selectedImages.map((id) =>
+                  updateImage({ id, humanLabelId: parseInt(labelClass) }),
+                ),
+              );
+              toast.success("Images labeled");
+              setSelectedImages([]);
+              setLabelClass(undefined);
+              await utils.image.invalidate();
+            }}
+          >
+            <Select
+              required
+              value={labelClass}
+              onValueChange={(value) => setLabelClass(value)}
             >
-              <Select
-                required
-                value={labelClass}
-                onValueChange={(value) => setLabelClass(value)}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder=" -- class -- " />
-                </SelectTrigger>
-                <SelectContent>
-                  {labelClasses?.map((lc) => (
-                    <SelectItem key={lc.id} value={lc.id.toString()}>
-                      {lc.displayName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button disabled={!labelClass}>Assign ClassLabel</Button>
-            </form>
-          )}
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder=" -- class -- " />
+              </SelectTrigger>
+              <SelectContent>
+                {labelClasses?.map((lc) => (
+                  <SelectItem key={lc.id} value={lc.id.toString()}>
+                    {lc.displayName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button disabled={!labelClass}>Assign ClassLabel</Button>
+          </form>
+        </div>
+      ) : (
+        <div className="mr-12 h-[36px] self-end">
+          Select images to do some actions
         </div>
       )}
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -142,6 +157,13 @@ export function ImageViewerComponent({
                     <div className="absolute bg-primary">
                       <Check className="size-5" />
                     </div>
+                  )}
+                  {labelClasses && image.humanLabelId && (
+                    <LabelBadge
+                      labelClass={
+                        labelClasses.find((lc) => lc.id === image.humanLabelId)!
+                      }
+                    />
                   )}
                 </ContextMenuTrigger>
                 <ContextMenuContent>
