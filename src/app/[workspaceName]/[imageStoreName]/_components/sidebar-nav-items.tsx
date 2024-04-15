@@ -27,8 +27,8 @@ export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
   },
   {
     icon: <Images className="mr-2 size-4 text-muted-foreground" />,
-    title: "Labled Dataset",
-    href: `/${wsName}/${imageStoreName}/labeled-dataset`,
+    title: "Dataset",
+    href: `/${wsName}/${imageStoreName}/dataset`,
   },
   {
     icon: <MonitorCheck className="mr-2 size-4 text-muted-foreground" />,
