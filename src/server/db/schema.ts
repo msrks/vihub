@@ -118,13 +118,14 @@ export const roleEnum = pgEnum("role", ["member", "admin"]);
 export const usersToWorkspaces = createTable(
   "users_to_workspaces",
   {
+    role: roleEnum("role").default("member").notNull(),
+
     userId: varchar("userId")
       .notNull()
       .references(() => users.id),
     workspaceId: integer("workspaceId")
       .notNull()
       .references(() => workspaces.id),
-    role: roleEnum("role").default("member").notNull(),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.userId, t.workspaceId] }),
