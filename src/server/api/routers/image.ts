@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { eq, and, count, gte, isNull } from "drizzle-orm";
+import { eq, and, count, gte, isNull, isNotNull } from "drizzle-orm";
 import { images } from "@/server/db/schema";
 import { del, put } from "@vercel/blob";
 import { getVectorByReplicate } from "@/server/replicate";
@@ -124,13 +124,21 @@ export const imageRouter = createTRPCRouter({
         limit: z.number().min(1),
         cursor: z.date().nullish(),
         date: z.string().optional(),
+        onlyLabeled: z.boolean().optional(),
         onlyUnlabeled: z.boolean().optional(),
       }),
     )
     .query(
       async ({
         ctx,
-        input: { imageStoreId, limit, cursor, date, onlyUnlabeled },
+        input: {
+          imageStoreId,
+          limit,
+          cursor,
+          date,
+          onlyLabeled,
+          onlyUnlabeled,
+        },
       }) => {
         const items = await ctx.db
           .select()
@@ -142,6 +150,7 @@ export const imageRouter = createTRPCRouter({
               eq(images.imageStoreId, imageStoreId),
               gte(images.createdAt, cursor ?? new Date(0)),
               date ? eq(images.createdAtDate, date) : undefined,
+              onlyLabeled ? isNotNull(images.humanLabelId) : undefined,
               onlyUnlabeled ? isNull(images.humanLabelId) : undefined,
             ),
           );

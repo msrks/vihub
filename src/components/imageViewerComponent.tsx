@@ -26,11 +26,13 @@ export function ImageViewerComponent({
   imageStoreId,
   date,
   setAsQueryImage,
+  onlyLabeled = false,
   onlyUnlabeled = false,
 }: {
   imageStoreId: number;
   date?: string;
   setAsQueryImage?: (url: string) => void;
+  onlyLabeled?: boolean;
   onlyUnlabeled?: boolean;
 }) {
   const utils = api.useUtils();
@@ -38,7 +40,7 @@ export function ImageViewerComponent({
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     api.image.getInfiniteByImageStoreId.useInfiniteQuery(
-      { imageStoreId, limit: 10, date, onlyUnlabeled },
+      { imageStoreId, limit: 10, date, onlyLabeled, onlyUnlabeled },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
 
