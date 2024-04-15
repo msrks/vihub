@@ -182,6 +182,7 @@ export const labelClasses = createTable("label_class", {
   id: serial("id").primaryKey(),
   key: varchar("key").notNull(),
   displayName: varchar("displayName").notNull(),
+  color: varchar("color"),
 
   imageStoreId: integer("imageStoreId").notNull(),
 });
