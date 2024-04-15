@@ -61,7 +61,7 @@ export default function ImageUpload({
 
       <div className="flex items-center gap-2">
         <Label>LabelClass</Label>
-        <Select required name="humanLabelId">
+        <Select name="humanLabelId">
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder=" -- select -- " />
           </SelectTrigger>
