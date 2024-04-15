@@ -15,6 +15,9 @@ import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/classes/
 import type { RouterOutputs } from "@/server/api/root";
 import { Badge } from "./ui/badge";
 
+type TImage =
+  RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
+
 export function ImageItem({
   image,
   handleImageClick,
@@ -103,6 +106,3 @@ export function ImageItem({
     </div>
   );
 }
-
-type TImage =
-  RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
