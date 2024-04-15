@@ -81,7 +81,7 @@ export default function ImageUpload({
       >
         <label
           htmlFor="images"
-          className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-[1px] border-dashed py-20"
+          className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed py-20"
         >
           <div className="max-w-md text-center">
             {uploading ? (
