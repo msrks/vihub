@@ -17,16 +17,18 @@ export function ImageViewerComponent({
   imageStoreId,
   date,
   setAsQueryImage,
+  onlyUnlabeled = false,
 }: {
   imageStoreId: number;
   date?: string;
   setAsQueryImage?: (url: string) => void;
+  onlyUnlabeled?: boolean;
 }) {
   const utils = api.useUtils();
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     api.image.getInfiniteByImageStoreId.useInfiniteQuery(
-      { imageStoreId, limit: 3, date },
+      { imageStoreId, limit: 3, date, onlyUnlabeled },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
 
