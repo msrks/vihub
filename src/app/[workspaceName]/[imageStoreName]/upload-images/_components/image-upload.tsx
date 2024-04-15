@@ -49,7 +49,7 @@ export default function ImageUpload({
         setUploading(false);
         await utils.image.invalidate();
       }}
-      className="w-full max-w-3xl space-y-4 px-6"
+      className="w-full space-y-4 px-6"
     >
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold">Upload</h3>
