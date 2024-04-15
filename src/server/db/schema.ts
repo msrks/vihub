@@ -194,7 +194,8 @@ export const labelClassesRelations = relations(
       fields: [labelClasses.imageStoreId],
       references: [imageStores.id],
     }),
-    images: many(images),
+    humanLabeledImages: many(images, { relationName: "humanLabel" }),
+    aiLabeledImages: many(images, { relationName: "aiLabel" }),
   }),
 );
 
@@ -227,9 +228,11 @@ export const imagesRelations = relations(images, ({ one }) => ({
   aiLabel: one(labelClasses, {
     fields: [images.aiLabelId],
     references: [labelClasses.id],
+    relationName: "aiLabel",
   }),
   humanLabel: one(labelClasses, {
     fields: [images.humanLabelId],
     references: [labelClasses.id],
+    relationName: "humanLabel",
   }),
 }));
