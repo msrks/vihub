@@ -15,17 +15,6 @@ import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/classes/
 import type { RouterOutputs } from "@/server/api/root";
 import { Badge } from "./ui/badge";
 
-function LabelBadge({ labelClass }: { labelClass: LabelClass }) {
-  return (
-    <Badge
-      className="absolute bottom-0 right-0"
-      style={{ backgroundColor: labelClass.color ?? "" }}
-    >
-      {labelClass.key}
-    </Badge>
-  );
-}
-
 export function ImageItem({
   image,
   handleImageClick,
@@ -46,6 +35,23 @@ export function ImageItem({
   const { mutateAsync: setThumbnail } =
     api.imageStore.setThumbnail.useMutation();
 
+  const handleDelete = async () => {
+    toast.info("Deleting image...");
+    await deleteImage({ id: image.id });
+    toast.success("Image deleted");
+    await utils.image.invalidate();
+  };
+
+  const handleSetThumbnail = async () => {
+    toast.info("Setting as thumbnail...");
+    await setThumbnail({
+      id: imageStoreId,
+      thumbnailUrl: image.url,
+    });
+    toast.success("Thumbnail set");
+    await utils.imageStore.invalidate();
+  };
+
   return (
     <div
       key={image.id}
@@ -60,28 +66,25 @@ export function ImageItem({
             src={image.url}
             alt=""
             fill
-            style={{
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
+            style={{ objectFit: "cover", objectPosition: "center" }}
             sizes="200px"
           />
           {isChecked && <Check className="absolute size-5 bg-primary" />}
-          {labelClass && <LabelBadge labelClass={labelClass} />}
+          {labelClass && (
+            <Badge
+              className="absolute bottom-0 right-0"
+              style={{ backgroundColor: labelClass.color ?? "" }}
+            >
+              {labelClass.key}
+            </Badge>
+          )}
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => setAsQueryImage?.(image.url)}>
             <ImageIcon className="mr-2 size-4" />
             Set as queryImage
           </ContextMenuItem>
-          <ContextMenuItem
-            onClick={async () => {
-              toast.info("Deleting image...");
-              await deleteImage({ id: image.id });
-              toast.success("Image deleted");
-              await utils.image.invalidate();
-            }}
-          >
+          <ContextMenuItem onClick={handleDelete}>
             <Trash2 className="mr-2 size-4" />
             Delete
           </ContextMenuItem>
@@ -91,17 +94,7 @@ export function ImageItem({
               Download
             </ContextMenuItem>
           </a>
-          <ContextMenuItem
-            onClick={async () => {
-              toast.info("Setting as thumbnail...");
-              await setThumbnail({
-                id: imageStoreId,
-                thumbnailUrl: image.url,
-              });
-              toast.success("Thumbnail set");
-              await utils.imageStore.invalidate();
-            }}
-          >
+          <ContextMenuItem onClick={handleSetThumbnail}>
             <ImageIcon className="mr-2 size-4" />
             Set as thumbnail
           </ContextMenuItem>
