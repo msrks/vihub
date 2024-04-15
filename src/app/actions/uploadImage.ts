@@ -4,7 +4,7 @@ import { api } from "@/trpc/server";
 import { revalidatePath } from "next/cache";
 
 export async function uploadImage(imageStoreId: number, formData: FormData) {
-  const files = formData.getAll("image") as File[];
+  const files = formData.getAll("images") as File[];
   await Promise.all(
     files.map((file) => api.image.create({ imageStoreId, file })),
   );

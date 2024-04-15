@@ -26,8 +26,8 @@ export function ImageUploader({ imageStoreId }: { imageStoreId: number }) {
       }}
       className="space-y-2 p-4"
     >
-      <Label htmlFor="image">Upload Image wo/ Label</Label>
-      <Input type="file" id="image" name="image" required multiple />
+      <Label htmlFor="images">Upload Image wo/ Label</Label>
+      <Input type="file" id="images" name="images" required multiple />
       <Button size="sm">Upload</Button>
     </form>
   );
