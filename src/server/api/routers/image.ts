@@ -14,9 +14,10 @@ export const imageRouter = createTRPCRouter({
       z.object({
         imageStoreId: z.number(),
         file: z.custom<File>(),
+        humanLabelId: z.number().optional(),
       }),
     )
-    .mutation(async ({ ctx, input: { imageStoreId, file } }) => {
+    .mutation(async ({ ctx, input: { imageStoreId, file, humanLabelId } }) => {
       const filename = `${process.env.BLOB_NAME_SPACE!}/${file.name}`;
 
       // upload to vercel blob
@@ -42,6 +43,7 @@ export const imageRouter = createTRPCRouter({
           downloadUrl,
           imageStoreId,
           vectorId,
+          humanLabelId,
         })
         .returning();
       if (!ret[0]) throw new Error("something went wrong..");

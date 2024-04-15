@@ -194,7 +194,7 @@ export const labelClassesRelations = relations(
       fields: [labelClasses.imageStoreId],
       references: [imageStores.id],
     }),
-    labels: many(labels),
+    images: many(images),
   }),
 );
 
@@ -205,13 +205,14 @@ export const images = createTable(
     url: varchar("url").notNull().unique(),
     vectorId: varchar("vectorId").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
-    // pathname: varchar("pathname").notNull().unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdAtDate: date("created_at_date").defaultNow().notNull(),
-    // createdAtDateString: varchar("created_at_date_string").notNull(),
+
     imageStoreId: integer("imageStoreId").notNull(),
     aiLabelId: integer("aiLabelId"),
+    aiLabelDetail: jsonb("aiLabelDetail"),
     humanLabelId: integer("humanLabelId"),
+    humanLabelDetail: jsonb("humanLabelDetail"),
   },
   (t) => ({
     createdAtIdx: index("image_createdAt_idx").on(t.createdAt),
@@ -223,34 +224,12 @@ export const imagesRelations = relations(images, ({ one }) => ({
     fields: [images.imageStoreId],
     references: [imageStores.id],
   }),
-  aiLabel: one(labels, {
+  aiLabel: one(labelClasses, {
     fields: [images.aiLabelId],
-    references: [labels.id],
+    references: [labelClasses.id],
   }),
-  humanLabel: one(labels, {
+  humanLabel: one(labelClasses, {
     fields: [images.humanLabelId],
-    references: [labels.id],
-  }),
-}));
-
-export const labels = createTable("label", {
-  id: serial("id").primaryKey(),
-  detail: jsonb("detail"),
-  createdAt: timestamp("created_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-
-  imageId: integer("imageId").notNull(),
-  labelClassId: integer("labelClassId").notNull(),
-});
-
-export const labelsRelations = relations(labels, ({ one }) => ({
-  image: one(images, {
-    fields: [labels.imageId],
-    references: [images.id],
-  }),
-  labelClass: one(labelClasses, {
-    fields: [labels.labelClassId],
     references: [labelClasses.id],
   }),
 }));
