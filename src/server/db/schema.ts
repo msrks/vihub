@@ -187,6 +187,8 @@ export const labelClasses = createTable("label_class", {
   imageStoreId: integer("imageStoreId")
     .notNull()
     .references(() => imageStores.id, { onDelete: "cascade" }),
+
+  // TODO: combination of [imageStoreId, key] should be unique
 });
 
 export const labelClassesRelations = relations(
