@@ -171,10 +171,6 @@ export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
     fields: [imageStores.workspaceId],
     references: [workspaces.id],
   }),
-  // thumbnail: one(images, {
-  //   fields: [imageStores.thumbnailId],
-  //   references: [images.id],
-  // }),
   images: many(images),
   labelClasses: many(labelClasses),
 }));
