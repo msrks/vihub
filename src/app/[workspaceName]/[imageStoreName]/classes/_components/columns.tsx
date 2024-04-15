@@ -13,12 +13,16 @@ import { toast } from "sonner";
 import { useState } from "react";
 
 export type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
+export type LabelClassWithCount =
+  RouterOutputs["labelClass"]["getAllWithCount"][number];
 
-function ColorCell({ row }: { row: Row<LabelClass> }) {
+function ColorCell({ row }: { row: Row<LabelClassWithCount> }) {
   const [open, setOpen] = useState(false);
   const utils = api.useUtils();
   const { mutateAsync } = api.labelClass.updateColor.useMutation();
-  const { color, id } = row.original;
+  const {
+    labelClasses: { color, id },
+  } = row.original;
 
   const handleChange = async (c: ColorResult) => {
     toast.info("Updating color...");
@@ -55,8 +59,22 @@ function ColorCell({ row }: { row: Row<LabelClass> }) {
   );
 }
 
-export const columns: ColumnDef<LabelClass>[] = [
-  { accessorKey: "color", header: "Color", cell: ColorCell },
-  { accessorKey: "key", header: "Key" },
-  { accessorKey: "displayName", header: "Display Name" },
+export const columns: ColumnDef<LabelClassWithCount>[] = [
+  { accessorKey: "labelClasses.color", header: "Color", cell: ColorCell },
+  { accessorKey: "labelClasses.key", header: "Key" },
+  { accessorKey: "labelClasses.displayName", header: "Display Name" },
+  { accessorKey: "count", header: "Count" },
+  {
+    accessorKey: "labelClasses.spec",
+    header: "Spec Definition",
+    // TODO: spec definition field
+    cell: (row) => (
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt sit veniam
+        aspernatur dolore voluptates eius molestias odio, hic, aperiam ducimus
+        cumque fugiat. Impedit doloremque temporibus laudantium atque sunt quia
+        officia.
+      </p>
+    ),
+  },
 ];

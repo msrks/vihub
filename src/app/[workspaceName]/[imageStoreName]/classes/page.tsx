@@ -18,7 +18,7 @@ export default function Page({
     workspaceName,
     imageStoreName,
   });
-  const { data, isLoading } = api.labelClass.getAll.useQuery(
+  const { data, isLoading } = api.labelClass.getAllWithCount.useQuery(
     { imageStoreId: imageStore?.id ?? 0 },
     { enabled: !!imageStore },
   );

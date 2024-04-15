@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { labelClasses } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { images, labelClasses } from "@/server/db/schema";
+import { count, eq } from "drizzle-orm";
 
 export const labelClassRouter = createTRPCRouter({
   create: protectedProcedure
@@ -55,6 +55,21 @@ export const labelClassRouter = createTRPCRouter({
         .select()
         .from(labelClasses)
         .where(eq(labelClasses.imageStoreId, input.imageStoreId))
+        .orderBy(labelClasses.key);
+    }),
+  getAllWithCount: protectedProcedure
+    .input(
+      z.object({
+        imageStoreId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select({ ...{ labelClasses }, count: count(images.id) })
+        .from(labelClasses)
+        .leftJoin(images, eq(images.humanLabelId, labelClasses.id))
+        .where(eq(labelClasses.imageStoreId, input.imageStoreId))
+        .groupBy(labelClasses.id)
         .orderBy(labelClasses.key);
     }),
 });
