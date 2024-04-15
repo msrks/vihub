@@ -5,7 +5,9 @@ import { revalidatePath } from "next/cache";
 
 export async function uploadImage(imageStoreId: number, formData: FormData) {
   const files = formData.getAll("images") as File[];
-  const humanLabelId = parseInt(formData.get("humanLabelId") as string);
+  const humanLabelId = formData.get("humanLabelId")
+    ? parseInt(formData.get("humanLabelId") as string)
+    : undefined;
 
   await Promise.all(
     files.map((file) => api.image.create({ imageStoreId, file, humanLabelId })),
