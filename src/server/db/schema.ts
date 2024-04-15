@@ -159,7 +159,9 @@ export const imageStores = createTable(
     updatedAt: timestamp("updated_at"),
     thumbnailUrl: varchar("thumbnailUrl"),
 
-    workspaceId: integer("workspaceId").notNull(),
+    workspaceId: integer("workspaceId")
+      .notNull()
+      .references(() => workspaces.id),
   },
   (t) => ({
     createdAtIdx: index("image_store_createdAt_idx").on(t.createdAt),
@@ -181,7 +183,9 @@ export const labelClasses = createTable("label_class", {
   displayName: varchar("displayName").notNull(),
   color: varchar("color"),
 
-  imageStoreId: integer("imageStoreId").notNull(),
+  imageStoreId: integer("imageStoreId")
+    .notNull()
+    .references(() => imageStores.id),
 });
 
 export const labelClassesRelations = relations(
@@ -206,10 +210,12 @@ export const images = createTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdAtDate: date("created_at_date").defaultNow().notNull(),
 
-    imageStoreId: integer("imageStoreId").notNull(),
-    aiLabelId: integer("aiLabelId"),
+    imageStoreId: integer("imageStoreId")
+      .notNull()
+      .references(() => imageStores.id),
+    aiLabelId: integer("aiLabelId").references(() => labelClasses.id),
     aiLabelDetail: jsonb("aiLabelDetail"),
-    humanLabelId: integer("humanLabelId"),
+    humanLabelId: integer("humanLabelId").references(() => labelClasses.id),
     humanLabelDetail: jsonb("humanLabelDetail"),
   },
   (t) => ({
