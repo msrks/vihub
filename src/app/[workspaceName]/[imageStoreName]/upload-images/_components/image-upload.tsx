@@ -77,11 +77,11 @@ export default function ImageUpload({
 
       <div
         {...getRootProps()}
-        className=" flex w-full items-center justify-center"
+        className="flex w-full items-center justify-center"
       >
         <label
           htmlFor="images"
-          className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-[1px] border-dashed py-6"
+          className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-[1px] border-dashed py-20"
         >
           <div className="max-w-md text-center">
             {uploading ? (
