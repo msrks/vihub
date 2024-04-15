@@ -1,4 +1,11 @@
-import { Bot, MonitorCheck, Settings, Shapes, Upload } from "lucide-react";
+import {
+  Bot,
+  MonitorCheck,
+  Settings,
+  Shapes,
+  Upload,
+  LineChart,
+} from "lucide-react";
 
 export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
   {
@@ -15,6 +22,11 @@ export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
     icon: <MonitorCheck className="mr-2 size-4 text-muted-foreground" />,
     title: "Monitoring",
     href: `/${wsName}/${imageStoreName}/monitoring`,
+  },
+  {
+    icon: <LineChart className="mr-2 size-4 text-muted-foreground" />,
+    title: "Insights",
+    href: `/${wsName}/${imageStoreName}/insights`,
   },
   {
     icon: <Bot className="mr-2 size-4 text-muted-foreground" />,
