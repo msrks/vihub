@@ -38,6 +38,10 @@ const config = {
         }
       }
     ],
+    '@typescript-eslint/no-empty-interface': [
+      'error',
+      { "allowSingleExtends": true },
+    ],    
     "drizzle/enforce-delete-with-where": "error",
     "drizzle/enforce-update-with-where": "error"
   }
