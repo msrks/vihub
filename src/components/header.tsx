@@ -4,6 +4,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import {
@@ -161,6 +162,7 @@ const Header = ({ session }: { session: Session | null }) => {
   const workspaceName = pathname.split("/")[1];
   const imageStoreName = pathname.split("/")[2];
   const menuItem = pathname.split("/")[3];
+  const date = pathname.split("/")[4];
 
   return (
     <div className="min-h-[48px] w-full border-b">
@@ -178,11 +180,22 @@ const Header = ({ session }: { session: Session | null }) => {
                       current={imageStoreName}
                     />
                     {menuItem && (
-                      <MenuItemNav
-                        workspaceName={workspaceName}
-                        imageStoreName={imageStoreName}
-                        current={menuItem}
-                      />
+                      <>
+                        <MenuItemNav
+                          workspaceName={workspaceName}
+                          imageStoreName={imageStoreName}
+                          current={menuItem}
+                        />
+                        {date && (
+                          <>
+                            <BreadcrumbSeparator>/</BreadcrumbSeparator>
+                            <BreadcrumbItem>
+                              {/* TODO: calendar dialog */}
+                              <BreadcrumbPage>{date}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                          </>
+                        )}
+                      </>
                     )}
                   </>
                 )}
