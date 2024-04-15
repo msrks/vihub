@@ -28,7 +28,7 @@ export function ImageViewerComponent({
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
     api.image.getInfiniteByImageStoreId.useInfiniteQuery(
-      { imageStoreId, limit: 3, date, onlyUnlabeled },
+      { imageStoreId, limit: 10, date, onlyUnlabeled },
       { getNextPageParam: (lastPage) => lastPage.nextCursor },
     );
 
