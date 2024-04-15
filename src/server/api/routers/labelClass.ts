@@ -24,19 +24,20 @@ export const labelClassRouter = createTRPCRouter({
         return { error: "something went wrong.." };
       }
     }),
-  updateColor: protectedProcedure
+  update: protectedProcedure
     .input(
       z.object({
         id: z.number(),
-        color: z.string(),
+        color: z.string().optional(),
+        displayName: z.string().optional(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input: { id, color, displayName } }) => {
       try {
         const ret = await ctx.db
           .update(labelClasses)
-          .set({ color: input.color })
-          .where(eq(labelClasses.id, input.id))
+          .set({ color, displayName })
+          .where(eq(labelClasses.id, id))
           .returning();
         if (!ret[0]) throw new Error("something went wrong..");
         return { id: ret[0].id };
