@@ -66,10 +66,11 @@ export const sessions = createTable(
   "session",
   {
     sessionToken: varchar("sessionToken").notNull().primaryKey(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+
     userId: varchar("userId")
       .notNull()
       .references(() => users.id),
-    expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
@@ -122,10 +123,10 @@ export const usersToWorkspaces = createTable(
 
     userId: varchar("userId")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "no action" }),
     workspaceId: integer("workspaceId")
       .notNull()
-      .references(() => workspaces.id),
+      .references(() => workspaces.id, { onDelete: "cascade" }),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.userId, t.workspaceId] }),
@@ -161,7 +162,7 @@ export const imageStores = createTable(
 
     workspaceId: integer("workspaceId")
       .notNull()
-      .references(() => workspaces.id),
+      .references(() => workspaces.id, { onDelete: "no action" }),
   },
   (t) => ({
     createdAtIdx: index("image_store_createdAt_idx").on(t.createdAt),
@@ -185,7 +186,7 @@ export const labelClasses = createTable("label_class", {
 
   imageStoreId: integer("imageStoreId")
     .notNull()
-    .references(() => imageStores.id),
+    .references(() => imageStores.id, { onDelete: "cascade" }),
 });
 
 export const labelClassesRelations = relations(
@@ -212,10 +213,14 @@ export const images = createTable(
 
     imageStoreId: integer("imageStoreId")
       .notNull()
-      .references(() => imageStores.id),
-    aiLabelId: integer("aiLabelId").references(() => labelClasses.id),
+      .references(() => imageStores.id, { onDelete: "no action" }),
+    aiLabelId: integer("aiLabelId").references(() => labelClasses.id, {
+      onDelete: "set null",
+    }),
     aiLabelDetail: jsonb("aiLabelDetail"),
-    humanLabelId: integer("humanLabelId").references(() => labelClasses.id),
+    humanLabelId: integer("humanLabelId").references(() => labelClasses.id, {
+      onDelete: "set null",
+    }),
     humanLabelDetail: jsonb("humanLabelDetail"),
   },
   (t) => ({
