@@ -14,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import type { searchImages } from "@/app/actions/searchImages";
 import Image from "next/image";
-import { ImageUploader } from "../_components/image-uploader";
 import { ImageViewerComponent } from "../../../../components/imageViewerComponent";
 
 type SearchResults = Awaited<ReturnType<typeof searchImages>>;
@@ -94,10 +93,9 @@ export default function Page({ params }: Props) {
         </Link>
       </Button>
 
-      {/* dev only */}
-      {process.env.NODE_ENV === "development" && (
+      {/* {process.env.NODE_ENV === "development" && (
         <ImageUploader imageStoreId={imageStore.id} />
-      )}
+      )} */}
 
       {dataCounts && dataCounts?.length !== 0 ? (
         <>
