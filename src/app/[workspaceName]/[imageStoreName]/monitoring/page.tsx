@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import type { searchImages } from "@/app/actions/searchImages";
 import Image from "next/image";
-import { ImageViewerComponent } from "../../../../components/imageViewerComponent";
+import { ImageViewerComponent } from "../../../../components/images-viewer";
 
 type SearchResults = Awaited<ReturnType<typeof searchImages>>;
 

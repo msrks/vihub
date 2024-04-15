@@ -1,7 +1,7 @@
 "use server";
 
 import { api } from "@/trpc/server";
-import { ImageViewerComponent } from "../../../../../components/imageViewerComponent";
+import { ImageViewerComponent } from "../../../../../components/images-viewer";
 
 export default async function Page({
   params: { workspaceName, imageStoreName, date },

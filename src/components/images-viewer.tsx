@@ -2,17 +2,9 @@
 
 import { api } from "@/trpc/react";
 import { useIntersection } from "@mantine/hooks";
-import { Check, Download, ImageIcon, Loader2, Trash2 } from "lucide-react";
-import Image from "next/image";
+import { Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import {
   Select,
@@ -21,19 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Badge } from "./ui/badge";
-import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/classes/_components/columns";
-
-function LabelBadge({ labelClass }: { labelClass: LabelClass }) {
-  return (
-    <Badge
-      className="absolute bottom-0 right-0"
-      style={{ backgroundColor: labelClass.color ?? "" }}
-    >
-      {labelClass.key}
-    </Badge>
-  );
-}
+import { ImageItem } from "./image-item";
 
 export function ImageViewerComponent({
   imageStoreId,
@@ -65,11 +45,6 @@ export function ImageViewerComponent({
   });
 
   if (hasNextPage && entry?.isIntersecting) void fetchNextPage();
-
-  const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
-
-  const { mutateAsync: setThumbnail } =
-    api.imageStore.setThumbnail.useMutation();
 
   const handleImageClick = (imageId: number) => {
     if (selectedImages.includes(imageId)) {
@@ -134,77 +109,17 @@ export function ImageViewerComponent({
       <div className="flex flex-wrap items-center justify-center gap-2">
         {data?.pages.flatMap((page) =>
           page.items.map((image) => (
-            <div
+            <ImageItem
               key={image.id}
-              className={cn(
-                "relative h-[150px] w-[200px] cursor-pointer overflow-hidden outline-2 outline-primary hover:outline",
+              image={image}
+              handleImageClick={handleImageClick}
+              isChecked={selectedImages.includes(image.id)}
+              labelClass={labelClasses?.find(
+                (lc) => lc.id === image.humanLabelId,
               )}
-              onClick={() => handleImageClick(image.id)}
-            >
-              <ContextMenu>
-                <ContextMenuTrigger>
-                  <Image
-                    src={image.url}
-                    alt=""
-                    fill
-                    style={{
-                      objectFit: "cover",
-                      objectPosition: "center",
-                    }}
-                    sizes="200px"
-                  />
-                  {selectedImages.includes(image.id) && (
-                    <div className="absolute bg-primary">
-                      <Check className="size-5" />
-                    </div>
-                  )}
-                  {labelClasses && image.humanLabelId && (
-                    <LabelBadge
-                      labelClass={
-                        labelClasses.find((lc) => lc.id === image.humanLabelId)!
-                      }
-                    />
-                  )}
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                  <ContextMenuItem onClick={() => setAsQueryImage?.(image.url)}>
-                    <ImageIcon className="mr-2 size-4" />
-                    Set as queryImage
-                  </ContextMenuItem>
-                  <ContextMenuItem
-                    onClick={async () => {
-                      toast.info("Deleting image...");
-                      await deleteImage({ id: image.id });
-                      toast.success("Image deleted");
-                      await utils.image.invalidate();
-                    }}
-                  >
-                    <Trash2 className="mr-2 size-4" />
-                    Delete
-                  </ContextMenuItem>
-                  <a href={image.downloadUrl}>
-                    <ContextMenuItem>
-                      <Download className="mr-2 size-4" />
-                      Download
-                    </ContextMenuItem>
-                  </a>
-                  <ContextMenuItem
-                    onClick={async () => {
-                      toast.info("Setting as thumbnail...");
-                      await setThumbnail({
-                        id: imageStoreId,
-                        thumbnailUrl: image.url,
-                      });
-                      toast.success("Thumbnail set");
-                      await utils.imageStore.invalidate();
-                    }}
-                  >
-                    <ImageIcon className="mr-2 size-4" />
-                    Set as thumbnail
-                  </ContextMenuItem>
-                </ContextMenuContent>
-              </ContextMenu>
-            </div>
+              setAsQueryImage={setAsQueryImage}
+              imageStoreId={imageStoreId}
+            />
           )),
         )}
         <div ref={ref} className="-ml-3 h-1 w-1"></div>

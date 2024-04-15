@@ -2,7 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
-import { ImageViewerComponent } from "@/components/imageViewerComponent";
+import { ImageViewerComponent } from "@/components/images-viewer";
 
 export default function Page({
   params: { workspaceName, imageStoreName },
