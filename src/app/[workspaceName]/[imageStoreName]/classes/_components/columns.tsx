@@ -87,7 +87,7 @@ function DisplayNameCell({ row }: { row: Row<LabelClassWithCount> }) {
         </span>
       </PopoverTrigger>
       <PopoverContent>
-        <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <form action={handleSubmit} className="flex items-center gap-2">
           <Input value={value} onChange={(e) => setValue(e.target.value)} />
           <Button size="sm">Save</Button>
         </form>
