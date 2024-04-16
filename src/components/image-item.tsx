@@ -25,6 +25,7 @@ export function ImageItem({
   labelClass,
   setAsQueryImage,
   imageStoreId,
+  score,
 }: {
   image: TImage;
   handleImageClick: (imageId: number) => void;
@@ -32,6 +33,7 @@ export function ImageItem({
   labelClass?: LabelClass;
   setAsQueryImage?: (url: string) => void;
   imageStoreId: number;
+  score?: number;
 }) {
   const utils = api.useUtils();
   const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
@@ -57,7 +59,6 @@ export function ImageItem({
 
   return (
     <div
-      key={image.id}
       className={cn(
         "relative h-[150px] w-[200px] cursor-pointer overflow-hidden outline-2 outline-primary hover:outline",
       )}
@@ -79,6 +80,11 @@ export function ImageItem({
               style={{ backgroundColor: labelClass.color ?? "" }}
             >
               {labelClass.key}
+            </Badge>
+          )}
+          {score && (
+            <Badge className="absolute right-0 top-0" variant="secondary">
+              Score: {score.toFixed(2)}
             </Badge>
           )}
         </ContextMenuTrigger>
