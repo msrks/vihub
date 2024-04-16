@@ -1,7 +1,7 @@
 "use server";
 
 import { api } from "@/trpc/server";
-import { ImageViewerComponent } from "../../../../../components/images-viewer";
+import { InfiniteImages } from "../../../../../components/infinite-images";
 
 export default async function Page({
   params: { workspaceName, imageStoreName, date },
@@ -16,5 +16,5 @@ export default async function Page({
     workspaceName,
     imageStoreName,
   });
-  return <ImageViewerComponent imageStoreId={imageStore.id} date={date} />;
+  return <InfiniteImages imageStoreId={imageStore.id} date={date} />;
 }

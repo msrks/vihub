@@ -2,7 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
-import { ImageViewerComponent } from "@/components/images-viewer";
+import { InfiniteImages } from "@/components/infinite-images";
 
 export default function Page({
   params: { workspaceName, imageStoreName },
@@ -26,7 +26,7 @@ export default function Page({
           Unlabeld Images
         </h2>
       </div>
-      <ImageViewerComponent
+      <InfiniteImages
         imageStoreId={imageStore.id}
         setAsQueryImage={() => void 0}
         onlyUnlabeled

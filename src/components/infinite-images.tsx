@@ -15,7 +15,7 @@ import {
 } from "./ui/select";
 import { ImageItem } from "./image-item";
 
-export function ImageViewerComponent({
+export function InfiniteImages({
   imageStoreId,
   date,
   setAsQueryImage,
