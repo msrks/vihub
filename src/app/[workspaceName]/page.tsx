@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { Loader2, Pencil } from "lucide-react";
+import { Loader2, Pencil, Settings, Sparkles } from "lucide-react";
 import { DataTable } from "../../components/data-table";
 import NewImageStore from "./_components/new-image-store";
 import { getColumns } from "./_components/columns";
@@ -16,12 +16,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-
-interface Props {
-  params: {
-    workspaceName: string;
-  };
-}
+import Link from "next/link";
 
 function WorkspaceTitleEdit({ id, current }: { id: number; current: string }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +52,13 @@ function WorkspaceTitleEdit({ id, current }: { id: number; current: string }) {
   );
 }
 
-export default function Page({ params: { workspaceName } }: Props) {
+export default function Page({
+  params: { workspaceName },
+}: {
+  params: {
+    workspaceName: string;
+  };
+}) {
   const { data: ws } = api.workspace.getByName.useQuery({
     name: workspaceName,
   });
@@ -69,15 +70,23 @@ export default function Page({ params: { workspaceName } }: Props) {
 
   return (
     <div className="my-2 flex w-full grow flex-col items-center gap-2">
-      <div className="container flex items-center justify-between">
+      <div className="container flex items-center ">
         {ws && <WorkspaceTitleEdit id={ws.id} current={workspaceName} />}
-
-        <div className="ml-auto mr-4 ">
-          {ws && <NewImageStore workspaceId={ws?.id} />}
+        <div className="ml-auto mr-4 flex items-center gap-4">
+          <Button size="sm" variant="secondary" asChild>
+            <Link href={`/${workspaceName}/settings`}>
+              <Settings className="mr-2 size-4" />
+              Settings
+            </Link>
+          </Button>
+          <Button size="sm">
+            <Sparkles className="mr-2 size-4" />
+            Upgrade
+          </Button>
         </div>
       </div>
       <Separator />
-      <div className="container flex items-center justify-between">
+      <div className="container flex items-center ">
         <h2 className="text-xl tracking-tight">ImageStores</h2>
         <div className="ml-auto mr-4 ">
           {ws && <NewImageStore workspaceId={ws?.id} />}
