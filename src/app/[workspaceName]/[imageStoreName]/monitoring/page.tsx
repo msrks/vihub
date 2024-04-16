@@ -1,9 +1,9 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { InfiniteImages } from "../../../../components/infinite-images";
 import { PythonSdkLink } from "@/components/python-sdk-link";
 import { ContributionsView } from "@/components/contributions-view";
+import { InfiniteImages } from "@/components/infinite-images";
 
 export default function Page({
   params: { workspaceName, imageStoreName },

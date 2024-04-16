@@ -1,7 +1,7 @@
 "use server";
 
+import { InfiniteImages } from "@/components/infinite-images";
 import { api } from "@/trpc/server";
-import { InfiniteImages } from "../../../../../components/infinite-images";
 
 export default async function Page({
   params: { workspaceName, imageStoreName, date },
