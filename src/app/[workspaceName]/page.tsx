@@ -17,7 +17,7 @@ export default function Page({ params: { workspaceName } }: Props) {
     name: workspaceName,
   });
 
-  const { data, isLoading } = api.imageStore.getAll.useQuery(
+  const { data, isLoading } = api.imageStore.getAllWithCounts.useQuery(
     { workspaceId: ws?.id ?? 0 },
     { enabled: !!ws?.id },
   );

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count, desc } from "drizzle-orm";
 import { imageStores, images, workspaces } from "@/server/db/schema";
 import { del } from "@vercel/blob";
 import { vdb } from "@/server/pinecone";
@@ -103,7 +103,24 @@ export const imageStoreRouter = createTRPCRouter({
       return ctx.db
         .select()
         .from(imageStores)
-        .where(eq(imageStores.workspaceId, input.workspaceId));
+        .where(eq(imageStores.workspaceId, input.workspaceId))
+        .orderBy(desc(imageStores.createdAt));
+    }),
+
+  getAllWithCounts: protectedProcedure
+    .input(
+      z.object({
+        workspaceId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select({ ...{ imageStores }, count: count(images.id) })
+        .from(imageStores)
+        .leftJoin(images, eq(images.imageStoreId, imageStores.id))
+        .where(eq(imageStores.workspaceId, input.workspaceId))
+        .groupBy(imageStores.id)
+        .orderBy(desc(imageStores.createdAt));
     }),
 
   getByName: protectedProcedure

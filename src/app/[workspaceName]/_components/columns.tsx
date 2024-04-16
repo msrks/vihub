@@ -8,13 +8,19 @@ import Image from "next/image";
 import Link from "next/link";
 
 export type ImageStore = RouterOutputs["imageStore"]["getAll"][number];
+export type ImageStoreWithCount =
+  RouterOutputs["imageStore"]["getAllWithCounts"][number];
 
-export const getColumns = (workspaceName: string): ColumnDef<ImageStore>[] => [
+export const getColumns = (
+  workspaceName: string,
+): ColumnDef<ImageStoreWithCount>[] => [
   {
-    accessorKey: "name",
+    accessorKey: "imageStores.name",
     header: "Name",
     cell: ({ row }) => {
-      const { name } = row.original;
+      const {
+        imageStores: { name },
+      } = row.original;
       return (
         <Link
           href={`/${workspaceName}/${name}`}
@@ -26,18 +32,22 @@ export const getColumns = (workspaceName: string): ColumnDef<ImageStore>[] => [
     },
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "imageStores.createdAt",
     header: "Created At",
     cell: ({ row }) => {
-      const { createdAt } = row.original;
+      const {
+        imageStores: { createdAt },
+      } = row.original;
       return <span>{format(new Date(createdAt), "yy/MM/dd HH:mm")}</span>;
     },
   },
   {
-    accessorKey: "thumbnailUrl",
+    accessorKey: "imageStores.thumbnailUrl",
     header: "Thumbnail",
     cell: ({ row }) => {
-      const { thumbnailUrl } = row.original;
+      const {
+        imageStores: { thumbnailUrl },
+      } = row.original;
       return (
         <Image
           src={`${thumbnailUrl ?? ""}`}
@@ -48,5 +58,9 @@ export const getColumns = (workspaceName: string): ColumnDef<ImageStore>[] => [
         />
       );
     },
+  },
+  {
+    accessorKey: "count",
+    header: "Number of Images",
   },
 ];
