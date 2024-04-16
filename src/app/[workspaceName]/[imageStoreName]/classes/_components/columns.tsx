@@ -3,17 +3,17 @@
 import type { RouterOutputs } from "@/server/api/root";
 import type { Row, ColumnDef } from "@tanstack/react-table";
 import { type ColorResult, TwitterPicker } from "react-color";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
 export type LabelClassWithCount =
@@ -36,14 +36,14 @@ function ColorCell({ row }: { row: Row<LabelClassWithCount> }) {
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={(e) => setOpen(e)}>
-      <DropdownMenuTrigger>
+    <Popover open={open} onOpenChange={(e) => setOpen(e)}>
+      <PopoverTrigger asChild>
         <div
           className="size-3.5 rounded-full"
           style={{ backgroundColor: color ?? "#555555" }}
         />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      </PopoverTrigger>
+      <PopoverContent>
         <TwitterPicker
           color={color ?? "#555555"}
           onChangeComplete={handleChange}
@@ -57,8 +57,8 @@ function ColorCell({ row }: { row: Row<LabelClassWithCount> }) {
             },
           }}
         />
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -80,19 +80,19 @@ function DisplayNameCell({ row }: { row: Row<LabelClassWithCount> }) {
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={(e) => setOpen(e)}>
-      <DropdownMenuTrigger>
+    <Popover open={open} onOpenChange={(e) => setOpen(e)}>
+      <PopoverTrigger>
         <span className="flex items-center gap-1">
           {row.original.labelClasses.displayName} <Pencil className="size-3" />
         </span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      </PopoverTrigger>
+      <PopoverContent>
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <Input value={value} onChange={(e) => setValue(e.target.value)} />
           <Button size="sm">Save</Button>
         </form>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   );
 }
 
