@@ -1,15 +1,60 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
 import { DataTable } from "../../components/data-table";
 import NewImageStore from "./_components/new-image-store";
 import { getColumns } from "./_components/columns";
+import { Separator } from "@/components/ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface Props {
   params: {
     workspaceName: string;
   };
+}
+
+function WorkspaceTitleEdit({ id, current }: { id: number; current: string }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(current);
+  const utils = api.useUtils();
+  const { mutateAsync } = api.workspace.update.useMutation();
+  const router = useRouter();
+
+  const handleSubmit = async () => {
+    toast.info("Updating workspaceName...");
+    await mutateAsync({ id, name });
+    toast.success("workspaceName updated!");
+    setOpen(false);
+    router.push(name);
+    await utils.workspace.invalidate();
+  };
+
+  return (
+    <Popover open={open} onOpenChange={(e) => setOpen(e)}>
+      <PopoverTrigger>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-semibold tracking-tight">{current}</h2>
+          <Pencil className="size-4" />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent>
+        <form action={handleSubmit} className="flex items-center gap-2">
+          <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <Button size="sm">Save</Button>
+        </form>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 export default function Page({ params: { workspaceName } }: Props) {
@@ -23,11 +68,17 @@ export default function Page({ params: { workspaceName } }: Props) {
   );
 
   return (
-    <div className="flex w-full grow flex-col items-center">
-      <div className="container mt-2 flex items-center justify-between">
-        <h2 className="my-2 text-2xl font-semibold tracking-tight">
-          ImageStores
-        </h2>
+    <div className="my-2 flex w-full grow flex-col items-center gap-2">
+      <div className="container flex items-center justify-between">
+        {ws && <WorkspaceTitleEdit id={ws.id} current={workspaceName} />}
+
+        <div className="ml-auto mr-4 ">
+          {ws && <NewImageStore workspaceId={ws?.id} />}
+        </div>
+      </div>
+      <Separator />
+      <div className="container flex items-center justify-between">
+        <h2 className="text-xl tracking-tight">ImageStores</h2>
         <div className="ml-auto mr-4 ">
           {ws && <NewImageStore workspaceId={ws?.id} />}
         </div>
