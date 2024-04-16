@@ -26,11 +26,7 @@ export default function Page({
           Unlabeld Images
         </h2>
       </div>
-      <InfiniteImages
-        imageStoreId={imageStore.id}
-        setAsQueryImage={() => void 0}
-        onlyUnlabeled
-      />
+      <InfiniteImages imageStoreId={imageStore.id} onlyUnlabeled />
     </div>
   );
 }

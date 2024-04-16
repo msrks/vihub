@@ -26,11 +26,7 @@ export default function Page({
           Labeled Images
         </h2>
       </div>
-      <InfiniteImages
-        imageStoreId={imageStore.id}
-        setAsQueryImage={() => void 0}
-        onlyLabeled
-      />
+      <InfiniteImages imageStoreId={imageStore.id} onlyLabeled />
     </div>
   );
 }
