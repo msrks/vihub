@@ -91,7 +91,7 @@ export default function Page({
         <h2 className="text-xl font-semibold">General</h2>
         <RenameField id={imageStore.id} current={imageStore.name} />
         <Separator className="my-2" />
-        <h2 className="text-xl font-semibold">Danger zone</h2>
+        <h2 className="text-xl font-semibold text-destructive">Danger zone</h2>
         <DeleteField id={imageStore.id} />
       </div>
     </div>
