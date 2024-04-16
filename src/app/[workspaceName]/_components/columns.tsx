@@ -48,14 +48,16 @@ export const getColumns = (
       const {
         imageStores: { thumbnailUrl },
       } = row.original;
-      return (
+      return thumbnailUrl ? (
         <Image
-          src={`${thumbnailUrl ?? ""}`}
+          src={thumbnailUrl}
           alt="thumbnail image"
           className="h-10 w-10"
           width={40}
           height={40}
         />
+      ) : (
+        <div className="h-10 w-10 border" />
       );
     },
   },
