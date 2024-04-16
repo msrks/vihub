@@ -19,9 +19,14 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { api } from "@/trpc/react";
-import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { CalendarIcon, ChevronDown } from "lucide-react";
 import { getSidebarNavItems } from "@/app/[workspaceName]/[imageStoreName]/_components/sidebar-nav-items";
+import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Calendar } from "./ui/calendar";
+import { cn } from "@/lib/utils";
+import { format, parse } from "date-fns";
 
 function WorkspaceNav({ current }: { current: string }) {
   const { data } = api.workspace.getAll.useQuery();
@@ -157,6 +162,44 @@ function UserMenu({ session }: { session: Session | null }) {
   );
 }
 
+function DatePickerNav({ current }: { current: string }) {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(
+    parse(current, "yyyy-MM-dd", new Date()),
+  );
+  const router = useRouter();
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="ghost"
+          className={cn(
+            "justify-start p-0 text-left font-normal",
+            !date && "text-muted-foreground",
+          )}
+        >
+          <CalendarIcon className="mr-1 h-4 w-4" />
+          {date ? format(date, "yyyy-MM-dd") : <span>Pick a date</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        {/* TODO: only highlight to the data existed date */}
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(d) => {
+            d ? router.push(format(d, "yyyy-MM-dd")) : router.push("../");
+            d && setDate(d);
+            setOpen(false);
+          }}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 const Header = ({ session }: { session: Session | null }) => {
   const pathname = usePathname();
   const workspaceName = pathname.split("/")[1];
@@ -190,8 +233,7 @@ const Header = ({ session }: { session: Session | null }) => {
                           <>
                             <BreadcrumbSeparator>/</BreadcrumbSeparator>
                             <BreadcrumbItem>
-                              {/* TODO: calendar dialog */}
-                              <BreadcrumbPage>{date}</BreadcrumbPage>
+                              <DatePickerNav current={date} />
                             </BreadcrumbItem>
                           </>
                         )}
