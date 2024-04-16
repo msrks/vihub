@@ -89,6 +89,22 @@ export const imageRouter = createTRPCRouter({
       return { success: true };
     }),
 
+  getByImagePath: protectedProcedure
+    .input(
+      z.object({
+        imagePath: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const ret = await ctx.db
+        .select()
+        .from(images)
+        .where(eq(images.url, input.imagePath));
+
+      if (!ret[0]) throw new Error("something went wrong..");
+      return ret[0];
+    }),
+
   getAll: protectedProcedure
     .input(
       z.object({

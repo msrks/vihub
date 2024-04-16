@@ -2,6 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { getVectorByReplicate } from "@/server/replicate";
 import { vdbWithMetadaba } from "@/server/pinecone";
+import { images } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 export const aiRouter = createTRPCRouter({
   searchImages: publicProcedure
@@ -20,12 +22,20 @@ export const aiRouter = createTRPCRouter({
         includeValues: true,
         topK: 6,
       });
-      return result.matches?.map((match) => {
-        const { metadata } = match;
-        return {
-          src: metadata ? metadata.imagePath : "",
-          score: match.score,
-        };
-      });
+      return await Promise.all(
+        result.matches.map(async (match) => {
+          const ret = await ctx.db
+            .select()
+            .from(images)
+            .where(eq(images.url, match.metadata!.imagePath));
+
+          if (!ret[0]) throw new Error("something went wrong..");
+
+          return {
+            image: ret[0],
+            score: match.score,
+          };
+        }),
+      );
     }),
 });

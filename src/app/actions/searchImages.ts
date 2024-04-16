@@ -2,6 +2,7 @@
 
 import { vdbWithMetadaba } from "@/server/pinecone";
 import { getVectorByReplicate } from "@/server/replicate";
+import { api } from "@/trpc/server";
 
 const queryImages = async (queryText: string, namespace: string) => {
   // const embedder = await getEmbedder();
@@ -14,13 +15,17 @@ const queryImages = async (queryText: string, namespace: string) => {
     includeValues: true,
     topK: 6,
   });
-  return result.matches?.map((match) => {
-    const { metadata } = match;
-    return {
-      src: metadata ? metadata.imagePath : "",
-      score: match.score,
-    };
-  });
+  return await Promise.all(
+    result.matches.map(async (match) => {
+      const image = await api.image.getByImagePath({
+        imagePath: match.metadata!.imagePath,
+      });
+      return {
+        image,
+        score: match.score,
+      };
+    }),
+  );
 };
 
 export async function searchImages(queryText: string, namespace: string) {
