@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { Loader2, Pencil, Settings, Sparkles } from "lucide-react";
+import { ChevronDown, Loader2, Pencil, Settings, Sparkles } from "lucide-react";
 import { DataTable } from "../../components/data-table";
 import NewImageStore from "./_components/new-image-store";
 import { getColumns } from "./_components/columns";
@@ -17,6 +17,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 function WorkspaceTitleEdit({ id, current }: { id: number; current: string }) {
   const [open, setOpen] = useState(false);
@@ -63,16 +69,35 @@ export default function Page({
     name: workspaceName,
   });
 
-  const { data, isLoading } = api.imageStore.getAllWithCounts.useQuery(
+  const { data, isLoading } = api.imageStore.getAllWithCounts.useQuery({
+    workspaceId: ws?.id ?? 0,
+  });
+
+  const { data: users } = api.user.getByWorkspaceId.useQuery(
     { workspaceId: ws?.id ?? 0 },
     { enabled: !!ws?.id },
   );
 
   return (
     <div className="my-2 flex w-full grow flex-col items-center gap-2">
-      <div className="container flex items-center ">
+      <div className="container flex items-center gap-4">
         {ws && <WorkspaceTitleEdit id={ws.id} current={workspaceName} />}
-        <div className="ml-auto mr-4 flex items-center gap-4">
+        {users && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-1">
+              {users.length > 1 ? `${users?.length} members` : "1 member"}
+              <ChevronDown className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {users.map((user) => (
+                <DropdownMenuItem key={user.user.id}>
+                  {user.user.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        <div className="ml-auto mr-4 flex items-center gap-2">
           <Button size="sm" variant="secondary" asChild>
             <Link href={`/${workspaceName}/settings`}>
               <Settings className="mr-2 size-4" />

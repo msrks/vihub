@@ -5,6 +5,7 @@ import { imageStoreRouter } from "./routers/imageStore";
 import { imageRouter } from "./routers/image";
 import { aiRouter } from "./routers/ai";
 import { labelClassRouter } from "./routers/labelClass";
+import { userRouter } from "./routers/user";
 
 export const appRouter = createTRPCRouter({
   ai: aiRouter,
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   imageStore: imageStoreRouter,
   image: imageRouter,
   labelClass: labelClassRouter,
+  user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;
