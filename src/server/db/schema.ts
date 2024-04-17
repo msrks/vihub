@@ -25,7 +25,6 @@ export const users = createTable("user", {
     mode: "date",
   }).default(sql`CURRENT_TIMESTAMP`),
   image: varchar("image"),
-  apiKey: varchar("apiKey"),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -99,6 +98,8 @@ export const workspaces = createTable(
     id: serial("id").primaryKey(),
     name: varchar("name").notNull().unique(),
     personal: boolean("personal").default(false).notNull(),
+    apiKey: varchar("apiKey"),
+
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
