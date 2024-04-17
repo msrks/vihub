@@ -1,7 +1,13 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { users, usersToWorkspaces, workspaces } from "@/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import {
+  imageStores,
+  images,
+  users,
+  usersToWorkspaces,
+  workspaces,
+} from "@/server/db/schema";
+import { eq, and, sql, count } from "drizzle-orm";
 
 export const workspaceRouter = createTRPCRouter({
   create: protectedProcedure
@@ -58,6 +64,29 @@ export const workspaceRouter = createTRPCRouter({
         .where(eq(workspaces.id, id));
     }),
 
+  deleteById: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(workspaces).where(eq(workspaces.id, input.id));
+    }),
+
+  regenerateAPIKey: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(workspaces)
+        .set({ apiKey: sql`gen_random_uuid()` })
+        .where(eq(workspaces.id, input.id));
+    }),
+
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const _res = await ctx.db.query.users.findMany({
       where: eq(users.id, ctx.session.user.id),
@@ -112,5 +141,25 @@ export const workspaceRouter = createTRPCRouter({
 
       if (!res[0] || res.length !== 1) throw new Error("Project not found");
       return res[0].workspace;
+    }),
+
+  getCountOfImagesAssosiatedToWorkspace: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      // TODO: maybe refactoring is needed .. using with clause instead of join
+      const res = await ctx.db
+        .select({ count: count() })
+        .from(images)
+        .innerJoin(imageStores, eq(images.imageStoreId, imageStores.id))
+        .innerJoin(workspaces, eq(imageStores.workspaceId, workspaces.id))
+        .where(eq(workspaces.id, input.id));
+
+      if (!res[0]) return 0;
+
+      return res[0].count;
     }),
 });

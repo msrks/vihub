@@ -93,6 +93,20 @@ export const imageStoreRouter = createTRPCRouter({
       if (!ret[0]) throw new Error("something went wrong..");
     }),
 
+  getCountByWorkspaceId: protectedProcedure
+    .input(
+      z.object({
+        workspaceId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.db
+        .select({ count: count() })
+        .from(imageStores)
+        .where(eq(imageStores.workspaceId, input.workspaceId));
+      return res[0]?.count ?? 0;
+    }),
+
   getAll: protectedProcedure
     .input(
       z.object({
