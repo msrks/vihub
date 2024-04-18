@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 
 export type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
 export type LabelClassWithCount =
@@ -96,6 +97,49 @@ function DisplayNameCell({ row }: { row: Row<LabelClassWithCount> }) {
   );
 }
 
+function SpecDefinitionCell({ row }: { row: Row<LabelClassWithCount> }) {
+  const [open, setOpen] = useState(false);
+  const {
+    labelClasses: { specDefinition, id },
+  } = row.original;
+  const [value, setValue] = useState(specDefinition);
+  const utils = api.useUtils();
+  const { mutateAsync } = api.labelClass.update.useMutation();
+
+  const handleSubmit = async () => {
+    if (!value) return;
+
+    toast.info("Updating spec definition...");
+    await mutateAsync({ id, specDefinition: value });
+    toast.success("Spec definition updated!");
+    setOpen(false);
+    await utils.labelClass.invalidate();
+  };
+
+  return (
+    <Popover open={open} onOpenChange={(e) => setOpen(e)}>
+      <PopoverTrigger>
+        <div className="flex items-center gap-1 ">
+          <p className="whitespace-pre-wrap text-start">
+            {row.original.labelClasses.specDefinition}
+          </p>
+          <Pencil className="size-3" />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="h-[400px] w-[800px]">
+        <form action={handleSubmit} className="flex h-full items-center gap-2">
+          <Textarea
+            value={value ?? ""}
+            onChange={(e) => setValue(e.target.value)}
+            className="h-full"
+          />
+          <Button size="sm">Save</Button>
+        </form>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export const columns: ColumnDef<LabelClassWithCount>[] = [
   {
     accessorKey: "labelClasses.color",
@@ -113,16 +157,8 @@ export const columns: ColumnDef<LabelClassWithCount>[] = [
   },
   { accessorKey: "count", header: "Count" },
   {
-    accessorKey: "labelClasses.spec",
+    accessorKey: "labelClasses.specDefinition",
     header: "Spec Definition",
-    // TODO: spec definition field
-    cell: ({ row }) => (
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt sit veniam
-        aspernatur dolore voluptates eius molestias odio, hic, aperiam ducimus
-        cumque fugiat. Impedit doloremque temporibus laudantium atque sunt quia
-        officia.
-      </p>
-    ),
+    cell: SpecDefinitionCell,
   },
 ];
