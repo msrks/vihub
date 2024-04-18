@@ -184,6 +184,7 @@ export const labelClasses = createTable("label_class", {
   key: varchar("key").notNull(),
   displayName: varchar("displayName").notNull(),
   color: varchar("color"),
+  specDefinition: varchar("specDefinition"),
 
   imageStoreId: integer("imageStoreId")
     .notNull()
