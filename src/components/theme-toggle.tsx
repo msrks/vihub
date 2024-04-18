@@ -19,10 +19,10 @@ export function ThemeToggle({ className }: { className?: string }) {
           setTheme(theme === "light" ? "dark" : "light");
         });
       }}
-      className={cn("group", className)}
+      className={cn("group text-muted-foreground", className)}
     >
-      <Sun className="scale-100 transition-all dark:scale-0" />
-      <Moon className="absolute  scale-0 transition-all dark:scale-100" />
+      <Sun className="size-5 scale-100 transition-all dark:scale-0" />
+      <Moon className="absolute size-5  scale-0 transition-all dark:scale-100" />
       <span className="sr-only">Toggle theme</span>
     </Button>
   );

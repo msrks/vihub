@@ -26,6 +26,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { format, parse } from "date-fns";
+import { ThemeToggle } from "./theme-toggle";
 
 function WorkspaceNav({ current }: { current: string }) {
   const { data } = api.workspace.getAll.useQuery();
@@ -138,7 +139,7 @@ function Hero() {
 
 function UserMenu({ session }: { session: Session | null }) {
   return (
-    <div className="ml-8 flex items-center text-muted-foreground">
+    <div className="flex items-center text-muted-foreground">
       {session?.user ? (
         <Button
           onClick={() => signOut()}
@@ -208,7 +209,7 @@ const Header = ({ session }: { session: Session | null }) => {
 
   return (
     <div className="min-h-[48px] w-full border-b">
-      <div className="flex items-center justify-between px-2 py-2">
+      <div className="flex items-center justify-between gap-2 px-2 py-2">
         <Breadcrumb>
           <BreadcrumbList>
             <Hero />
@@ -244,6 +245,8 @@ const Header = ({ session }: { session: Session | null }) => {
             )}
           </BreadcrumbList>
         </Breadcrumb>
+        <div className="mx-auto" />
+        <ThemeToggle />
         <UserMenu session={session} />
       </div>
     </div>

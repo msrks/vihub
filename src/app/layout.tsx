@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import NextAuthProvider from "@/context/NextAuthProvider";
 import { cn } from "@/lib/utils";
 import { getServerAuthSession } from "@/server/auth";
@@ -49,7 +48,6 @@ export default async function RootLayout({
               {children}
               <Toaster richColors />
               {/* <Footer /> */}
-              <ThemeToggle className="absolute bottom-2 left-2" />
             </NextAuthProvider>
           </TRPCReactProvider>
         </ThemeProvider>
