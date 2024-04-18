@@ -89,8 +89,9 @@ export default function Page({
     <div className="flex w-full grow flex-col items-center">
       <div className="container flex flex-col gap-2">
         <h2 className="text-xl font-semibold">General</h2>
+        <Separator />
         <RenameField id={imageStore.id} current={imageStore.name} />
-        <Separator className="my-2" />
+        <Separator />
         <h2 className="text-xl font-semibold text-destructive">Danger zone</h2>
         <DeleteField id={imageStore.id} />
       </div>
