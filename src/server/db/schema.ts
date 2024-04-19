@@ -177,6 +177,7 @@ export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
   }),
   images: many(images),
   labelClasses: many(labelClasses),
+  promptingExperiments: many(promptingExperiments),
 }));
 
 export const labelClasses = createTable("label_class", {
@@ -202,6 +203,7 @@ export const labelClassesRelations = relations(
     }),
     humanLabeledImages: many(images, { relationName: "humanLabel" }),
     aiLabeledImages: many(images, { relationName: "aiLabel" }),
+    promptingExperiments: many(promptingExperiments),
   }),
 );
 
@@ -248,3 +250,64 @@ export const imagesRelations = relations(images, ({ one }) => ({
     relationName: "humanLabel",
   }),
 }));
+
+export const promptingExperiments = createTable(
+  "prompting_experiment",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title").notNull(),
+    specDefinition: varchar("specDefinition"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at"),
+
+    imageStoreId: integer("imageStoreId")
+      .notNull()
+      .references(() => imageStores.id, { onDelete: "cascade" }),
+    labelClassId: integer("labelClassId")
+      .notNull()
+      .references(() => labelClasses.id, { onDelete: "no action" }),
+  },
+  (t) => ({
+    createdAtIdx: index("prompting_experiment_createdAt_idx").on(t.createdAt),
+  }),
+);
+
+export const promptingExperimentsRelations = relations(
+  promptingExperiments,
+  ({ one, many }) => ({
+    imageStore: one(imageStores, {
+      fields: [promptingExperiments.imageStoreId],
+      references: [imageStores.id],
+    }),
+    labelClass: one(labelClasses, {
+      fields: [promptingExperiments.labelClassId],
+      references: [labelClasses.id],
+    }),
+    referenceImages: many(promptingExperimentReferenceImages),
+  }),
+);
+
+export const promptingExperimentReferenceImages = createTable(
+  "prompting_experiment_reference_image",
+  {
+    id: serial("id").primaryKey(),
+    url: varchar("url").notNull().unique(),
+    downloadUrl: varchar("downloadUrl").notNull().unique(),
+    description: varchar("description"),
+    updatedAt: timestamp("updated_at"),
+
+    promptingExperimentId: integer("promptingExperimentId")
+      .notNull()
+      .references(() => promptingExperiments.id, { onDelete: "cascade" }),
+  },
+);
+
+export const promptingExperimentReferenceImagesRelations = relations(
+  promptingExperimentReferenceImages,
+  ({ one }) => ({
+    promptingExperiment: one(promptingExperiments, {
+      fields: [promptingExperimentReferenceImages.promptingExperimentId],
+      references: [promptingExperiments.id],
+    }),
+  }),
+);
