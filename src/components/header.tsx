@@ -229,7 +229,7 @@ const Header = ({ session }: { session: Session | null }) => {
                           imageStoreName={imageStoreName}
                           current={menuItem}
                         />
-                        {date && (
+                        {menuItem === "monitoring" && date && (
                           <>
                             <BreadcrumbSeparator>/</BreadcrumbSeparator>
                             <BreadcrumbItem>
