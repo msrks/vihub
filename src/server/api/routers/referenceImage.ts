@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { referenceImages } from "@/server/db/schema";
+import { labelClasses, referenceImages } from "@/server/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { put } from "@vercel/blob";
 
@@ -38,6 +38,7 @@ export const referenceImageRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         description: z.string().optional(),
+        labelClassId: z.number().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -58,6 +59,10 @@ export const referenceImageRouter = createTRPCRouter({
         .select()
         .from(referenceImages)
         .where(eq(referenceImages.imageStoreId, input.imageStoreId))
+        .leftJoin(
+          labelClasses,
+          eq(referenceImages.labelClassId, labelClasses.id),
+        )
         .orderBy(desc(referenceImages.updatedAt));
     }),
 
