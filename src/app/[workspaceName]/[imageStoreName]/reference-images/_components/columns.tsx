@@ -14,12 +14,21 @@ import {
 } from "@/components/ui/popover";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type ReferenceImage = RouterOutputs["referenceImage"]["getAll"][number];
 
 function ActionCell({
   row: {
-    original: { id },
+    original: {
+      reference_image: { id },
+    },
   },
 }: {
   row: Row<ReferenceImage>;
@@ -43,7 +52,9 @@ function ActionCell({
 
 function DescriptionCell({
   row: {
-    original: { id, description },
+    original: {
+      reference_image: { id, description },
+    },
   },
 }: {
   row: Row<ReferenceImage>;
@@ -85,12 +96,81 @@ function DescriptionCell({
   );
 }
 
+function ClassCell({
+  row: {
+    original: {
+      label_class,
+      reference_image: { id, imageStoreId },
+    },
+  },
+}: {
+  row: Row<ReferenceImage>;
+}) {
+  const { data: labelClasses } = api.labelClass.getAll.useQuery({
+    imageStoreId,
+  });
+
+  const [open, setOpen] = useState(false);
+  const utils = api.useUtils();
+  const { mutateAsync } = api.referenceImage.update.useMutation();
+
+  const handleSubmit = async (f: FormData) => {
+    const _labelClassId = f.get("labelClassId");
+    if (!_labelClassId) return setOpen(false);
+
+    const labelClassId = parseInt(_labelClassId as string);
+    toast.info("Updating labelClass");
+    await mutateAsync({ id, labelClassId });
+    toast.success("labelClass updated!");
+    setOpen(false);
+    await utils.referenceImage.invalidate();
+  };
+
+  return (
+    <Popover open={open} onOpenChange={(e) => setOpen(e)}>
+      <PopoverTrigger>
+        <div className="flex items-center gap-2">
+          {label_class && (
+            <>
+              <div
+                className="size-3.5 rounded-full"
+                style={{ backgroundColor: label_class.color ?? "#555555" }}
+              />
+              <span>{label_class.displayName}</span>
+            </>
+          )}
+          <Pencil className="size-3" />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent>
+        <form action={handleSubmit} className="flex items-center gap-2">
+          <Select name="labelClassId">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder=" -- select -- " />
+            </SelectTrigger>
+            <SelectContent>
+              {labelClasses?.map((lc) => (
+                <SelectItem key={lc.id} value={lc.id.toString()}>
+                  {lc.displayName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button size="sm">Save</Button>
+        </form>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export const columns: ColumnDef<ReferenceImage>[] = [
   {
     header: "Image",
     cell: ({
       row: {
-        original: { url },
+        original: {
+          reference_image: { url },
+        },
       },
     }) => (
       <Image
@@ -102,12 +182,7 @@ export const columns: ColumnDef<ReferenceImage>[] = [
       />
     ),
   },
-  {
-    header: "Description",
-    cell: DescriptionCell,
-  },
-  {
-    header: "Actions",
-    cell: ActionCell,
-  },
+  { header: "Class", cell: ClassCell },
+  { header: "Description", cell: DescriptionCell },
+  { header: "Actions", cell: ActionCell },
 ];
