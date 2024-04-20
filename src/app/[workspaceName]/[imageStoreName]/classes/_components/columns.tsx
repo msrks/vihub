@@ -161,4 +161,9 @@ export const columns: ColumnDef<LabelClassWithCount>[] = [
     header: "Spec Definition",
     cell: SpecDefinitionCell,
   },
+  {
+    header: "Reference Images",
+    // TODO
+    cell: ({ row }) => <></>,
+  },
 ];
