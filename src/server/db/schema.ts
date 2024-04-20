@@ -178,6 +178,7 @@ export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
   images: many(images),
   labelClasses: many(labelClasses),
   promptingExperiments: many(promptingExperiments),
+  referenceImages: many(referenceImages),
 }));
 
 export const labelClasses = createTable("label_class", {
@@ -204,6 +205,7 @@ export const labelClassesRelations = relations(
     humanLabeledImages: many(images, { relationName: "humanLabel" }),
     aiLabeledImages: many(images, { relationName: "aiLabel" }),
     promptingExperiments: many(promptingExperiments),
+    referenceImages: many(referenceImages),
   }),
 );
 
@@ -228,6 +230,7 @@ export const images = createTable(
       onDelete: "set null",
     }),
     humanLabelDetail: jsonb("humanLabelDetail"),
+    selectedForPromptingExperiment: boolean("selectedForPromptingExperiment"),
   },
   (t) => ({
     createdAtIdx: index("image_createdAt_idx").on(t.createdAt),
@@ -283,12 +286,37 @@ export const promptingExperimentsRelations = relations(
       fields: [promptingExperiments.labelClassId],
       references: [labelClasses.id],
     }),
-    referenceImages: many(promptingExperimentReferenceImages),
+    // referenceImages: many(promptingExperimentReferenceImages),
   }),
 );
 
-export const promptingExperimentReferenceImages = createTable(
-  "prompting_experiment_reference_image",
+// export const promptingExperimentReferenceImages = createTable(
+//   "prompting_experiment_reference_image",
+//   {
+//     id: serial("id").primaryKey(),
+//     url: varchar("url").notNull().unique(),
+//     downloadUrl: varchar("downloadUrl").notNull().unique(),
+//     description: varchar("description"),
+//     updatedAt: timestamp("updated_at"),
+
+//     promptingExperimentId: integer("promptingExperimentId")
+//       .notNull()
+//       .references(() => promptingExperiments.id, { onDelete: "cascade" }),
+//   },
+// );
+
+// export const promptingExperimentReferenceImagesRelations = relations(
+//   promptingExperimentReferenceImages,
+//   ({ one }) => ({
+//     promptingExperiment: one(promptingExperiments, {
+//       fields: [promptingExperimentReferenceImages.promptingExperimentId],
+//       references: [promptingExperiments.id],
+//     }),
+//   }),
+// );
+
+export const referenceImages = createTable(
+  "reference_image",
   {
     id: serial("id").primaryKey(),
     url: varchar("url").notNull().unique(),
@@ -296,18 +324,28 @@ export const promptingExperimentReferenceImages = createTable(
     description: varchar("description"),
     updatedAt: timestamp("updated_at"),
 
-    promptingExperimentId: integer("promptingExperimentId")
+    imageStoreId: integer("imageStoreId")
       .notNull()
-      .references(() => promptingExperiments.id, { onDelete: "cascade" }),
+      .references(() => imageStores.id, { onDelete: "cascade" }),
+    labelClassId: integer("labelClassId")
+      .notNull()
+      .references(() => labelClasses.id, { onDelete: "set null" }),
   },
+  (t) => ({
+    updatedAtIdx: index("reference_image_updatedAt_idx").on(t.updatedAt),
+  }),
 );
 
-export const promptingExperimentReferenceImagesRelations = relations(
-  promptingExperimentReferenceImages,
+export const referenceImagesRelations = relations(
+  referenceImages,
   ({ one }) => ({
-    promptingExperiment: one(promptingExperiments, {
-      fields: [promptingExperimentReferenceImages.promptingExperimentId],
-      references: [promptingExperiments.id],
+    imageStore: one(imageStores, {
+      fields: [referenceImages.imageStoreId],
+      references: [imageStores.id],
+    }),
+    labelClass: one(labelClasses, {
+      fields: [referenceImages.labelClassId],
+      references: [labelClasses.id],
     }),
   }),
 );
