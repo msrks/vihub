@@ -327,9 +327,9 @@ export const referenceImages = createTable(
     imageStoreId: integer("imageStoreId")
       .notNull()
       .references(() => imageStores.id, { onDelete: "cascade" }),
-    labelClassId: integer("labelClassId")
-      .notNull()
-      .references(() => labelClasses.id, { onDelete: "set null" }),
+    labelClassId: integer("labelClassId").references(() => labelClasses.id, {
+      onDelete: "set null",
+    }),
   },
   (t) => ({
     updatedAtIdx: index("reference_image_updatedAt_idx").on(t.updatedAt),
