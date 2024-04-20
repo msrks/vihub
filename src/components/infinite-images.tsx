@@ -199,20 +199,22 @@ export function InfiniteImages({
 
       {!isSearching && searchResults.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-2">
-          {searchResults.map(({ image, score }) => (
-            <ImageItem
-              key={image.id}
-              image={image}
-              handleImageClick={handleImageClick}
-              isChecked={selectedImages.includes(image.id)}
-              labelClass={labelClasses?.find(
-                (lc) => lc.id === image.humanLabelId,
-              )}
-              setAsQueryImage={setAsQueryImage}
-              imageStoreId={imageStoreId}
-              score={score}
-            />
-          ))}
+          {searchResults.map(({ image, score }) =>
+            image ? (
+              <ImageItem
+                key={image.id}
+                image={image}
+                handleImageClick={handleImageClick}
+                isChecked={selectedImages.includes(image.id)}
+                labelClass={labelClasses?.find(
+                  (lc) => lc.id === image.humanLabelId,
+                )}
+                setAsQueryImage={setAsQueryImage}
+                imageStoreId={imageStoreId}
+                score={score}
+              />
+            ) : null,
+          )}
         </div>
       )}
 

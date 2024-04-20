@@ -22,20 +22,20 @@ export const aiRouter = createTRPCRouter({
         includeValues: true,
         topK: 6,
       });
-      return await Promise.all(
-        result.matches.map(async (match) => {
-          const ret = await ctx.db
-            .select()
-            .from(images)
-            .where(eq(images.url, match.metadata!.imagePath));
+      return (
+        await Promise.all(
+          result.matches.map(async (match) => {
+            const ret = await ctx.db
+              .select()
+              .from(images)
+              .where(eq(images.url, match.metadata!.imagePath));
 
-          if (!ret[0]) throw new Error("something went wrong..");
-
-          return {
-            image: ret[0],
-            score: match.score,
-          };
-        }),
-      );
+            return {
+              image: ret[0],
+              score: match.score,
+            };
+          }),
+        )
+      ).filter((m) => m.image);
     }),
 });

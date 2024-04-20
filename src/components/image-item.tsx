@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { Check, Download, ImageIcon, Trash2 } from "lucide-react";
+import { Bot, Check, Download, ImageIcon, Trash2 } from "lucide-react";
 import Image from "next/image";
 import {
   ContextMenu,
@@ -39,6 +39,7 @@ export function ImageItem({
   const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
   const { mutateAsync: setThumbnail } =
     api.imageStore.setThumbnail.useMutation();
+  const { mutateAsync: setExperimentUse } = api.image.update.useMutation();
 
   const handleDelete = async () => {
     toast.info("Deleting image...");
@@ -55,6 +56,16 @@ export function ImageItem({
     });
     toast.success("Thumbnail set");
     await utils.imageStore.invalidate();
+  };
+
+  const handleSelectForExperiment = async () => {
+    toast.info("Toggling LLM-experiment-use ...");
+    await setExperimentUse({
+      id: image.id,
+      selectedForExperiment: !image.selectedForExperiment,
+    });
+    toast.success("LLM-experiment-use toggled");
+    await utils.image.invalidate();
   };
 
   return (
@@ -87,6 +98,11 @@ export function ImageItem({
               Score: {score.toFixed(2)}
             </Badge>
           )}
+          {image.selectedForExperiment && (
+            <Badge className="absolute bottom-0 left-0">
+              <Bot className="size-4" />
+            </Badge>
+          )}
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem onClick={() => setAsQueryImage?.(image.url)}>
@@ -106,6 +122,10 @@ export function ImageItem({
           <ContextMenuItem onClick={handleSetThumbnail}>
             <ImageIcon className="mr-2 size-4" />
             Set as thumbnail
+          </ContextMenuItem>
+          <ContextMenuItem onClick={handleSelectForExperiment}>
+            <Bot className="mr-2 size-4" />
+            Toggle LLM-experiment-use
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
