@@ -33,6 +33,20 @@ export const referenceImageRouter = createTRPCRouter({
       }
     }),
 
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        description: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db
+        .update(referenceImages)
+        .set(input)
+        .where(eq(referenceImages.id, input.id));
+    }),
+
   getAll: protectedProcedure
     .input(
       z.object({
