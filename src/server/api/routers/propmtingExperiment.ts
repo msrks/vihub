@@ -66,4 +66,19 @@ export const promptingExperimentRouter = createTRPCRouter({
         )
         .orderBy(desc(promptingExperiments.updatedAt));
     }),
+
+  getById: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.db
+        .select()
+        .from(promptingExperiments)
+        .where(eq(promptingExperiments.id, input.id));
+      if (!res[0]) throw new Error("not found");
+      return res[0];
+    }),
 });
