@@ -42,6 +42,7 @@ export default function Page({
           {data && <DataTable columns={columns} data={data} />}
         </div>
       </div>
+      <div className="my-2" />
       <ReferenceImagesPage
         params={{
           workspaceName,
