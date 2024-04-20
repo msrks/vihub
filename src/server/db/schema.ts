@@ -216,6 +216,7 @@ export const images = createTable(
     url: varchar("url").notNull().unique(),
     vectorId: varchar("vectorId").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
+    selectedForExperiment: boolean("selectedForExperiment"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdAtDate: date("created_at_date").defaultNow().notNull(),
 
@@ -230,7 +231,6 @@ export const images = createTable(
       onDelete: "set null",
     }),
     humanLabelDetail: jsonb("humanLabelDetail"),
-    selectedForPromptingExperiment: boolean("selectedForPromptingExperiment"),
   },
   (t) => ({
     createdAtIdx: index("image_createdAt_idx").on(t.createdAt),

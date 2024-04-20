@@ -54,14 +54,15 @@ export const imageRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        humanLabelId: z.number(),
+        humanLabelId: z.number().optional(),
+        selectedForExperiment: z.boolean().optional(),
       }),
     )
-    .mutation(async ({ ctx, input: { id, humanLabelId } }) => {
+    .mutation(async ({ ctx, input }) => {
       const ret = await ctx.db
         .update(images)
-        .set({ humanLabelId })
-        .where(eq(images.id, id))
+        .set(input)
+        .where(eq(images.id, input.id))
         .returning();
       if (!ret[0]) throw new Error("something went wrong..");
       return { success: true };
@@ -131,6 +132,24 @@ export const imageRouter = createTRPCRouter({
         .where(eq(images.imageStoreId, input.imageStoreId))
         .groupBy(images.createdAtDate)
         .orderBy(images.createdAtDate);
+    }),
+
+  getTestImages: protectedProcedure
+    .input(
+      z.object({
+        imageStoreId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select()
+        .from(images)
+        .where(
+          and(
+            eq(images.imageStoreId, input.imageStoreId),
+            eq(images.selectedForExperiment, true),
+          ),
+        );
     }),
 
   getInfiniteByImageStoreId: protectedProcedure
