@@ -18,7 +18,7 @@ export const imageRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: { imageStoreId, file, humanLabelId } }) => {
-      const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/${file.name}`;
+      const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${file.name}`;
 
       // upload to vercel blob
       const blob = await put(filename, file, { access: "public" });
