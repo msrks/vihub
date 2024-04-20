@@ -10,7 +10,10 @@ export async function uploadImage(imageStoreId: number, formData: FormData) {
     : undefined;
 
   await Promise.all(
-    files.map((file) => api.image.create({ imageStoreId, file, humanLabelId })),
+    files.map(
+      async (file) =>
+        await api.image.create({ imageStoreId, file, humanLabelId }),
+    ),
   );
   revalidatePath("/[workspaceName]/[imageStoreName]/monitoring", "page");
   return { message: "Image uploaded successfully!" };
