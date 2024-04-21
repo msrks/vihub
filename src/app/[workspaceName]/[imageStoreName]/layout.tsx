@@ -1,3 +1,4 @@
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarNav } from "./_components/side-bar";
 import { getSidebarNavItems } from "./_components/sidebar-nav-items";
 
@@ -20,7 +21,9 @@ export default async function Layout({ children, params }: LayoutProps) {
           )}
         />
       </aside>
-      <div className="flex-1 grow px-2 py-4">{children}</div>
+      <ScrollArea className="h-[calc(100vh-52px)] w-full flex-1 grow px-2 py-4">
+        {children}
+      </ScrollArea>
     </div>
   );
 }
