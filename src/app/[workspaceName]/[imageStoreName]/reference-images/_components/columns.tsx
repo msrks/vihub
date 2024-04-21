@@ -21,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export type ReferenceImage = RouterOutputs["referenceImage"]["getAll"][number];
 
@@ -163,25 +165,37 @@ function ClassCell({
   );
 }
 
-export const columns: ColumnDef<ReferenceImage>[] = [
-  {
-    header: "Image",
-    cell: ({
-      row: {
-        original: {
-          reference_image: { url },
-        },
-      },
-    }) => (
-      <Image
-        src={url}
-        alt="thumbnail image"
-        className="size-10"
-        width={40}
-        height={40}
-      />
-    ),
+function ImageCell({
+  row: {
+    original: {
+      reference_image: { url },
+    },
   },
+}: {
+  row: Row<ReferenceImage>;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Image
+          src={url}
+          alt="thumbnail image"
+          className="size-10"
+          width={40}
+          height={40}
+        />
+      </DialogTrigger>
+      <DialogContent>
+        <AspectRatio ratio={16 / 16} className="bg-muted">
+          <Image src={url} alt="" fill className="rounded-md object-cover" />
+        </AspectRatio>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export const columns: ColumnDef<ReferenceImage>[] = [
+  { header: "Image", cell: ImageCell },
   { header: "Class", cell: ClassCell },
   { header: "Description", cell: DescriptionCell },
   { header: "Actions", cell: ActionCell },
