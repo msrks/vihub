@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { getVectorByReplicate } from "@/server/replicate";
 import { vdbWithMetadaba } from "@/server/pinecone";
 import { images } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export const aiRouter = createTRPCRouter({
-  searchImages: publicProcedure
+  searchImages: protectedProcedure
     .input(
       z.object({
         queryText: z.string().min(1),
