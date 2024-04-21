@@ -2,7 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { useIntersection } from "@mantine/hooks";
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -82,6 +82,7 @@ export function InfiniteImages({
     imageStoreId,
   });
   const { mutateAsync: updateImage } = api.image.update.useMutation();
+  const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
   const [labelClass, setLabelClass] = useState<string | undefined>(undefined);
 
   const handleSubmit = async () => {
@@ -96,6 +97,18 @@ export function InfiniteImages({
     toast.success("Images labeled");
     setSelectedImages([]);
     setLabelClass(undefined);
+    await utils.image.invalidate();
+  };
+
+  const deleteAll = async () => {
+    toast.info("Deleting all images...");
+    await Promise.all(
+      selectedImages.map(async (id) => {
+        await deleteImage({ id });
+      }),
+    );
+    toast.success("Images deleted");
+    setSelectedImages([]);
     await utils.image.invalidate();
   };
 
@@ -116,16 +129,53 @@ export function InfiniteImages({
 
   return (
     <div className="flex w-full grow flex-col items-center gap-2">
-      {selectedImages.length > 0 ? (
+      <div className="flex w-full items-center justify-around px-6">
+        <div className="flex items-center gap-4">
+          <Label htmlFor="queryText">queryText</Label>
+          <Input
+            type="text"
+            id="queryText"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Label htmlFor="queryImage">queryImage</Label>
+          {queryImage ? (
+            <div className="relative h-[90px] w-[120px] overflow-hidden">
+              <Image
+                src={queryImage}
+                alt=""
+                fill
+                style={{
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+                sizes="120px"
+              />
+            </div>
+          ) : (
+            <div className="flex h-[90px] w-[120px] items-center justify-center border border-muted p-2 text-center">
+              <p>try to right-click image</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {selectedImages.length > 0 && (
         <div className="mr-12 flex w-full items-center justify-end gap-4">
           <p>{selectedImages.length} images selected</p>
+          <Button size="sm" onClick={() => setSelectedImages([])}>
+            Clear Selection
+          </Button>
           <form className="flex items-center gap-2" action={handleSubmit}>
             <Select
               required
               value={labelClass}
               onValueChange={(value) => setLabelClass(value)}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="h-8 w-[180px]">
                 <SelectValue placeholder=" -- class -- " />
               </SelectTrigger>
               <SelectContent>
@@ -136,42 +186,13 @@ export function InfiniteImages({
                 ))}
               </SelectContent>
             </Select>
-            <Button disabled={!labelClass}>Assign ClassLabel</Button>
+            <Button size="sm" disabled={!labelClass}>
+              Assign ClassLabel
+            </Button>
           </form>
-        </div>
-      ) : (
-        <div className="flex w-full items-center justify-around px-6">
-          <div className="flex items-center gap-4">
-            <Label htmlFor="queryText">queryText</Label>
-            <Input
-              type="text"
-              id="queryText"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Label htmlFor="queryImage">queryImage</Label>
-            {queryImage ? (
-              <div className="relative h-[90px] w-[120px] overflow-hidden">
-                <Image
-                  src={queryImage}
-                  alt=""
-                  fill
-                  style={{
-                    objectFit: "cover",
-                    objectPosition: "center",
-                  }}
-                  sizes="120px"
-                />
-              </div>
-            ) : (
-              <div className="flex h-[90px] w-[120px] items-center justify-center border border-muted p-2 text-center">
-                <p>try to right-click image</p>
-              </div>
-            )}
-          </div>
+          <Button size="sm" variant="destructive" onClick={deleteAll}>
+            <TriangleAlert className="mr-2 size-4" /> Delete Images
+          </Button>
         </div>
       )}
 
@@ -196,7 +217,6 @@ export function InfiniteImages({
           <div ref={ref} className="-ml-3 h-1 w-1"></div>
         </div>
       )}
-
       {!isSearching && searchResults.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-2">
           {searchResults.map(({ image, score }) =>
@@ -217,7 +237,6 @@ export function InfiniteImages({
           )}
         </div>
       )}
-
       {(isFetching || isFetchingNextPage) && (
         <Loader2 className="mx-auto size-8 animate-spin" />
       )}
