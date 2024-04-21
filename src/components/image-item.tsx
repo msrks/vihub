@@ -84,7 +84,7 @@ export function ImageItem({
             style={{ objectFit: "cover", objectPosition: "center" }}
             sizes="200px"
           />
-          {isChecked && <Check className="absolute size-5 bg-primary" />}
+          {isChecked && <Check className="absolute size-5 bg-secondary" />}
           {labelClass && (
             <Badge
               className="absolute bottom-0 right-0"
