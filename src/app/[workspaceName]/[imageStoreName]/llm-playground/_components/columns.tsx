@@ -13,6 +13,7 @@ import {
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Badge } from "@/components/ui/badge";
+import { usePathname } from "next/navigation";
 
 export type PromptingExperiment =
   RouterOutputs["promptingExperiment"]["getAll"][number];
@@ -58,10 +59,13 @@ function ScorePositiveCell({
 }: {
   row: Row<PromptingExperiment>;
 }) {
-  return (
+  const pathName = usePathname();
+  return pathName.endsWith("/llm-playground") ? (
     <Button variant="link">
       <Link href={`llm-playground/${id}`}>{scorePositive}</Link>
     </Button>
+  ) : (
+    <span>{scorePositive}</span>
   );
 }
 
@@ -74,10 +78,13 @@ function ScoreNegativeCell({
 }: {
   row: Row<PromptingExperiment>;
 }) {
-  return (
+  const pathName = usePathname();
+  return pathName.endsWith("/llm-playground") ? (
     <Button variant="link">
       <Link href={`llm-playground/${id}`}>{scoreNegative}</Link>
     </Button>
+  ) : (
+    <span>{scoreNegative}</span>
   );
 }
 
