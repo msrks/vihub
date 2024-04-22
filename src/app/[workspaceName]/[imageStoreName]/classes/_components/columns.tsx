@@ -6,7 +6,7 @@ import { type ColorResult, TwitterPicker } from "react-color";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { Bot, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
 
 export type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
 export type LabelClassWithCount =
@@ -140,30 +141,49 @@ function SpecDefinitionCell({ row }: { row: Row<LabelClassWithCount> }) {
   );
 }
 
+function RunLLMCell({ row }: { row: Row<LabelClassWithCount> }) {
+  const {
+    labelClasses: { id, imageStoreId, specDefinition },
+  } = row.original;
+  const router = useRouter();
+  const { mutateAsync } = api.ai.runLLM.useMutation();
+  const { data: referenceImages } =
+    api.referenceImage.getByLabelClassId.useQuery({
+      labelClassId: id,
+    });
+
+  if (!referenceImages || !specDefinition) return <></>;
+
+  const handleClick = async () => {
+    toast.info("started LLM-Experiment");
+    await mutateAsync({
+      imageStoreId,
+      labelClassId: id,
+      specDefinition: specDefinition,
+      referenceImages: referenceImages
+        .filter((ri) => ri.description)
+        .map((ri) => ({
+          url: ri.url,
+          description: ri.description!,
+          isPositive: ri.isPositive,
+        })),
+    });
+    toast.success("LLM-Experiment finished!");
+    router.push("llm-playground");
+  };
+
+  return (
+    <Button size="icon" onClick={handleClick} variant="ghost">
+      <Bot className="size-4" />
+    </Button>
+  );
+}
+
 export const columns: ColumnDef<LabelClassWithCount>[] = [
-  {
-    accessorKey: "labelClasses.color",
-    header: "Color",
-    cell: ColorCell,
-  },
-  {
-    accessorKey: "labelClasses.key",
-    header: "Key",
-  },
-  {
-    accessorKey: "labelClasses.displayName",
-    header: "Display Name",
-    cell: DisplayNameCell,
-  },
-  { accessorKey: "count", header: "Count" },
-  {
-    accessorKey: "labelClasses.specDefinition",
-    header: "Spec Definition",
-    cell: SpecDefinitionCell,
-  },
-  // {
-  //   header: "Reference Images",
-  //   // TODO
-  //   cell: ({ row }) => <></>,
-  // },
+  { header: "Color", cell: ColorCell },
+  { header: "Key", accessorKey: "labelClasses.key" },
+  { header: "Display_Name", cell: DisplayNameCell },
+  { header: "Count", accessorKey: "count" },
+  { header: "Spec_Definition", cell: SpecDefinitionCell },
+  { header: "Run_LLM", cell: RunLLMCell },
 ];

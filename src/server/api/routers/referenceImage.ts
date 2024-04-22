@@ -66,6 +66,20 @@ export const referenceImageRouter = createTRPCRouter({
         .orderBy(desc(referenceImages.updatedAt));
     }),
 
+  getByLabelClassId: protectedProcedure
+    .input(
+      z.object({
+        labelClassId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select()
+        .from(referenceImages)
+        .where(eq(referenceImages.labelClassId, input.labelClassId))
+        .orderBy(desc(referenceImages.updatedAt));
+    }),
+
   deleteById: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
