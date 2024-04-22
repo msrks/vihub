@@ -32,7 +32,11 @@ export const promptingExperimentRouter = createTRPCRouter({
       const res = await ctx.db
         .select()
         .from(promptingExperiments)
-        .where(eq(promptingExperiments.id, input.id));
+        .where(eq(promptingExperiments.id, input.id))
+        .innerJoin(
+          labelClasses,
+          eq(labelClasses.id, promptingExperiments.labelClassId),
+        );
       if (!res[0]) throw new Error("not found");
       return res[0];
     }),
