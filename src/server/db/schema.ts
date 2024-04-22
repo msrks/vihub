@@ -345,7 +345,7 @@ export const referenceImages = createTable(
     url: varchar("url").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     description: varchar("description"),
-    updatedAt: timestamp("updated_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
     isPositive: boolean("isPositive").default(true).notNull(),
 
     imageStoreId: integer("imageStoreId")
@@ -356,7 +356,7 @@ export const referenceImages = createTable(
     }),
   },
   (t) => ({
-    updatedAtIdx: index("reference_image_updatedAt_idx").on(t.updatedAt),
+    createdAtIdx: index("reference_image_createdAt_idx").on(t.createdAt),
   }),
 );
 

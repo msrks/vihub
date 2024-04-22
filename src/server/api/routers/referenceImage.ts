@@ -39,6 +39,7 @@ export const referenceImageRouter = createTRPCRouter({
         id: z.number(),
         description: z.string().optional(),
         labelClassId: z.number().optional(),
+        isPositive: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -63,7 +64,7 @@ export const referenceImageRouter = createTRPCRouter({
           labelClasses,
           eq(referenceImages.labelClassId, labelClasses.id),
         )
-        .orderBy(desc(referenceImages.updatedAt));
+        .orderBy(desc(referenceImages.createdAt));
     }),
 
   getByLabelClassId: protectedProcedure
@@ -77,7 +78,7 @@ export const referenceImageRouter = createTRPCRouter({
         .select()
         .from(referenceImages)
         .where(eq(referenceImages.labelClassId, input.labelClassId))
-        .orderBy(desc(referenceImages.updatedAt));
+        .orderBy(desc(referenceImages.createdAt));
     }),
 
   deleteById: protectedProcedure
