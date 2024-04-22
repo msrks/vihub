@@ -1,7 +1,11 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { eq, and, count, gte, isNull, isNotNull } from "drizzle-orm";
-import { images } from "@/server/db/schema";
+import { images, labelClasses } from "@/server/db/schema";
 import { del, put } from "@vercel/blob";
 import { getVectorByReplicate } from "@/server/replicate";
 import { vdb } from "@/server/pinecone";
@@ -9,46 +13,68 @@ import { createHash } from "crypto";
 import { type PineconeRecord } from "@pinecone-database/pinecone";
 
 export const imageRouter = createTRPCRouter({
-  create: protectedProcedure
+  create: publicProcedure
     .input(
       z.object({
         imageStoreId: z.number(),
         file: z.custom<File>(),
         humanLabelId: z.number().optional(),
+        aiLabelKey: z.string().optional(),
       }),
     )
-    .mutation(async ({ ctx, input: { imageStoreId, file, humanLabelId } }) => {
-      const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${file.name}`;
+    .mutation(
+      async ({
+        ctx,
+        input: { imageStoreId, file, humanLabelId, aiLabelKey },
+      }) => {
+        // get aiLabelId if aiLabelKey is provided
+        let aiLabelId: number | undefined;
+        if (aiLabelKey) {
+          const _res = await ctx.db
+            .select()
+            .from(labelClasses)
+            .where(
+              and(
+                eq(labelClasses.key, aiLabelKey),
+                eq(labelClasses.imageStoreId, imageStoreId),
+              ),
+            );
+          if (!_res[0]) throw new Error("aiLabelKey not found..");
+          aiLabelId = _res[0].id;
+        }
 
-      // upload to vercel blob
-      const blob = await put(filename, file, { access: "public" });
-      const { url, downloadUrl } = blob;
+        // upload to vercel blob
+        const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${file.name}`;
+        const blob = await put(filename, file, { access: "public" });
+        const { url, downloadUrl } = blob;
 
-      // get vector embedding & store it to pinecone
-      const vector = await getVectorByReplicate(url);
-      const vectorId = createHash("md5").update(url).digest("hex");
-      await vdb(imageStoreId.toString()).upsert([
-        {
-          id: vectorId,
-          metadata: { imagePath: url },
-          values: vector,
-        } satisfies PineconeRecord,
-      ]);
+        // get vector embedding & store it to pinecone
+        const vector = await getVectorByReplicate(url);
+        const vectorId = createHash("md5").update(url).digest("hex");
+        await vdb(imageStoreId.toString()).upsert([
+          {
+            id: vectorId,
+            metadata: { imagePath: url },
+            values: vector,
+          } satisfies PineconeRecord,
+        ]);
 
-      // save to db
-      const ret = await ctx.db
-        .insert(images)
-        .values({
-          url,
-          downloadUrl,
-          imageStoreId,
-          vectorId,
-          humanLabelId,
-        })
-        .returning();
-      if (!ret[0]) throw new Error("something went wrong..");
-      return { id: ret[0].id };
-    }),
+        // save to db
+        const ret = await ctx.db
+          .insert(images)
+          .values({
+            url,
+            downloadUrl,
+            imageStoreId,
+            vectorId,
+            humanLabelId,
+            aiLabelId,
+          })
+          .returning();
+        if (!ret[0]) throw new Error("something went wrong..");
+        return { id: ret[0].id };
+      },
+    ),
 
   update: protectedProcedure
     .input(

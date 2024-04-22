@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { eq, and, count, desc } from "drizzle-orm";
 import { imageStores, images, workspaces } from "@/server/db/schema";
 import { del } from "@vercel/blob";
@@ -29,6 +33,28 @@ export const imageStoreRouter = createTRPCRouter({
       } catch (error) {
         return { error: "something went wrong.." };
       }
+    }),
+
+  verifyApiKey: publicProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        apiKey: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const ret = await ctx.db
+        .select()
+        .from(imageStores)
+        .innerJoin(workspaces, eq(workspaces.id, imageStores.workspaceId))
+        .where(
+          and(
+            eq(imageStores.id, input.id),
+            eq(workspaces.apiKey, input.apiKey),
+          ),
+        );
+      if (!ret[0]) throw new Error("API Key not found");
+      return ret[0];
     }),
 
   rename: protectedProcedure
