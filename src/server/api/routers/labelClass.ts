@@ -69,10 +69,10 @@ export const labelClassRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       return ctx.db
-        .select({ ...{ labelClasses }, count: count(images.id) })
+        .select({ labelClasses, count: count(images.id) })
         .from(labelClasses)
-        .leftJoin(images, eq(images.humanLabelId, labelClasses.id))
         .where(eq(labelClasses.imageStoreId, input.imageStoreId))
+        .leftJoin(images, eq(images.humanLabelId, labelClasses.id))
         .groupBy(labelClasses.id)
         .orderBy(labelClasses.key);
     }),
