@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type getSidebarNavItems } from "./sidebar-nav-items";
+import { Fragment } from "react";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: SidebarNavItem[];
@@ -21,7 +22,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
       {...props}
     >
       {["development", "operation", "genAI"].map((type) => (
-        <>
+        <Fragment key={type}>
           <h2 className="text-md px-1 text-sm font-semibold text-muted-foreground">
             {type === "development"
               ? "Development"
@@ -46,7 +47,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
                 {item.icon} {item.title}
               </Link>
             ))}
-        </>
+        </Fragment>
       ))}
       {/* {items.map((item) => (
         <Link
