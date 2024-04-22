@@ -1,9 +1,9 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { PythonSdkLink } from "@/components/python-sdk-link";
 import { ContributionsView } from "@/components/contributions-view";
 import { InfiniteImages } from "@/components/infinite-images";
+import Code from "./_components/code-snippet";
 
 export default function Page({
   params: { workspaceName, imageStoreName },
@@ -27,7 +27,8 @@ export default function Page({
 
   return (
     <div className="relative flex w-full grow flex-col items-center">
-      <PythonSdkLink className="absolute right-0 top-0" />
+      {/* <PythonSdkLink /> */}
+      <Code imageStore={imageStore} className="absolute right-0 top-0" />
 
       {dataCounts && dataCounts?.length > 0 ? (
         <>
