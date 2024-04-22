@@ -266,9 +266,11 @@ export const promptingExperiments = createTable(
   {
     id: serial("id").primaryKey(),
     specDefinition: varchar("specDefinition").notNull(),
-    referenceImages: jsonb("referenceImages").$type<ReferenceImage[]>(),
+    referenceImages: jsonb("referenceImages")
+      .$type<ReferenceImage[]>()
+      .default([])
+      .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at"),
     scorePositive: varchar("scorePositive"),
     scoreNegative: varchar("scoreNegative"),
 
