@@ -19,4 +19,17 @@ export const userRouter = createTRPCRouter({
 
       return res;
     }),
+
+  joinWorkspace: protectedProcedure
+    .input(
+      z.object({
+        workspaceId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await ctx.db.insert(usersToWorkspaces).values({
+        userId: ctx.session.user.id,
+        workspaceId: input.workspaceId,
+      });
+    }),
 });

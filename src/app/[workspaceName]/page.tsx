@@ -23,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import InviteUser from "./_components/invite-user";
 
 function WorkspaceTitleEdit({ id, current }: { id: number; current: string }) {
   const [open, setOpen] = useState(false);
@@ -98,6 +99,7 @@ export default function Page({
           </DropdownMenu>
         )}
         <div className="ml-auto mr-4 flex items-center gap-2">
+          {ws && <InviteUser ws={ws} />}
           <Button size="sm" variant="secondary" asChild>
             <Link href={`/${workspaceName}/settings`}>
               <Settings className="mr-2 size-4" />
