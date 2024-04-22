@@ -22,7 +22,9 @@ export function ImageItem({
   image,
   handleImageClick,
   isChecked,
-  labelClass,
+  humanLabelClass,
+  aiLabelClass,
+  aiLabelConfidence,
   setAsQueryImage,
   imageStoreId,
   score,
@@ -31,7 +33,9 @@ export function ImageItem({
   image: TImage;
   handleImageClick: (imageId: number) => void;
   isChecked: boolean;
-  labelClass?: LabelClass;
+  humanLabelClass?: LabelClass;
+  aiLabelClass?: LabelClass;
+  aiLabelConfidence?: number;
   setAsQueryImage?: (url: string) => void;
   imageStoreId: number;
   score?: number;
@@ -87,12 +91,21 @@ export function ImageItem({
             sizes="200px"
           />
           {isChecked && <Check className="absolute size-5 bg-secondary" />}
-          {labelClass && (
+          {humanLabelClass && (
             <Badge
               className="absolute bottom-0 right-0"
-              style={{ backgroundColor: labelClass.color ?? "" }}
+              style={{ backgroundColor: humanLabelClass.color ?? "" }}
             >
-              {labelClass.key}
+              {humanLabelClass.key}
+            </Badge>
+          )}
+          {aiLabelClass && (
+            <Badge
+              className="absolute bottom-0 right-0"
+              style={{ backgroundColor: aiLabelClass.color ?? "" }}
+            >
+              <Bot className="mr-1 size-3" /> {aiLabelClass.key}{" "}
+              {aiLabelConfidence?.toFixed(2)}
             </Badge>
           )}
           {score && (

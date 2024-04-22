@@ -44,7 +44,7 @@ function ExampleListView({
                 image={result.image}
                 handleImageClick={() => void {}}
                 isChecked={false}
-                labelClass={result.label_class}
+                humanLabelClass={result.label_class}
                 imageStoreId={experiment.prompting_experiment.imageStoreId}
                 isResultView
               />

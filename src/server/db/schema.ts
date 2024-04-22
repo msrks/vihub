@@ -226,7 +226,7 @@ export const images = createTable(
     aiLabelId: integer("aiLabelId").references(() => labelClasses.id, {
       onDelete: "set null",
     }),
-    aiLabelDetail: jsonb("aiLabelDetail"),
+    aiLabelDetail: jsonb("aiLabelDetail").$type<{ confidence: number }>(),
     humanLabelId: integer("humanLabelId").references(() => labelClasses.id, {
       onDelete: "set null",
     }),

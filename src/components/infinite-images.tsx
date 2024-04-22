@@ -206,9 +206,13 @@ export function InfiniteImages({
                 image={image}
                 handleImageClick={handleImageClick}
                 isChecked={selectedImages.includes(image.id)}
-                labelClass={labelClasses?.find(
+                humanLabelClass={labelClasses?.find(
                   (lc) => lc.id === image.humanLabelId,
                 )}
+                aiLabelClass={labelClasses?.find(
+                  (lc) => lc.id === image.aiLabelId,
+                )}
+                aiLabelConfidence={image.aiLabelDetail?.confidence}
                 setAsQueryImage={setAsQueryImage}
                 imageStoreId={imageStoreId}
               />
@@ -226,9 +230,13 @@ export function InfiniteImages({
                 image={image}
                 handleImageClick={handleImageClick}
                 isChecked={selectedImages.includes(image.id)}
-                labelClass={labelClasses?.find(
+                humanLabelClass={labelClasses?.find(
                   (lc) => lc.id === image.humanLabelId,
                 )}
+                aiLabelClass={labelClasses?.find(
+                  (lc) => lc.id === image.aiLabelId,
+                )}
+                aiLabelConfidence={image.aiLabelDetail?.confidence}
                 setAsQueryImage={setAsQueryImage}
                 imageStoreId={imageStoreId}
                 score={score}
