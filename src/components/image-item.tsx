@@ -26,6 +26,7 @@ export function ImageItem({
   setAsQueryImage,
   imageStoreId,
   score,
+  isResultView,
 }: {
   image: TImage;
   handleImageClick: (imageId: number) => void;
@@ -34,6 +35,7 @@ export function ImageItem({
   setAsQueryImage?: (url: string) => void;
   imageStoreId: number;
   score?: number;
+  isResultView?: boolean;
 }) {
   const utils = api.useUtils();
   const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
@@ -98,17 +100,21 @@ export function ImageItem({
               Score: {score.toFixed(2)}
             </Badge>
           )}
-          {image.selectedForExperiment && (
-            <Badge className="absolute bottom-0 left-0">
-              <Bot className="mr-1 size-3" /> LLM
-            </Badge>
-          )}
+          {!isResultView
+            ? image.selectedForExperiment && (
+                <Badge className="absolute bottom-0 left-0">
+                  <Bot className="mr-1 size-3" /> LLM
+                </Badge>
+              )
+            : null}
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem onClick={() => setAsQueryImage?.(image.url)}>
-            <ImageIcon className="mr-2 size-4" />
-            Set as queryImage
-          </ContextMenuItem>
+          {!isResultView && (
+            <ContextMenuItem onClick={() => setAsQueryImage?.(image.url)}>
+              <ImageIcon className="mr-2 size-4" />
+              Set as queryImage
+            </ContextMenuItem>
+          )}
           <ContextMenuItem onClick={handleDelete}>
             <Trash2 className="mr-2 size-4" />
             Delete
@@ -123,10 +129,12 @@ export function ImageItem({
             <ImageIcon className="mr-2 size-4" />
             Set as thumbnail
           </ContextMenuItem>
-          <ContextMenuItem onClick={handleSelectForExperiment}>
-            <Bot className="mr-2 size-4" />
-            Toggle LLM-experiment-use
-          </ContextMenuItem>
+          {!isResultView && (
+            <ContextMenuItem onClick={handleSelectForExperiment}>
+              <Bot className="mr-2 size-4" />
+              Toggle LLM-experiment-use
+            </ContextMenuItem>
+          )}
         </ContextMenuContent>
       </ContextMenu>
     </div>
