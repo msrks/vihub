@@ -237,7 +237,7 @@ export const images = createTable(
   }),
 );
 
-export const imagesRelations = relations(images, ({ one }) => ({
+export const imagesRelations = relations(images, ({ one, many }) => ({
   imageStore: one(imageStores, {
     fields: [images.imageStoreId],
     references: [imageStores.id],
@@ -252,16 +252,25 @@ export const imagesRelations = relations(images, ({ one }) => ({
     references: [labelClasses.id],
     relationName: "humanLabel",
   }),
+  experimentResults: many(experimentResults),
 }));
+
+type ReferenceImage = {
+  url: string;
+  description: string;
+  isPositive: boolean;
+};
 
 export const promptingExperiments = createTable(
   "prompting_experiment",
   {
     id: serial("id").primaryKey(),
-    title: varchar("title").notNull(),
-    specDefinition: varchar("specDefinition"),
+    specDefinition: varchar("specDefinition").notNull(),
+    referenceImages: jsonb("referenceImages").$type<ReferenceImage[]>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
+    scorePositive: varchar("scorePositive"),
+    scoreNegative: varchar("scoreNegative"),
 
     imageStoreId: integer("imageStoreId")
       .notNull()
@@ -286,34 +295,46 @@ export const promptingExperimentsRelations = relations(
       fields: [promptingExperiments.labelClassId],
       references: [labelClasses.id],
     }),
-    // referenceImages: many(promptingExperimentReferenceImages),
+    experimentResults: many(experimentResults),
   }),
 );
 
-// export const promptingExperimentReferenceImages = createTable(
-//   "prompting_experiment_reference_image",
-//   {
-//     id: serial("id").primaryKey(),
-//     url: varchar("url").notNull().unique(),
-//     downloadUrl: varchar("downloadUrl").notNull().unique(),
-//     description: varchar("description"),
-//     updatedAt: timestamp("updated_at"),
+export const experimentResults = createTable(
+  "experiment_result",
+  {
+    id: serial("id").primaryKey(),
+    isPositiveExample: boolean("isPositiveExample").notNull(),
+    predLabel: boolean("predLabel").notNull(),
+    predReason: varchar("predReason"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 
-//     promptingExperimentId: integer("promptingExperimentId")
-//       .notNull()
-//       .references(() => promptingExperiments.id, { onDelete: "cascade" }),
-//   },
-// );
+    promptingExperimentId: integer("promptingExperimentId")
+      .notNull()
+      .references(() => promptingExperiments.id, { onDelete: "cascade" }),
+    imageId: integer("imageId")
+      .notNull()
+      .references(() => images.id, {
+        onDelete: "cascade",
+      }),
+  },
+  (t) => ({
+    createdAtIdx: index("experiment_result_createdAt_idx").on(t.createdAt),
+  }),
+);
 
-// export const promptingExperimentReferenceImagesRelations = relations(
-//   promptingExperimentReferenceImages,
-//   ({ one }) => ({
-//     promptingExperiment: one(promptingExperiments, {
-//       fields: [promptingExperimentReferenceImages.promptingExperimentId],
-//       references: [promptingExperiments.id],
-//     }),
-//   }),
-// );
+export const experimentResultsRelations = relations(
+  experimentResults,
+  ({ one }) => ({
+    promptingExperiment: one(promptingExperiments, {
+      fields: [experimentResults.promptingExperimentId],
+      references: [promptingExperiments.id],
+    }),
+    image: one(images, {
+      fields: [experimentResults.imageId],
+      references: [images.id],
+    }),
+  }),
+);
 
 export const referenceImages = createTable(
   "reference_image",
@@ -323,6 +344,7 @@ export const referenceImages = createTable(
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     description: varchar("description"),
     updatedAt: timestamp("updated_at"),
+    isPositive: boolean("isPositive").default(true).notNull(),
 
     imageStoreId: integer("imageStoreId")
       .notNull()
