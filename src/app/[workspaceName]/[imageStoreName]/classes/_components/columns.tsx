@@ -143,7 +143,7 @@ function SpecDefinitionCell({ row }: { row: Row<LabelClassWithCount> }) {
 
 function RunLLMCell({ row }: { row: Row<LabelClassWithCount> }) {
   const {
-    labelClasses: { id, imageStoreId, specDefinition },
+    labelClasses: { id, displayName, imageStoreId, specDefinition },
   } = row.original;
   const router = useRouter();
   const { mutateAsync } = api.ai.runLLM.useMutation();
@@ -159,6 +159,7 @@ function RunLLMCell({ row }: { row: Row<LabelClassWithCount> }) {
     await mutateAsync({
       imageStoreId,
       labelClassId: id,
+      labelClassDisplayName: displayName,
       specDefinition: specDefinition,
       referenceImages: referenceImages
         .filter((ri) => ri.description)

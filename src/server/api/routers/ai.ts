@@ -11,13 +11,20 @@ import { eq } from "drizzle-orm";
 import OpenAI from "openai";
 import { type ChatCompletionContentPart } from "openai/resources/index.mjs";
 
-const SYSTEM_PROMPT = `
-You are Visual Inspecton AI working in a factory.
-Your role is to determine from images whether a product is acceptable for shipment.
+const SYSTEM_PROMPT = (displayName: string, specDefinition: string) => `
+You are Visual Appearance Inspecton AI in a factory.
+
+- ClassLabel
+  - Name: ${displayName}
+  - SpecDefinition: """${specDefinition}"""
 
 I will show you an example of the images and results. Please refer to it.
 
 - response format must be json { isPositive: boolean, reason: string }
+- isPositive: true if the "Spec Definition" matches to the image, false otherwise
+- reason: the reason why you think the image is positive or negative
+
+both field "isPositive" & "reason" must be consistent with the image and with each other.
 `;
 
 export const aiRouter = createTRPCRouter({
@@ -34,15 +41,18 @@ export const aiRouter = createTRPCRouter({
             isPositive: z.boolean(),
           }),
         ),
+        labelClassDisplayName: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input: _input }) => {
+    .mutation(async ({ ctx, input: { labelClassDisplayName, ..._input } }) => {
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
       const testImages = await ctx.db
         .select()
         .from(images)
         .where(eq(images.selectedForExperiment, true));
+
+      console.log(SYSTEM_PROMPT(labelClassDisplayName, _input.specDefinition));
 
       const results = await Promise.all(
         testImages.map(async (ti) => {
@@ -53,7 +63,10 @@ export const aiRouter = createTRPCRouter({
             messages: [
               {
                 role: "system",
-                content: SYSTEM_PROMPT,
+                content: SYSTEM_PROMPT(
+                  labelClassDisplayName,
+                  _input.specDefinition,
+                ),
               },
               {
                 role: "user",
