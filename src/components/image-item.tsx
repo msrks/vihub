@@ -103,7 +103,7 @@ export function ImageItem({
           {!isResultView
             ? image.selectedForExperiment && (
                 <Badge className="absolute bottom-0 left-0">
-                  <Bot className="mr-1 size-3" /> LLM
+                  <Bot className="mr-1 size-3" /> Test
                 </Badge>
               )
             : null}
