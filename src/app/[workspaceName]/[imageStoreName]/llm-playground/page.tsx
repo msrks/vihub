@@ -29,7 +29,7 @@ export default function Page({
     <div className="flex w-full grow flex-col items-center">
       <div className="container mt-2 flex items-center justify-between">
         <h2 className="my-2 text-2xl font-semibold tracking-tight">
-          Prompting Experiments
+          LLM Experiments
         </h2>
         <div className="ml-auto mr-4 ">
           <NewExperiment imageStoreId={imageStore.id} />
