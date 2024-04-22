@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Label } from "@radix-ui/react-dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export type ReferenceImage = RouterOutputs["referenceImage"]["getAll"][number];
 
@@ -194,9 +196,41 @@ function ImageCell({
   );
 }
 
+function IsPositiveCell({
+  row: {
+    original: {
+      reference_image: { id, isPositive },
+    },
+  },
+}: {
+  row: Row<ReferenceImage>;
+}) {
+  const utils = api.useUtils();
+  const { mutateAsync } = api.referenceImage.update.useMutation();
+  const handleChange = async (bool: boolean) => {
+    toast.info("Updating isPositive...");
+    await mutateAsync({ id, isPositive: bool });
+    toast.success("isPositive updated!");
+    await utils.referenceImage.invalidate();
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      {/* <Switch
+        className="data-[state=checked]:bg-primary/50"
+        checked={isPositive}
+        onCheckedChange={handleChange}
+      /> */}
+      <Checkbox checked={isPositive} onCheckedChange={handleChange} />
+      <Label>{isPositive ? "Positive" : "Negative"}</Label>
+    </div>
+  );
+}
+
 export const columns: ColumnDef<ReferenceImage>[] = [
   { header: "Image", cell: ImageCell },
   { header: "Class", cell: ClassCell },
+  { header: "Is_Positive", cell: IsPositiveCell },
   { header: "Description", cell: DescriptionCell },
   { header: "Actions", cell: ActionCell },
 ];
