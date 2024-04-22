@@ -28,7 +28,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
               ? "Development"
               : type === "operation"
                 ? "Operation"
-                : "GenAI"}
+                : "Generative AI"}
           </h2>
           {items
             .filter((item) => item.type === type)
