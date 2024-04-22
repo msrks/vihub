@@ -17,15 +17,20 @@ export const imageRouter = createTRPCRouter({
     .input(
       z.object({
         imageStoreId: z.number(),
-        file: z.custom<File>(),
+        file: z.custom<File | Buffer>(),
         humanLabelId: z.number().optional(),
         aiLabelKey: z.string().optional(),
+        aiLabelDetail: z
+          .object({
+            confidence: z.number(),
+          })
+          .optional(),
       }),
     )
     .mutation(
       async ({
         ctx,
-        input: { imageStoreId, file, humanLabelId, aiLabelKey },
+        input: { imageStoreId, file, humanLabelId, aiLabelKey, aiLabelDetail },
       }) => {
         // get aiLabelId if aiLabelKey is provided
         let aiLabelId: number | undefined;
@@ -44,7 +49,7 @@ export const imageRouter = createTRPCRouter({
         }
 
         // upload to vercel blob
-        const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${file.name}`;
+        const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${file instanceof File ? file.name : `${Date.now()}.jpg`}`;
         const blob = await put(filename, file, { access: "public" });
         const { url, downloadUrl } = blob;
 
@@ -69,6 +74,7 @@ export const imageRouter = createTRPCRouter({
             vectorId,
             humanLabelId,
             aiLabelId,
+            aiLabelDetail,
           })
           .returning();
         if (!ret[0]) throw new Error("something went wrong..");

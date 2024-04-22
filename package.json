@@ -43,6 +43,7 @@
     "@trpc/server": "next",
     "@vercel/blob": "^0.22.3",
     "ai": "^3.0.23",
+    "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
