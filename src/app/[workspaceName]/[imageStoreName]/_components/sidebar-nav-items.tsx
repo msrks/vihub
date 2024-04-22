@@ -12,8 +12,8 @@ import {
 export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
   {
     icon: <Shapes className="mr-2 size-4 text-muted-foreground" />,
-    title: "Classes",
-    href: `/${wsName}/${imageStoreName}/classes`,
+    title: "Spec Catalog",
+    href: `/${wsName}/${imageStoreName}/spec-catalog`,
     type: "development",
   },
   {

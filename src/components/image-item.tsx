@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/context-menu";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/classes/_components/columns";
+import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/spec-catalog/_components/columns";
 import type { RouterOutputs } from "@/server/api/root";
 import { Badge } from "./ui/badge";
 
