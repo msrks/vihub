@@ -4,7 +4,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { eq, and, count, gte, isNull, isNotNull } from "drizzle-orm";
+import { eq, and, count, isNull, isNotNull, desc, lte } from "drizzle-orm";
 import { images, labelClasses } from "@/server/db/schema";
 import { del, put } from "@vercel/blob";
 import { getVectorByReplicate } from "@/server/replicate";
@@ -210,12 +210,12 @@ export const imageRouter = createTRPCRouter({
         const items = await ctx.db
           .select()
           .from(images)
-          .orderBy(images.createdAt)
+          .orderBy(desc(images.createdAt))
           .limit(limit + 1)
           .where(
             and(
               eq(images.imageStoreId, imageStoreId),
-              gte(images.createdAt, cursor ?? new Date(0)),
+              lte(images.createdAt, cursor ?? new Date()),
               date ? eq(images.createdAtDate, date) : undefined,
               onlyLabeled ? isNotNull(images.humanLabelId) : undefined,
               onlyUnlabeled ? isNull(images.humanLabelId) : undefined,
