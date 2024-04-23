@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { Bot, Check, Download, ImageIcon, Trash2 } from "lucide-react";
+import { Bot, Check, Download, ImageIcon, Trash2, User } from "lucide-react";
 import Image from "next/image";
 import {
   ContextMenu,
@@ -98,7 +98,7 @@ export function ImageItem({
                 className="absolute bottom-6 right-0"
                 style={{ backgroundColor: humanLabelClass.color ?? "" }}
               >
-                {humanLabelClass.key}
+                <User className="mr-1 size-3" /> {humanLabelClass.key}
               </Badge>
             )}
             {aiLabelClass && (
