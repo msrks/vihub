@@ -8,6 +8,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/header";
+import { baseUrl, description, title } from "./sitemap";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,9 +16,31 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "VIHub",
-  description: "by @msrks",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: title,
+    template: `%s | ${title}`,
+  },
+  description: description,
+  openGraph: {
+    title: title,
+    description: description,
+    url: baseUrl,
+    siteName: title,
+    locale: "en_US",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default async function RootLayout({
