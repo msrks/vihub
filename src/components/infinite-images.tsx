@@ -163,38 +163,40 @@ export function InfiniteImages({
         </div>
       </div>
 
-      {selectedImages.length > 0 && (
-        <div className="mr-12 flex w-full items-center justify-end gap-4">
-          <p>{selectedImages.length} images selected</p>
-          <Button size="sm" onClick={() => setSelectedImages([])}>
-            Clear Selection
-          </Button>
-          <form className="flex items-center gap-2" action={handleSubmit}>
-            <Select
-              required
-              value={labelClass}
-              onValueChange={(value) => setLabelClass(value)}
-            >
-              <SelectTrigger className="h-8 w-[180px]">
-                <SelectValue placeholder=" -- class -- " />
-              </SelectTrigger>
-              <SelectContent>
-                {labelClasses?.map((lc) => (
-                  <SelectItem key={lc.id} value={lc.id.toString()}>
-                    {lc.displayName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button size="sm" disabled={!labelClass}>
-              Assign ClassLabel
+      <div className="mr-12 flex w-full items-center justify-end gap-4">
+        <p>{selectedImages.length} images selected</p>
+        {selectedImages.length > 0 && (
+          <>
+            <Button size="sm" onClick={() => setSelectedImages([])}>
+              Clear Selection
             </Button>
-          </form>
-          <Button size="sm" variant="destructive" onClick={deleteAll}>
-            <TriangleAlert className="mr-2 size-4" /> Delete Images
-          </Button>
-        </div>
-      )}
+            <form className="flex items-center gap-2" action={handleSubmit}>
+              <Select
+                required
+                value={labelClass}
+                onValueChange={(value) => setLabelClass(value)}
+              >
+                <SelectTrigger className="h-8 w-[180px]">
+                  <SelectValue placeholder=" -- class -- " />
+                </SelectTrigger>
+                <SelectContent>
+                  {labelClasses?.map((lc) => (
+                    <SelectItem key={lc.id} value={lc.id.toString()}>
+                      {lc.displayName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button size="sm" disabled={!labelClass}>
+                Assign ClassLabel
+              </Button>
+            </form>
+            <Button size="sm" variant="destructive" onClick={deleteAll}>
+              <TriangleAlert className="mr-2 size-4" /> Delete Images
+            </Button>
+          </>
+        )}
+      </div>
 
       {isSearching && <Loader2 className="mx-auto size-8 animate-spin" />}
       {!isSearching && searchResults.length === 0 && (
