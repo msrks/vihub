@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/spec-catalog/_components/columns";
 import type { RouterOutputs } from "@/server/api/root";
 import { Badge } from "./ui/badge";
+import { formatDate } from "date-fns";
+import { AspectRatio } from "./ui/aspect-ratio";
 
 type TImage =
   RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
@@ -77,49 +79,54 @@ export function ImageItem({
   return (
     <div
       className={cn(
-        "relative h-[150px] w-[200px] cursor-pointer overflow-hidden outline-2 outline-primary hover:outline",
+        "relative w-[200px] cursor-pointer overflow-hidden text-center outline-2 outline-primary hover:outline",
       )}
       onClick={() => handleImageClick(image.id)}
     >
       <ContextMenu>
         <ContextMenuTrigger>
-          <Image
-            src={image.url}
-            alt=""
-            fill
-            style={{ objectFit: "cover", objectPosition: "center" }}
-            sizes="200px"
-          />
-          {isChecked && <Check className="absolute size-5 bg-secondary" />}
-          {humanLabelClass && (
-            <Badge
-              className="absolute bottom-6 right-0"
-              style={{ backgroundColor: humanLabelClass.color ?? "" }}
-            >
-              {humanLabelClass.key}
-            </Badge>
-          )}
-          {aiLabelClass && (
-            <Badge
-              className="absolute bottom-0 right-0"
-              style={{ backgroundColor: aiLabelClass.color ?? "" }}
-            >
-              <Bot className="mr-1 size-3" /> {aiLabelClass.key}{" "}
-              {aiLabelConfidence?.toFixed(2)}
-            </Badge>
-          )}
-          {score && (
-            <Badge className="absolute right-0 top-0" variant="secondary">
-              Score: {score.toFixed(2)}
-            </Badge>
-          )}
-          {!isResultView
-            ? image.selectedForExperiment && (
-                <Badge className="absolute bottom-0 left-0">
-                  <Bot className="mr-1 size-3" /> Test
-                </Badge>
-              )
-            : null}
+          <AspectRatio ratio={200 / 150} className="relative bg-muted">
+            <Image
+              src={image.url}
+              alt=""
+              fill
+              className="rounded-md object-cover"
+            />
+            {isChecked && <Check className="absolute size-5 bg-secondary" />}
+            {humanLabelClass && (
+              <Badge
+                className="absolute bottom-6 right-0"
+                style={{ backgroundColor: humanLabelClass.color ?? "" }}
+              >
+                {humanLabelClass.key}
+              </Badge>
+            )}
+            {aiLabelClass && (
+              <Badge
+                className="absolute bottom-0 right-0"
+                style={{ backgroundColor: aiLabelClass.color ?? "" }}
+              >
+                <Bot className="mr-1 size-3" /> {aiLabelClass.key}{" "}
+                {aiLabelConfidence?.toFixed(2)}
+              </Badge>
+            )}
+            {score && (
+              <Badge className="absolute right-0 top-0" variant="secondary">
+                Score: {score.toFixed(2)}
+              </Badge>
+            )}
+            {!isResultView
+              ? image.selectedForExperiment && (
+                  <Badge className="absolute bottom-0 left-0">
+                    <Bot className="mr-1 size-3" /> Test
+                  </Badge>
+                )
+              : null}
+          </AspectRatio>
+
+          <p className="text-xs">
+            {formatDate(image.createdAt, "yyyy-MM-dd HH:mm:ss")}
+          </p>
         </ContextMenuTrigger>
         <ContextMenuContent>
           {!isResultView && (
