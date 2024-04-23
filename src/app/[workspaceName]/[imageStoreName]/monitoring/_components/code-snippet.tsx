@@ -28,7 +28,7 @@ with open(FILE_PATH, "rb") as f:
         "https://vihub.msrks.dev/api/upload/v1?storeId=${imageStore.id}",
         headers={"apiKey": "${ws?.apiKey}"},
         files={"file": (FILE_PATH, f)},
-        data={"aiLabelKey": LABEL_KEY},
+        data={"aiLabelKey": LABEL_KEY, "aiLabelConfidence": CONFIDENCE},
     )
 `;
 
@@ -43,7 +43,7 @@ with open(FILE_PATH, "rb") as f:
       <DialogContent className="sm:max-w-4xl">
         <Highlight theme={themes.vsDark} code={code} language="py">
           {({ className, style, tokens, getLineProps, getTokenProps }) => (
-            <pre style={style} className={cn(className, "mx-auto w-fit")}>
+            <pre style={style} className={cn(className, "mx-auto w-fit pr-6")}>
               {tokens.map((line, i) => {
                 const { key, ...rest } = getLineProps({ line, key: i });
                 return (

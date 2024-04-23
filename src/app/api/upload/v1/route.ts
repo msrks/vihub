@@ -22,7 +22,18 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File;
     if (!file) throw new Error("Invalid file");
     const aiLabelKey = formData.get("aiLabelKey") as string;
-    await api.image.create({ imageStoreId, file, aiLabelKey });
+    const aiLabelConfidence = formData.get("aiLabelConfidence") as string;
+
+    await api.image.create({
+      imageStoreId,
+      file,
+      aiLabelKey,
+      aiLabelDetail: aiLabelConfidence
+        ? {
+            confidence: parseFloat(aiLabelConfidence),
+          }
+        : undefined,
+    });
     return Response.json({ success: true });
   } catch (e) {
     if (e instanceof Error) {
