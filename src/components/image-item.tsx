@@ -93,7 +93,7 @@ export function ImageItem({
           {isChecked && <Check className="absolute size-5 bg-secondary" />}
           {humanLabelClass && (
             <Badge
-              className="absolute bottom-0 right-0"
+              className="absolute bottom-6 right-0"
               style={{ backgroundColor: humanLabelClass.color ?? "" }}
             >
               {humanLabelClass.key}
