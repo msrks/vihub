@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
-import { title } from "../layout";
+import { type NextRequest } from "next/server";
+import { title } from "../sitemap";
 
 export const runtime = "edge";
 
