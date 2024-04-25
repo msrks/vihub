@@ -183,8 +183,9 @@ function RunLLMCell({ row }: { row: Row<LabelClassWithCount> }) {
 export const columns: ColumnDef<LabelClassWithCount>[] = [
   { header: "Color", cell: ColorCell },
   { header: "Key", accessorKey: "labelClasses.key" },
-  { header: "Display_Name", cell: DisplayNameCell },
-  { header: "Count", accessorKey: "count" },
-  { header: "Spec_Definition", cell: SpecDefinitionCell },
-  { header: "Run_LLM", cell: RunLLMCell },
+  { header: "Display Name", cell: DisplayNameCell },
+  { header: "Count: HumanLabel", accessorKey: "humanCount" },
+  { header: "Count: AILabel", accessorKey: "aiCount" },
+  { header: "Spec Definition", cell: SpecDefinitionCell },
+  { header: "Run LLM", cell: RunLLMCell },
 ];

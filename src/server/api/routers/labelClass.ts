@@ -55,7 +55,7 @@ export const labelClassRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return ctx.db
+      return await ctx.db
         .select()
         .from(labelClasses)
         .where(eq(labelClasses.imageStoreId, input.imageStoreId))
@@ -68,12 +68,36 @@ export const labelClassRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return ctx.db
-        .select({ labelClasses, count: count(images.id) })
+      const humanLabels = ctx.db
+        .select({
+          labelId: images.humanLabelId,
+          countH: count(images.id).as("countH"),
+        })
+        .from(images)
+        .where(eq(images.imageStoreId, input.imageStoreId))
+        .groupBy(images.humanLabelId)
+        .as("humanLabels");
+
+      const aiLabels = ctx.db
+        .select({
+          labelId: images.aiLabelId,
+          countA: count(images.id).as("countA"),
+        })
+        .from(images)
+        .where(eq(images.imageStoreId, input.imageStoreId))
+        .groupBy(images.aiLabelId)
+        .as("aiLabels");
+
+      return await ctx.db
+        .select({
+          labelClasses,
+          humanCount: humanLabels.countH,
+          aiCount: aiLabels.countA,
+        })
         .from(labelClasses)
         .where(eq(labelClasses.imageStoreId, input.imageStoreId))
-        .leftJoin(images, eq(images.humanLabelId, labelClasses.id))
-        .groupBy(labelClasses.id)
-        .orderBy(labelClasses.key);
+        .orderBy(labelClasses.key)
+        .leftJoin(humanLabels, eq(humanLabels.labelId, labelClasses.id))
+        .leftJoin(aiLabels, eq(aiLabels.labelId, labelClasses.id));
     }),
 });
