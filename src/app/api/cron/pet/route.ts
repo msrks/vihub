@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import fs from "fs";
 import { type Pet, getRandomPet, getUrl } from "./pet";
 import { api } from "@/trpc/server";
@@ -25,20 +25,28 @@ export async function GET() {
   // get AI prediction
   const file = fs.readFileSync(fPath);
   const b64img = Buffer.from(file).toString("base64");
-  const pred = await axios.post<PredResponse>(
-    URL,
-    JSON.stringify({ image: b64img }),
-    { headers: { "Content-Type": "application/json" } },
-  );
+  let pred: PredResponse | undefined;
+  try {
+    const _res = await axios.post<PredResponse>(
+      URL,
+      JSON.stringify({ image: b64img }),
+      { headers: { "Content-Type": "application/json" } },
+    );
+    pred = _res.data;
+  } catch (error) {
+    console.error(error);
+  }
 
   // upload image & save to DB, VDB
   await api.image.create({
     imageStoreId: STORE_ID,
     file,
-    aiLabelKey: pred.data.result,
-    aiLabelDetail: {
-      confidence: pred.data.confidences[pred.data.result],
-    },
+    ...(pred && {
+      aiLabelKey: pred.result,
+      aiLabelDetail: {
+        confidence: pred.confidences[pred.result],
+      },
+    }),
   });
 
   return Response.json({ success: true });
