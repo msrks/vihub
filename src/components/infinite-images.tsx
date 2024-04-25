@@ -2,7 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { useIntersection } from "@mantine/hooks";
-import { Loader2, TriangleAlert } from "lucide-react";
+import { Bot, Loader2, TriangleAlert, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -19,8 +19,8 @@ import { Input } from "./ui/input";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
 import type { RouterOutputs } from "@/server/api/root";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
-// type SearchResults = Awaited<ReturnType<typeof searchImages>>;
 type SearchResult = RouterOutputs["ai"]["searchImages"][number];
 
 export function InfiniteImages({
@@ -41,6 +41,8 @@ export function InfiniteImages({
   const [queryText] = useDebounce(text, 1000);
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [aiLabelFilter, setAiLabelFilter] = useState("all");
+  const [humanLabelFilter, setHumanLabelFilter] = useState("all");
   const { mutateAsync: searchImages } = api.ai.searchImages.useMutation();
 
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
@@ -198,27 +200,82 @@ export function InfiniteImages({
         )}
       </div>
 
+      <div className="mr-12 flex w-full items-center justify-end gap-4">
+        <RadioGroup
+          defaultValue={humanLabelFilter}
+          onValueChange={(val) => setHumanLabelFilter(val)}
+          className="flex items-center"
+        >
+          <Label>
+            <User className="inline size-4" />:{" "}
+          </Label>
+          <div className="flex items-center gap-1">
+            <RadioGroupItem value="all" id="r1" />
+            <Label htmlFor="r1">All</Label>
+          </div>
+          {labelClasses?.map((lc) => (
+            <div key={lc.id} className="flex items-center gap-1">
+              <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
+              <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
+
+      <div className="mr-12 flex w-full items-center justify-end gap-4">
+        <RadioGroup
+          defaultValue={aiLabelFilter}
+          onValueChange={(val) => setAiLabelFilter(val)}
+          className="flex items-center"
+        >
+          <Label>
+            <Bot className="inline size-4" />:{" "}
+          </Label>
+          <div className="flex items-center gap-1">
+            <RadioGroupItem value="all" id="r1" />
+            <Label htmlFor="r1">All</Label>
+          </div>
+          {labelClasses?.map((lc) => (
+            <div key={lc.id} className="flex items-center gap-1">
+              <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
+              <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
+
       {isSearching && <Loader2 className="mx-auto size-8 animate-spin" />}
       {!isSearching && searchResults.length === 0 && (
         <div className="flex flex-wrap items-center justify-center gap-2">
           {data?.pages.flatMap((page) =>
-            page.items.map((image) => (
-              <ImageItem
-                key={image.id}
-                image={image}
-                handleImageClick={handleImageClick}
-                isChecked={selectedImages.includes(image.id)}
-                humanLabelClass={labelClasses?.find(
-                  (lc) => lc.id === image.humanLabelId,
-                )}
-                aiLabelClass={labelClasses?.find(
-                  (lc) => lc.id === image.aiLabelId,
-                )}
-                aiLabelConfidence={image.aiLabelDetail?.confidence}
-                setAsQueryImage={setAsQueryImage}
-                imageStoreId={imageStoreId}
-              />
-            )),
+            page.items
+              .filter(
+                (image) =>
+                  humanLabelFilter === "all" ||
+                  humanLabelFilter === image.humanLabelId?.toString(),
+              )
+              .filter(
+                (image) =>
+                  aiLabelFilter === "all" ||
+                  aiLabelFilter === image.aiLabelId?.toString(),
+              )
+              .map((image) => (
+                <ImageItem
+                  key={image.id}
+                  image={image}
+                  handleImageClick={handleImageClick}
+                  isChecked={selectedImages.includes(image.id)}
+                  humanLabelClass={labelClasses?.find(
+                    (lc) => lc.id === image.humanLabelId,
+                  )}
+                  aiLabelClass={labelClasses?.find(
+                    (lc) => lc.id === image.aiLabelId,
+                  )}
+                  aiLabelConfidence={image.aiLabelDetail?.confidence}
+                  setAsQueryImage={setAsQueryImage}
+                  imageStoreId={imageStoreId}
+                />
+              )),
           )}
           <div ref={ref} className="-ml-3 h-1 w-1"></div>
         </div>
