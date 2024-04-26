@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import InviteUser from "./_components/invite-user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function WorkspaceTitleEdit({ id, current }: { id: number; current: string }) {
   const [open, setOpen] = useState(false);
@@ -91,7 +92,14 @@ export default function Page({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               {users.map((user) => (
-                <DropdownMenuItem key={user.user.id}>
+                <DropdownMenuItem
+                  key={user.user.id}
+                  className="flex items-center gap-1"
+                >
+                  <Avatar className="size-5">
+                    <AvatarImage src={user.user.image} alt="@shadcn" />
+                    <AvatarFallback>A</AvatarFallback>
+                  </Avatar>
                   {user.user.name}
                 </DropdownMenuItem>
               ))}
