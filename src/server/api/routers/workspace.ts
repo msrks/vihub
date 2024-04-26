@@ -88,19 +88,46 @@ export const workspaceRouter = createTRPCRouter({
     }),
 
   getAll: protectedProcedure.query(async ({ ctx }) => {
-    const _res = await ctx.db.query.users.findMany({
-      where: eq(users.id, ctx.session.user.id),
-      with: {
-        usersToWorkspaces: {
-          with: {
-            workspace: true,
-          },
-        },
-      },
-    });
-    if (!_res[0]) return [];
+    // const _res = await ctx.db.query.users.findMany({
+    //   where: eq(users.id, ctx.session.user.id),
+    //   with: {
+    //     usersToWorkspaces: {
+    //       with: {
+    //         workspace: true,
+    //       },
+    //     },
+    //   },
+    // });
+    // if (!_res[0]) return [];
 
-    return _res[0].usersToWorkspaces.map((u2w) => u2w.workspace);
+    // return _res[0].usersToWorkspaces.map((u2w) => u2w.workspace);
+
+    const wsIds = ctx.db
+      .select({ id: usersToWorkspaces.workspaceId })
+      .from(usersToWorkspaces)
+      .where(eq(usersToWorkspaces.userId, ctx.session.user.id))
+      .as("wsIds");
+
+    const wsIdCounts = ctx.db
+      .select({
+        id: wsIds.id,
+        // count: count().as("count"),
+        members: sql<string[]>`array_agg(${users.image})`.as("members"),
+      })
+      .from(wsIds)
+      .leftJoin(usersToWorkspaces, eq(wsIds.id, usersToWorkspaces.workspaceId))
+      .leftJoin(users, eq(users.id, usersToWorkspaces.userId))
+      .groupBy(wsIds.id)
+      .as("wsIdCounts");
+
+    return await ctx.db
+      .select({
+        workspaces,
+        // count: wsIdCounts.count,
+        members: wsIdCounts.members,
+      })
+      .from(workspaces)
+      .innerJoin(wsIdCounts, eq(workspaces.id, wsIdCounts.id));
   }),
 
   getById: protectedProcedure
