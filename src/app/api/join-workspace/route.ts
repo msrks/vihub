@@ -3,6 +3,8 @@ import { api } from "@/trpc/server";
 import { redirect } from "next/navigation";
 import { type NextRequest } from "next/server";
 
+export const maxDuration = 300;
+
 export async function GET(req: NextRequest) {
   const session = await getServerAuthSession();
   if (!session) redirect("/api/auth/signin");

@@ -1,6 +1,8 @@
 import { api } from "@/trpc/server";
 import { type NextRequest } from "next/server";
 
+export const maxDuration = 300;
+
 export async function POST(req: NextRequest) {
   try {
     // 1. validate api key

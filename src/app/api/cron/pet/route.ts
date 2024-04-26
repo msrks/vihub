@@ -3,6 +3,8 @@ import fs from "fs";
 import { type Pet, getRandomPet, getUrl } from "./pet";
 import { api } from "@/trpc/server";
 
+export const maxDuration = 300;
+
 const URL = `https://visual-inspection-template.web.app/predict?modelType=tflite`;
 const STORE_ID = 8;
 
