@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import fs from "fs";
 import { type Pet, getRandomPet, getUrl } from "./pet";
 import { api } from "@/trpc/server";
@@ -30,7 +30,7 @@ export async function GET() {
     const _res = await axios.post<PredResponse>(
       URL,
       JSON.stringify({ image: b64img }),
-      { headers: { "Content-Type": "application/json" } },
+      { headers: { "Content-Type": "application/json" }, timeout: 3000 },
     );
     pred = _res.data;
   } catch (error) {
