@@ -2,7 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
-import ImageUploadServerSide from "./_components/image-upload-server-side";
+import ImageUploadClientSide from "./_components/image-upload-client-side";
 
 export default function Page({
   params: { workspaceName, imageStoreName },
@@ -21,7 +21,7 @@ export default function Page({
 
   return (
     <div className="flex w-full grow flex-col items-center">
-      <ImageUploadServerSide imageStoreId={imageStore.id} />
+      <ImageUploadClientSide imageStoreId={imageStore.id} />
     </div>
   );
 }
