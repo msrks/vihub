@@ -97,8 +97,10 @@ export default function Page({
                   className="flex items-center gap-1"
                 >
                   <Avatar className="size-5">
-                    <AvatarImage src={user.user.image} alt="@shadcn" />
-                    <AvatarFallback>A</AvatarFallback>
+                    <AvatarImage src={user.user.image ?? ""} alt="" />
+                    <AvatarFallback>
+                      {user.user.name?.slice(0, 1)}
+                    </AvatarFallback>
                   </Avatar>
                   {user.user.name}
                 </DropdownMenuItem>

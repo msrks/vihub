@@ -20,7 +20,7 @@ function MembersCell({
     <div className="flex gap-1">
       {members.map((m, i) => (
         <Avatar key={i} className="size-6">
-          <AvatarImage src={m} alt="@shadcn" />
+          <AvatarImage src={m} alt="" />
           <AvatarFallback>A</AvatarFallback>
         </Avatar>
       ))}
