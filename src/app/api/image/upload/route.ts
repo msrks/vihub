@@ -31,12 +31,10 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         try {
-          console.info({ blob, tokenPayload });
           const { imageStoreId, humanLabelId } = JSON.parse(tokenPayload!) as {
             imageStoreId: number;
             humanLabelId: number;
           };
-          console.info({ imageStoreId, humanLabelId });
 
           const { url, downloadUrl } = blob;
 
