@@ -42,6 +42,7 @@
     "@trpc/next": "next",
     "@trpc/react-query": "next",
     "@trpc/server": "next",
+    "@vercel/analytics": "^1.2.2",
     "@vercel/blob": "^0.22.3",
     "ai": "^3.0.23",
     "axios": "^1.6.8",

@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/header";
 import { baseUrl, description, title } from "./sitemap";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -71,6 +72,7 @@ export default async function RootLayout({
               {children}
               <Toaster richColors />
               {/* <Footer /> */}
+              <Analytics />
             </NextAuthProvider>
           </TRPCReactProvider>
         </ThemeProvider>
