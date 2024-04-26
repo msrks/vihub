@@ -49,7 +49,7 @@ export const imageRouter = createTRPCRouter({
         }
 
         // upload to vercel blob
-        const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${Date.now()}.png}`;
+        const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${Date.now()}`;
         const blob = await put(filename, file, { access: "public" });
         const { url, downloadUrl } = blob;
 
