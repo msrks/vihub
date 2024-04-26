@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { uploadImage } from "@/app/actions/uploadImage";
 
-export default function ImageUpload({
+export default function ImageUploadServerSide({
   imageStoreId,
 }: {
   imageStoreId: number;
