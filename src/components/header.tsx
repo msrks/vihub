@@ -42,8 +42,8 @@ function WorkspaceNav({ current }: { current: string }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             {data?.map((ws, i) => (
-              <Link key={i} href={`/${ws.name}`}>
-                <DropdownMenuItem>{ws.name}</DropdownMenuItem>
+              <Link key={i} href={`/${ws.workspaces.name}`}>
+                <DropdownMenuItem>{ws.workspaces.name}</DropdownMenuItem>
               </Link>
             ))}
           </DropdownMenuContent>
