@@ -20,7 +20,6 @@ export async function POST(request: Request): Promise<NextResponse> {
         // ⚠️ Authenticate and authorize users before generating the token.
         // Otherwise, you're allowing anonymous uploads.
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        console.info({ pathname, p: JSON.parse(clientPayload!) });
 
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/gif"],
@@ -32,10 +31,12 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         try {
+          console.info({ blob, tokenPayload });
           const { imageStoreId, humanLabelId } = JSON.parse(tokenPayload!) as {
             imageStoreId: number;
             humanLabelId: number;
           };
+          console.info({ imageStoreId, humanLabelId });
 
           const { url, downloadUrl } = blob;
 
