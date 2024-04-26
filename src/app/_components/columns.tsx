@@ -7,14 +7,14 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export type Workspace = RouterOutputs["workspace"]["getAll"][number];
+type WorkspaceWithMembers = RouterOutputs["workspace"]["getAll"][number];
 
 function MembersCell({
   row: {
     original: { members },
   },
 }: {
-  row: Row<Workspace>;
+  row: Row<WorkspaceWithMembers>;
 }) {
   return (
     <div className="flex gap-1">
@@ -35,7 +35,7 @@ function CreatedAtCell({
     },
   },
 }: {
-  row: Row<Workspace>;
+  row: Row<WorkspaceWithMembers>;
 }) {
   return <span>{format(new Date(createdAt), "yyyy-MM-dd")}</span>;
 }
@@ -47,7 +47,7 @@ function NameCell({
     },
   },
 }: {
-  row: Row<Workspace>;
+  row: Row<WorkspaceWithMembers>;
 }) {
   return (
     <Link href={`/${name}`} className={buttonVariants({ variant: "link" })}>
@@ -56,7 +56,7 @@ function NameCell({
   );
 }
 
-export const columns: ColumnDef<Workspace>[] = [
+export const columns: ColumnDef<WorkspaceWithMembers>[] = [
   { header: "Name", cell: NameCell },
   { header: "Created At", cell: CreatedAtCell },
   { header: "Members", cell: MembersCell },

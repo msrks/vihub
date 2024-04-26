@@ -1,6 +1,5 @@
 "use client";
 
-import { type Workspace } from "@/app/_components/columns";
 import { sendInviteEmail } from "@/app/actions/sendEmail";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import type { RouterOutputs } from "@/server/api/root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, UserPlus } from "lucide-react";
 import { useState } from "react";
@@ -30,6 +30,8 @@ import * as z from "zod";
 const formSchema = z.object({
   email: z.string().min(2).max(50),
 });
+
+type Workspace = RouterOutputs["workspace"]["getByName"];
 
 export default function InviteUser({ ws }: { ws: Workspace }) {
   const [open, setOpen] = useState(false);

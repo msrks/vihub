@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import type { Workspace } from "@/app/_components/columns";
 import { Copy, ImageIcon, Key, Sparkles, StoreIcon } from "lucide-react";
+import type { RouterOutputs } from "@/server/api/root";
+
+type Workspace = RouterOutputs["workspace"]["getByName"];
 
 function Billing({ ws }: { ws: Workspace }) {
   return (
