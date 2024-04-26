@@ -19,25 +19,22 @@ export async function POST(request: Request): Promise<NextResponse> {
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
         // Otherwise, you're allowing anonymous uploads.
-        console.info({ pathname, clientPayload });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        console.info({ pathname, p: JSON.parse(clientPayload!) });
 
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/gif"],
           tokenPayload: JSON.stringify({
             // userId: session?.user.id,
-            clientPayload,
+            ...JSON.parse(clientPayload!),
           }),
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         try {
-          const {
-            clientPayload: { imageStoreId, humanLabelId },
-          } = JSON.parse(tokenPayload!) as {
-            clientPayload: {
-              imageStoreId: number;
-              humanLabelId: number;
-            };
+          const { imageStoreId, humanLabelId } = JSON.parse(tokenPayload!) as {
+            imageStoreId: number;
+            humanLabelId: number;
           };
 
           const { url, downloadUrl } = blob;

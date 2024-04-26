@@ -43,7 +43,7 @@ export default function ImageUploadClientSide({
         e.preventDefault();
         toast.info("Uploading images...");
         setUploading(true);
-        const filepath = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/`;
+        const filepath = `${process.env.NEXT_PUBLIC_BLOB_NAME_SPACE!}/${imageStoreId}/images/`;
         await Promise.all(
           selectedFiles.map(async (file) => {
             return await upload(filepath + file.name, file, {
