@@ -41,7 +41,10 @@ export default function ImageUploadClientSide({
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        toast.info("Uploading images...");
+        toast.info("Uploading images...", {
+          duration: 100000,
+          id: "uploading",
+        });
         setUploading(true);
         const filepath = `${process.env.NEXT_PUBLIC_BLOB_NAME_SPACE!}/${imageStoreId}/images/`;
         await Promise.all(
@@ -59,6 +62,7 @@ export default function ImageUploadClientSide({
             });
           }),
         );
+        toast.dismiss("uploading");
         toast.success("Images uploaded successfully");
         setSelectedFiles([]);
         setUploading(false);
