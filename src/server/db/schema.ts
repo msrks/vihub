@@ -14,6 +14,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { getDisplayName } from "next/dist/shared/lib/utils";
 
 export const createTable = pgTableCreator((name) => `vihub_${name}`);
 
@@ -187,6 +188,7 @@ export const labelClasses = createTable("label_class", {
   displayName: varchar("displayName").notNull(),
   color: varchar("color"),
   specDefinition: varchar("specDefinition"),
+  isMultiClass: boolean("isMultiClass").default(false).notNull(),
 
   imageStoreId: integer("imageStoreId")
     .notNull()
@@ -206,6 +208,7 @@ export const labelClassesRelations = relations(
     aiLabeledImages: many(images, { relationName: "aiLabel" }),
     promptingExperiments: many(promptingExperiments),
     referenceImages: many(referenceImages),
+    multiClassAiPredictions: many(multiClassAiPredictions),
   }),
 );
 
@@ -253,6 +256,48 @@ export const imagesRelations = relations(images, ({ one, many }) => ({
     relationName: "humanLabel",
   }),
   experimentResults: many(experimentResults),
+  multiClassAiPredictions: many(multiClassAiPredictions),
+}));
+
+export const multiClassAiPredictions = createTable(
+  "multi_class_ai_prediction",
+  {
+    id: serial("id").primaryKey(),
+    imageId: integer("imageId").notNull(),
+    labelClassId: integer("labelClassId").notNull(),
+    confidence: integer("confidence").notNull(),
+    aiModelId: integer("aiModelId"),
+    aiModelName: varchar("aiModelName"),
+  },
+);
+
+export const multiClassAiPredictionsRelations = relations(
+  multiClassAiPredictions,
+  ({ one }) => ({
+    image: one(images, {
+      fields: [multiClassAiPredictions.imageId],
+      references: [images.id],
+    }),
+    labelClass: one(labelClasses, {
+      fields: [multiClassAiPredictions.labelClassId],
+      references: [labelClasses.id],
+    }),
+    aiModel: one(aiModels, {
+      fields: [multiClassAiPredictions.aiModelId],
+      references: [aiModels.id],
+    }),
+  }),
+);
+
+export const aiModels = createTable("ai_model", {
+  id: serial("id").primaryKey(),
+  key: varchar("key").notNull(),
+  displayName: varchar("displayName").notNull(),
+  url: varchar("url"),
+});
+
+export const aiModelsRelations = relations(aiModels, ({ many }) => ({
+  multiClassAiPredictions: many(multiClassAiPredictions),
 }));
 
 type ReferenceImage = {
