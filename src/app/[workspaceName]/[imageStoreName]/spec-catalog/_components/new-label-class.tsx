@@ -31,7 +31,13 @@ const formSchema = z.object({
   displayName: z.string().min(1).max(50),
 });
 
-const NewLabelClass = ({ imageStoreId }: { imageStoreId: number }) => {
+const NewLabelClass = ({
+  imageStoreId,
+  isMultiClass,
+}: {
+  imageStoreId: number;
+  isMultiClass?: boolean;
+}) => {
   const utils = api.useUtils();
   const [open, setOpen] = useState(false);
   const { mutateAsync: createLabelClass } = api.labelClass.create.useMutation();
@@ -42,7 +48,12 @@ const NewLabelClass = ({ imageStoreId }: { imageStoreId: number }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { key, displayName } = values;
-    const res = await createLabelClass({ key, displayName, imageStoreId });
+    const res = await createLabelClass({
+      key,
+      displayName,
+      imageStoreId,
+      isMultiClass,
+    });
     if (res.error) {
       form.setError("key", {
         message: res.error,

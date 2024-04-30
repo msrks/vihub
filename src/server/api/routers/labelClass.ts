@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { images, labelClasses } from "@/server/db/schema";
-import { count, eq } from "drizzle-orm";
+import { count, eq, is } from "drizzle-orm";
 
 export const labelClassRouter = createTRPCRouter({
   create: protectedProcedure
@@ -10,14 +10,12 @@ export const labelClassRouter = createTRPCRouter({
         imageStoreId: z.number(),
         key: z.string(),
         displayName: z.string(),
+        isMultiClass: z.boolean().optional(),
       }),
     )
-    .mutation(async ({ ctx, input: { imageStoreId, key, displayName } }) => {
+    .mutation(async ({ ctx, input }) => {
       try {
-        const ret = await ctx.db
-          .insert(labelClasses)
-          .values({ imageStoreId, key, displayName })
-          .returning();
+        const ret = await ctx.db.insert(labelClasses).values(input).returning();
         if (!ret[0]) throw new Error("something went wrong..");
         return { id: ret[0].id };
       } catch (error) {
