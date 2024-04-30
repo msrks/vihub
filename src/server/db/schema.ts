@@ -14,7 +14,6 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
-import { getDisplayName } from "next/dist/shared/lib/utils";
 
 export const createTable = pgTableCreator((name) => `vihub_${name}`);
 
@@ -267,7 +266,7 @@ export const multiClassAiPredictions = createTable(
     labelClassId: integer("labelClassId").notNull(),
     confidence: integer("confidence").notNull(),
     aiModelId: integer("aiModelId"),
-    aiModelName: varchar("aiModelName"),
+    aiModelKey: varchar("aiModelKey"),
   },
 );
 
