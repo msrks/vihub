@@ -4,7 +4,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { eq, and, count, isNull, isNotNull, desc, lte } from "drizzle-orm";
+import { eq, and, count, isNull, isNotNull, desc, lte, sql } from "drizzle-orm";
 import { images, labelClasses } from "@/server/db/schema";
 import { del, put } from "@vercel/blob";
 import { getVectorByReplicate } from "@/server/replicate";
@@ -160,6 +160,39 @@ export const imageRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.db
         .select({ date: images.createdAtDate, count: count() })
+        .from(images)
+        .where(eq(images.imageStoreId, input.imageStoreId))
+        .groupBy(images.createdAtDate)
+        .orderBy(images.createdAtDate);
+    }),
+
+  getAllCountsPerLabelPerDate: protectedProcedure
+    .input(
+      z.object({
+        imageStoreId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const allLabels = await ctx.db
+        .select()
+        .from(labelClasses)
+        .where(eq(labelClasses.imageStoreId, input.imageStoreId));
+
+      return await ctx.db
+        .select({
+          date: images.createdAtDate,
+          count: count(),
+          ...allLabels.reduce(
+            (acc, curr) => ({
+              ...acc,
+              [curr.key]:
+                sql`count(*) filter (where ${images.aiLabelId} = ${curr.id})`.mapWith(
+                  Number,
+                ),
+            }),
+            {},
+          ),
+        })
         .from(images)
         .where(eq(images.imageStoreId, input.imageStoreId))
         .groupBy(images.createdAtDate)
