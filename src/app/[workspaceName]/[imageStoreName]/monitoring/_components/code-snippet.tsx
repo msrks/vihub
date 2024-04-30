@@ -35,6 +35,7 @@ with open(FILE_PATH, "rb") as f:
   `,
     multiLabelClassification: `
 import requests
+import json
 
 with open(FILE_PATH, "rb") as f:
     res = requests.post(
@@ -44,11 +45,12 @@ with open(FILE_PATH, "rb") as f:
         data={
             "aiLabelKey": LABEL_KEY,
             "aiLabelConfidence": CONFIDENCE,
-            "aiMultiClassLabels": [
-                {"labelKey": L_KEY_1, "confidence": C_1, "aiModelKey": M_KEY_1},
-                {"labelKey": L_KEY_2, "confidence": C_2, "aiModelKey": M_KEY_2},
-                {"labelKey": L_KEY_3, "confidence": C_3, "aiModelKey": M_KEY_3},
-            ],
+            "aiMultiClassLabels": json.dumps(
+                [
+                    {"labelKey": L_KEY_1, "confidence": C_1, "aiModelKey": M_KEY_1},
+                    {"labelKey": L_KEY_2, "confidence": C_2, "aiModelKey": M_KEY_2},
+                ]
+            ),
         },
     )   
   `,
@@ -62,7 +64,7 @@ with open(FILE_PATH, "rb") as f:
           <Code2 className="ml-2 size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-5/6 w-fit sm:max-w-4xl">
+      <DialogContent className="h-5/6 w-fit sm:max-w-5xl">
         <Tabs defaultValue="singleLabelClassification">
           <TabsList>
             <TabsTrigger value="singleLabelClassification">

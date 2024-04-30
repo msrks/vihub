@@ -40,22 +40,24 @@ export async function POST(req: NextRequest) {
         : undefined,
     });
 
-    const aiMultiClassLabels = formData.getAll(
-      "aiMultiClassLabels",
-    ) as string[];
+    const aiMultiClassLabels = formData.get("aiMultiClassLabels") as string;
+
+    if (!aiMultiClassLabels) {
+      return Response.json({ success: true, type: "single-label" });
+    }
+
+    const parsed = JSON.parse(aiMultiClassLabels) as {
+      labelKey: string;
+      confidence: string | number;
+      aiModelKey: string | undefined;
+    }[];
 
     await Promise.all(
-      aiMultiClassLabels.map(async (label) => {
-        const parsed = JSON.parse(label.replace(/'/g, '"')) as {
-          labelKey: string;
-          confidence: string | number;
-          aiModelKey: string | undefined;
-        };
-
+      parsed.map(async ({ labelKey, confidence, aiModelKey }) => {
         const labelClassId = await db
           .select()
           .from(labelClasses)
-          .where(eq(labelClasses.key, parsed.labelKey));
+          .where(eq(labelClasses.key, labelKey));
 
         if (!labelClassId[0]) return;
 
@@ -65,10 +67,10 @@ export async function POST(req: NextRequest) {
             imageId: _image.id,
             labelClassId: labelClassId[0].id,
             confidence:
-              typeof parsed.confidence === "string"
-                ? parseFloat(parsed.confidence)
-                : parsed.confidence,
-            aiModelKey: parsed.aiModelKey,
+              typeof confidence === "string"
+                ? parseFloat(confidence)
+                : confidence,
+            aiModelKey,
           })
           .returning();
         console.log({ res });
@@ -76,7 +78,7 @@ export async function POST(req: NextRequest) {
       }),
     );
 
-    return Response.json({ success: true });
+    return Response.json({ success: true, type: "multi-label" });
   } catch (e) {
     if (e instanceof Error) {
       return Response.json({ error: e.message });
