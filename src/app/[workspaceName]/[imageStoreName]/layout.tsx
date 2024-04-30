@@ -13,7 +13,7 @@ interface LayoutProps {
 export default async function Layout({ children, params }: LayoutProps) {
   return (
     <div className="flex w-full grow">
-      <aside className="hidden w-1/6 min-w-fit bg-gray-100 px-2 py-2 dark:bg-gray-900 sm:block">
+      <aside className="hidden w-fit bg-gray-100 px-2 py-2 dark:bg-gray-900 sm:block">
         <SidebarNav
           items={getSidebarNavItems(
             params.workspaceName,
