@@ -43,14 +43,14 @@ with open(FILE_PATH, "rb") as f:
         files={"file": (FILE_PATH, f)},
         data={
             "aiLabelKey": LABEL_KEY,
-            "aiLabelConfidence": CONFIDENCE
+            "aiLabelConfidence": CONFIDENCE,
             "aiMultiClassLabels": [
                 {"labelKey": L_KEY_1, "confidence": C_1, "aiModelKey": M_KEY_1},
                 {"labelKey": L_KEY_2, "confidence": C_2, "aiModelKey": M_KEY_2},
                 {"labelKey": L_KEY_3, "confidence": C_3, "aiModelKey": M_KEY_3},
-            ]
+            ],
         },
-    )    
+    )   
   `,
   } as const;
 

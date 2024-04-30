@@ -1,4 +1,7 @@
+import { db } from "@/server/db";
+import { labelClasses, multiClassAiPredictions } from "@/server/db/schema";
 import { api } from "@/trpc/server";
+import { eq } from "drizzle-orm";
 import { type NextRequest } from "next/server";
 
 export const maxDuration = 300;
@@ -26,7 +29,7 @@ export async function POST(req: NextRequest) {
     const aiLabelKey = formData.get("aiLabelKey") as string;
     const aiLabelConfidence = formData.get("aiLabelConfidence") as string;
 
-    await api.image.create({
+    const _image = await api.image.create({
       imageStoreId,
       file,
       aiLabelKey,
@@ -36,6 +39,43 @@ export async function POST(req: NextRequest) {
           }
         : undefined,
     });
+
+    const aiMultiClassLabels = formData.getAll(
+      "aiMultiClassLabels",
+    ) as string[];
+
+    await Promise.all(
+      aiMultiClassLabels.map(async (label) => {
+        const parsed = JSON.parse(label.replace(/'/g, '"')) as {
+          labelKey: string;
+          confidence: string | number;
+          aiModelKey: string | undefined;
+        };
+
+        const labelClassId = await db
+          .select()
+          .from(labelClasses)
+          .where(eq(labelClasses.key, parsed.labelKey));
+
+        if (!labelClassId[0]) return;
+
+        const res = await db
+          .insert(multiClassAiPredictions)
+          .values({
+            imageId: _image.id,
+            labelClassId: labelClassId[0].id,
+            confidence:
+              typeof parsed.confidence === "string"
+                ? parseFloat(parsed.confidence)
+                : parsed.confidence,
+            aiModelKey: parsed.aiModelKey,
+          })
+          .returning();
+        console.log({ res });
+        return;
+      }),
+    );
+
     return Response.json({ success: true });
   } catch (e) {
     if (e instanceof Error) {
