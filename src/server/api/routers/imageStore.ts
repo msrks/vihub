@@ -163,6 +163,21 @@ export const imageStoreRouter = createTRPCRouter({
         .orderBy(desc(imageStores.createdAt));
     }),
 
+  getById: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const ret = await ctx.db
+        .select()
+        .from(imageStores)
+        .where(eq(imageStores.id, input.id));
+      if (!ret[0]) throw new Error("something went wrong..");
+      return ret[0];
+    }),
+
   getByName: protectedProcedure
     .input(
       z.object({

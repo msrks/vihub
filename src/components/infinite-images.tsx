@@ -34,6 +34,9 @@ export function InfiniteImages({
   onlyLabeled?: boolean;
   onlyUnlabeled?: boolean;
 }) {
+  const { data: imageStore } = api.imageStore.getById.useQuery({
+    id: imageStoreId,
+  });
   const utils = api.useUtils();
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
   const [queryImage, setQueryImage] = useState<string | null>(null);
@@ -274,6 +277,9 @@ export function InfiniteImages({
                   aiLabelConfidence={image.aiLabelDetail?.confidence}
                   setAsQueryImage={setAsQueryImage}
                   imageStoreId={imageStoreId}
+                  aspectWidth={imageStore?.imageWidth ?? undefined}
+                  aspectHeight={imageStore?.imageHeight ?? undefined}
+                  colWidth={imageStore?.colWidth ?? undefined}
                 />
               )),
           )}
@@ -299,6 +305,9 @@ export function InfiniteImages({
                 setAsQueryImage={setAsQueryImage}
                 imageStoreId={imageStoreId}
                 score={score}
+                aspectWidth={imageStore?.imageWidth ?? undefined}
+                aspectHeight={imageStore?.imageHeight ?? undefined}
+                colWidth={imageStore?.colWidth ?? undefined}
               />
             ) : null,
           )}

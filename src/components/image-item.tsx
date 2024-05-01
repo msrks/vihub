@@ -31,6 +31,9 @@ export function ImageItem({
   imageStoreId,
   score,
   isResultView,
+  aspectWidth = 200,
+  aspectHeight = 150,
+  colWidth = 200,
 }: {
   image: TImage;
   handleImageClick: (imageId: number) => void;
@@ -42,6 +45,9 @@ export function ImageItem({
   imageStoreId: number;
   score?: number;
   isResultView?: boolean;
+  aspectWidth?: number;
+  aspectHeight?: number;
+  colWidth?: number;
 }) {
   const utils = api.useUtils();
   const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
@@ -79,13 +85,16 @@ export function ImageItem({
   return (
     <div
       className={cn(
-        "relative w-[200px] cursor-pointer overflow-hidden text-center outline-2 outline-primary hover:outline",
+        `relative  w-[${colWidth}px] cursor-pointer overflow-hidden text-center outline-2 outline-primary hover:outline`,
       )}
       onClick={() => handleImageClick(image.id)}
     >
       <ContextMenu>
         <ContextMenuTrigger>
-          <AspectRatio ratio={200 / 150} className="relative bg-muted">
+          <AspectRatio
+            ratio={aspectWidth / aspectHeight}
+            className="relative bg-muted"
+          >
             <Image
               src={image.url}
               alt=""

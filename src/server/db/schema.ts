@@ -165,6 +165,9 @@ export const imageStores = createTable(
     workspaceId: integer("workspaceId")
       .notNull()
       .references(() => workspaces.id, { onDelete: "no action" }),
+    imageWidth: integer("imageWidth"),
+    imageHeight: integer("imageHeight"),
+    colWidth: integer("colWidth"),
   },
   (t) => ({
     createdAtIdx: index("image_store_createdAt_idx").on(t.createdAt),
