@@ -86,7 +86,7 @@ function DeleteField({ id }: { id: number }) {
 const formSchema = z.object({
   imageWidth: z.coerce.number().min(1).max(2000),
   imageHeight: z.coerce.number().min(1).max(2000),
-  colWidth: z.coerce.number().min(1).max(2000),
+  colWidth: z.enum(["200", "300", "400"]).transform((v) => parseInt(v, 10)),
 });
 
 function ImageListViewField({
