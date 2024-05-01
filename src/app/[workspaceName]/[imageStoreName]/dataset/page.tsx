@@ -3,6 +3,7 @@
 import { api } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
 import { InfiniteImages } from "@/components/infinite-images";
+import { ContributionsView } from "@/components/contributions-view";
 
 export default function Page({
   params: { workspaceName, imageStoreName },
@@ -16,17 +17,29 @@ export default function Page({
     workspaceName,
     imageStoreName,
   });
+  const { data: dataCounts, isLoading } =
+    api.image.getAllCountsByStoreId.useQuery(
+      { imageStoreId: imageStore?.id ?? 0, onlyLabeled: true },
+      { enabled: !!imageStore },
+    );
 
   if (!imageStore) return <Loader2 className="size-6 animate-spin" />;
 
   return (
     <div className="flex w-full grow flex-col items-center">
-      <div className="container mt-2 flex flex-col gap-2">
-        <h2 className="my-2 text-2xl font-semibold tracking-tight">
-          Labeled Images
-        </h2>
+      <div className="container flex items-center justify-between gap-2">
+        <h2 className="text-2xl font-semibold tracking-tight">Labeld Images</h2>
       </div>
-      <InfiniteImages imageStoreId={imageStore.id} onlyLabeled />
+      {dataCounts && dataCounts?.length > 0 ? (
+        <>
+          <ContributionsView isLoading={isLoading} dataCounts={dataCounts} />
+          <InfiniteImages imageStoreId={imageStore.id} onlyLabeled />
+        </>
+      ) : (
+        <div className="mt-[200px]">
+          <p>There is no images.</p>
+        </div>
+      )}
     </div>
   );
 }

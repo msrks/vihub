@@ -167,16 +167,26 @@ export const imageRouter = createTRPCRouter({
     .input(
       z.object({
         imageStoreId: z.number(),
+        onlyLabeled: z.boolean().optional(),
+        onlyUnlabeled: z.boolean().optional(),
       }),
     )
-    .query(async ({ ctx, input }) => {
-      return await ctx.db
-        .select({ date: images.createdAtDate, count: count() })
-        .from(images)
-        .where(eq(images.imageStoreId, input.imageStoreId))
-        .groupBy(images.createdAtDate)
-        .orderBy(images.createdAtDate);
-    }),
+    .query(
+      async ({ ctx, input: { imageStoreId, onlyLabeled, onlyUnlabeled } }) => {
+        return await ctx.db
+          .select({ date: images.createdAtDate, count: count() })
+          .from(images)
+          .where(
+            and(
+              eq(images.imageStoreId, imageStoreId),
+              onlyLabeled ? isNotNull(images.humanLabelId) : undefined,
+              onlyUnlabeled ? isNull(images.humanLabelId) : undefined,
+            ),
+          )
+          .groupBy(images.createdAtDate)
+          .orderBy(images.createdAtDate);
+      },
+    ),
 
   getAllCountsPerLabelPerDate: protectedProcedure
     .input(

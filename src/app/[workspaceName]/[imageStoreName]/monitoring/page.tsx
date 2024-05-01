@@ -4,6 +4,7 @@ import { api } from "@/trpc/react";
 import { ContributionsView } from "@/components/contributions-view";
 import { InfiniteImages } from "@/components/infinite-images";
 import Code from "./_components/code-snippet";
+import { Loader2 } from "lucide-react";
 
 export default function Page({
   params: { workspaceName, imageStoreName },
@@ -23,13 +24,15 @@ export default function Page({
       { enabled: !!imageStore },
     );
 
-  if (!imageStore) return null;
+  if (!imageStore) return <Loader2 className="size-6 animate-spin" />;
 
   return (
-    <div className="relative flex w-full grow flex-col items-center">
+    <div className="flex w-full grow flex-col items-center">
       {/* <PythonSdkLink /> */}
-      <Code imageStore={imageStore} className="absolute right-0 top-0" />
-
+      <div className="container flex items-center justify-between gap-2">
+        <h2 className="text-2xl font-semibold tracking-tight">All Images</h2>
+        <Code imageStore={imageStore} />
+      </div>
       {dataCounts && dataCounts?.length > 0 ? (
         <>
           <ContributionsView isLoading={isLoading} dataCounts={dataCounts} />
@@ -37,7 +40,7 @@ export default function Page({
         </>
       ) : (
         <div className="mt-[200px]">
-          <p>There is no data yet.</p>
+          <p>There is no images.</p>
         </div>
       )}
     </div>

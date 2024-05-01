@@ -7,6 +7,8 @@ import { Tooltip } from "react-tooltip";
 import { type RouterOutputs } from "@/server/api/root";
 import { useTheme } from "next-themes";
 
+type DataCount = RouterOutputs["image"]["getAllCountsByStoreId"][number];
+
 export function ContributionsView({
   isLoading,
   dataCounts,
@@ -74,5 +76,3 @@ export function ContributionsView({
     </>
   );
 }
-
-type DataCount = RouterOutputs["image"]["getAllCountsByStoreId"][number];
