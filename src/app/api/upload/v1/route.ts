@@ -1,6 +1,7 @@
 import { db } from "@/server/db";
 import { labelClasses, multiClassAiPredictions } from "@/server/db/schema";
 import { api } from "@/trpc/server";
+import { formatDate } from "date-fns";
 import { eq } from "drizzle-orm";
 import { type NextRequest } from "next/server";
 
@@ -28,8 +29,14 @@ export async function POST(req: NextRequest) {
     if (!file) throw new Error("Invalid file");
     const aiLabelKey = formData.get("aiLabelKey") as string;
     const aiLabelConfidence = formData.get("aiLabelConfidence") as string;
+    const _createdAt = formData.get("createdAt") as string | null;
+
+    const createdAt = _createdAt ? new Date(_createdAt) : undefined;
+    const createdAtDate = createdAt && formatDate(createdAt, "yyyy-MM-dd");
 
     const _image = await api.image.create({
+      createdAt,
+      createdAtDate,
       imageStoreId,
       file,
       aiLabelKey,
