@@ -57,17 +57,20 @@ export const imageStoreRouter = createTRPCRouter({
       return ret[0];
     }),
 
-  rename: protectedProcedure
+  update: protectedProcedure
     .input(
       z.object({
         id: z.number(),
-        name: z.string().min(1),
+        name: z.string().min(1).optional(),
+        imageWidth: z.number().optional(),
+        imageHeight: z.number().optional(),
+        colWidth: z.number().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .update(imageStores)
-        .set({ name: input.name })
+        .set(input)
         .where(eq(imageStores.id, input.id));
     }),
 
