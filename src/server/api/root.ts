@@ -9,6 +9,7 @@ import { userRouter } from "./routers/user";
 import { promptingExperimentRouter } from "./routers/propmtingExperiment";
 import { referenceImageRouter } from "./routers/referenceImage";
 import { experimentResultRouter } from "./routers/experimentResult";
+import { multiClassAiPredictionRouter } from "./routers/multiClassAiPrediction";
 
 export const appRouter = createTRPCRouter({
   ai: aiRouter,
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   promptingExperiment: promptingExperimentRouter,
   referenceImage: referenceImageRouter,
   experimentResult: experimentResultRouter,
+  multiClassAiPrediction: multiClassAiPredictionRouter,
 });
 
 export type AppRouter = typeof appRouter;

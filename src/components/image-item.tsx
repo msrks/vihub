@@ -63,6 +63,10 @@ export function ImageItem({
   const { mutateAsync: setThumbnail } =
     api.imageStore.setThumbnail.useMutation();
   const { mutateAsync: setExperimentUse } = api.image.update.useMutation();
+  const { data: multiClassAiPredictions } =
+    api.multiClassAiPrediction.getByImageId.useQuery({
+      imageId: image.id,
+    });
 
   const handleDelete = async () => {
     toast.info("Deleting image...");
@@ -121,17 +125,29 @@ export function ImageItem({
                 className="absolute bottom-6 right-0"
                 style={{ backgroundColor: humanLabelClass.color ?? "" }}
               >
-                <User className="mr-1 size-3" /> {humanLabelClass.key}
+                <User className="mr-1 size-3" /> {humanLabelClass.displayName}
               </Badge>
             )}
             {aiLabelClass && (
-              <Badge
-                className="absolute bottom-0 right-0"
-                style={{ backgroundColor: aiLabelClass.color ?? "" }}
-              >
-                <Bot className="mr-1 size-3" /> {aiLabelClass.key}{" "}
-                {aiLabelConfidence?.toFixed(2)}
-              </Badge>
+              <div className="absolute bottom-0 right-0 flex flex-row-reverse">
+                <Badge style={{ backgroundColor: aiLabelClass.color ?? "" }}>
+                  <Bot className="mr-1 size-3" /> {aiLabelClass.displayName}{" "}
+                  {aiLabelConfidence?.toFixed(2)}
+                </Badge>
+                {multiClassAiPredictions?.map(
+                  ({ multi_class_ai_prediction, label_class }) => {
+                    return (
+                      <Badge
+                        key={multi_class_ai_prediction.id}
+                        style={{ backgroundColor: label_class.color ?? "" }}
+                      >
+                        {label_class.displayName}{" "}
+                        {multi_class_ai_prediction.confidence.toFixed(2)}
+                      </Badge>
+                    );
+                  },
+                )}
+              </div>
             )}
             {score && (
               <Badge className="absolute right-0 top-0" variant="secondary">

@@ -185,11 +185,13 @@ export function InfiniteImages({
                   <SelectValue placeholder=" -- class -- " />
                 </SelectTrigger>
                 <SelectContent>
-                  {labelClasses?.map((lc) => (
-                    <SelectItem key={lc.id} value={lc.id.toString()}>
-                      {lc.displayName}
-                    </SelectItem>
-                  ))}
+                  {labelClasses
+                    ?.filter((lc) => !lc.isMultiClass)
+                    .map((lc) => (
+                      <SelectItem key={lc.id} value={lc.id.toString()}>
+                        {lc.displayName}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
               <Button size="sm" disabled={!labelClass}>
@@ -216,12 +218,14 @@ export function InfiniteImages({
             <RadioGroupItem value="all" id="r1" />
             <Label htmlFor="r1">All</Label>
           </div>
-          {labelClasses?.map((lc) => (
-            <div key={lc.id} className="flex items-center gap-1">
-              <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
-              <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
-            </div>
-          ))}
+          {labelClasses
+            ?.filter((lc) => !lc.isMultiClass)
+            .map((lc) => (
+              <div key={lc.id} className="flex items-center gap-1">
+                <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
+                <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
+              </div>
+            ))}
         </RadioGroup>
       </div>
 
@@ -238,12 +242,14 @@ export function InfiniteImages({
             <RadioGroupItem value="all" id="r1" />
             <Label htmlFor="r1">All</Label>
           </div>
-          {labelClasses?.map((lc) => (
-            <div key={lc.id} className="flex items-center gap-1">
-              <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
-              <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
-            </div>
-          ))}
+          {labelClasses
+            ?.filter((lc) => !lc.isMultiClass)
+            .map((lc) => (
+              <div key={lc.id} className="flex items-center gap-1">
+                <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
+                <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
+              </div>
+            ))}
         </RadioGroup>
       </div>
 
