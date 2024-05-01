@@ -46,10 +46,10 @@ with open(FILE_PATH, "rb") as f:
             "aiLabelKey": LABEL_KEY,
             "aiLabelConfidence": CONFIDENCE,
             "aiMultiClassLabels": json.dumps(
-                [
-                    {"labelKey": L_KEY_1, "confidence": C_1, "aiModelKey": M_KEY_1},
-                    {"labelKey": L_KEY_2, "confidence": C_2, "aiModelKey": M_KEY_2},
-                ]
+        [
+            {"labelKey": L_KEY_1, "confidence": C_1, "aiModelKey": M_KEY_1, "isPositive": True},
+            {"labelKey": L_KEY_2, "confidence": C_2, "aiModelKey": M_KEY_2, "isPositive": False},
+        ]
             ),
         },
     )   
