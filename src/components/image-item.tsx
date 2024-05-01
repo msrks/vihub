@@ -85,7 +85,12 @@ export function ImageItem({
   return (
     <div
       className={cn(
-        `relative  w-[200px] cursor-pointer overflow-hidden text-center outline-2 outline-primary hover:outline`,
+        "relative cursor-pointer overflow-hidden text-center outline-2 outline-primary hover:outline",
+        {
+          "w-[300px]": colWidth === 300,
+          "w-[400px]": colWidth === 400,
+          "w-[200px]": colWidth !== 300 && colWidth !== 400,
+        },
       )}
       onClick={() => handleImageClick(image.id)}
     >
