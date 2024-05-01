@@ -57,10 +57,11 @@ export async function POST(req: NextRequest) {
       labelKey: string;
       confidence: string | number;
       aiModelKey: string | undefined;
+      isPositive: boolean;
     }[];
 
     await Promise.all(
-      parsed.map(async ({ labelKey, confidence, aiModelKey }) => {
+      parsed.map(async ({ labelKey, confidence, aiModelKey, isPositive }) => {
         const labelClassId = await db
           .select()
           .from(labelClasses)
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest) {
                 ? parseFloat(confidence)
                 : confidence,
             aiModelKey,
+            isPositive,
           })
           .returning();
         console.log({ res });

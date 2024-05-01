@@ -268,6 +268,7 @@ export const multiClassAiPredictions = createTable(
     id: serial("id").primaryKey(),
     imageId: integer("imageId").notNull(),
     labelClassId: integer("labelClassId").notNull(),
+    isPositive: boolean("isPositive").notNull(),
     confidence: real("confidence").notNull(),
     aiModelId: integer("aiModelId"),
     aiModelKey: varchar("aiModelKey"),
