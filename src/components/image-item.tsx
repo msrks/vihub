@@ -1,7 +1,15 @@
 "use client";
 
 import { api } from "@/trpc/react";
-import { Bot, Check, Download, ImageIcon, Trash2, User } from "lucide-react";
+import {
+  Bot,
+  Check,
+  Download,
+  ImageIcon,
+  Trash2,
+  User,
+  ZoomIn,
+} from "lucide-react";
 import Image from "next/image";
 import {
   ContextMenu,
@@ -16,6 +24,7 @@ import type { RouterOutputs } from "@/server/api/root";
 import { Badge } from "./ui/badge";
 import { formatDate } from "date-fns";
 import { AspectRatio } from "./ui/aspect-ratio";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 
 type TImage =
   RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
@@ -129,6 +138,25 @@ export function ImageItem({
                 Score: {score.toFixed(2)}
               </Badge>
             )}
+            <Dialog>
+              <DialogTrigger>
+                <ZoomIn className="absolute right-0 top-0 size-5 bg-secondary" />
+              </DialogTrigger>
+              <DialogContent className="max-w-6xl">
+                <AspectRatio
+                  ratio={aspectWidth / aspectHeight}
+                  className="bg-muted"
+                >
+                  <Image
+                    src={image.url}
+                    alt=""
+                    fill
+                    className="rounded-md object-cover"
+                  />
+                </AspectRatio>
+                {/* <DialogDescription></DialogDescription> */}
+              </DialogContent>
+            </Dialog>
             {!isResultView
               ? image.selectedForExperiment && (
                   <Badge className="absolute bottom-0 left-0">
