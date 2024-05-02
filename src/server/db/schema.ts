@@ -12,6 +12,7 @@ import {
   serial,
   text,
   timestamp,
+  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
@@ -185,20 +186,27 @@ export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
   referenceImages: many(referenceImages),
 }));
 
-export const labelClasses = createTable("label_class", {
-  id: serial("id").primaryKey(),
-  key: varchar("key").notNull(),
-  displayName: varchar("displayName").notNull(),
-  color: varchar("color"),
-  specDefinition: varchar("specDefinition"),
-  isMultiClass: boolean("isMultiClass").default(false).notNull(),
+export const labelClasses = createTable(
+  "label_class",
+  {
+    id: serial("id").primaryKey(),
+    key: varchar("key").notNull(),
+    displayName: varchar("displayName").notNull(),
+    color: varchar("color"),
+    specDefinition: varchar("specDefinition"),
+    isMultiClass: boolean("isMultiClass").default(false).notNull(),
 
-  imageStoreId: integer("imageStoreId")
-    .notNull()
-    .references(() => imageStores.id, { onDelete: "cascade" }),
-
-  // TODO: combination of [imageStoreId, key] should be unique
-});
+    imageStoreId: integer("imageStoreId")
+      .notNull()
+      .references(() => imageStores.id, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    uniqueImageStoreAndKey: unique("label_class_imageStore_key_idx").on(
+      t.imageStoreId,
+      t.key,
+    ),
+  }),
+);
 
 export const labelClassesRelations = relations(
   labelClasses,
