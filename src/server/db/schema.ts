@@ -201,7 +201,7 @@ export const labelClasses = createTable(
       .references(() => imageStores.id, { onDelete: "cascade" }),
   },
   (t) => ({
-    uniqueImageStoreAndKey: unique("label_class_imageStore_key_idx").on(
+    uniqueImageStoreAndKey: unique("unique_image_store_and_key").on(
       t.imageStoreId,
       t.key,
     ),
@@ -248,6 +248,7 @@ export const images = createTable(
   },
   (t) => ({
     createdAtIdx: index("image_createdAt_idx").on(t.createdAt),
+    createdAtDateIdx: index("image_createdAtDate_idx").on(t.createdAtDate),
   }),
 );
 
