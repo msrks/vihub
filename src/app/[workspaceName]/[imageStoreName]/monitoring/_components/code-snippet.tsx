@@ -1,24 +1,25 @@
-"use client";
-
-import { type ImageStore } from "@/app/[workspaceName]/_components/columns";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { api } from "@/trpc/react";
+import { api } from "@/trpc/server";
 import { Code2 } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
-import type { HTMLAttributes, PropsWithoutRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function Code({
-  imageStore,
-  className,
-  ...props
-}: PropsWithoutRef<HTMLAttributes<HTMLButtonElement>> & {
-  imageStore: ImageStore;
-}) {
-  const { data: ws } = api.workspace.getById.useQuery({
-    id: imageStore.workspaceId,
+interface Props {
+  params: { workspaceName: string; imageStoreName: string };
+}
+
+export async function Code({
+  params: { workspaceName, imageStoreName },
+}: Props) {
+  const ws = await api.workspace.getByName({
+    name: workspaceName,
+  });
+
+  const imageStore = await api.imageStore.getByName({
+    workspaceName,
+    imageStoreName,
   });
 
   const codes = {
@@ -59,7 +60,7 @@ with open(FILE_PATH, "rb") as f:
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" className={className} {...props}>
+        <Button size="sm">
           Upload by API
           <Code2 className="ml-2 size-4" />
         </Button>
