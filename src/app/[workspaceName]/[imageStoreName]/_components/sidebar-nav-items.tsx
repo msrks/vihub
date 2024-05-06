@@ -7,6 +7,7 @@ import {
   LineChart,
   Images,
   Brush,
+  Bike,
 } from "lucide-react";
 
 export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
@@ -32,6 +33,12 @@ export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
     icon: <Images className="mr-2 size-4 text-muted-foreground" />,
     title: "Dataset",
     href: `/${wsName}/${imageStoreName}/dataset`,
+    type: "development",
+  },
+  {
+    icon: <Bike className="mr-2 size-4 text-muted-foreground" />,
+    title: "Training",
+    href: `/${wsName}/${imageStoreName}/training`,
     type: "development",
   },
   {
