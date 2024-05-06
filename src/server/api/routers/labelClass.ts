@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { images, labelClasses } from "@/server/db/schema";
-import { count, eq, is } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 
 export const labelClassRouter = createTRPCRouter({
   create: protectedProcedure
@@ -22,6 +22,7 @@ export const labelClassRouter = createTRPCRouter({
         return { error: "something went wrong.." };
       }
     }),
+
   update: protectedProcedure
     .input(
       z.object({
@@ -46,6 +47,7 @@ export const labelClassRouter = createTRPCRouter({
         }
       },
     ),
+
   getAll: protectedProcedure
     .input(
       z.object({
@@ -59,6 +61,7 @@ export const labelClassRouter = createTRPCRouter({
         .where(eq(labelClasses.imageStoreId, input.imageStoreId))
         .orderBy(labelClasses.key);
     }),
+
   getAllWithCount: protectedProcedure
     .input(
       z.object({
