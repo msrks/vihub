@@ -50,12 +50,12 @@ export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
     icon: <Bot className="mr-2 size-4 text-muted-foreground" />,
     title: "LLM Playground",
     href: `/${wsName}/${imageStoreName}/llm-playground`,
-    type: "genAI",
+    type: "generative AI",
   },
   {
     icon: <Settings className="mr-2 size-4 text-muted-foreground" />,
     title: "Settings",
     href: `/${wsName}/${imageStoreName}/settings`,
-    type: "genAI",
+    type: "generative AI",
   },
 ];

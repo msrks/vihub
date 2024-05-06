@@ -10,10 +10,7 @@ import ReferenceImagesPage from "../reference-images/page";
 export default function Page({
   params: { workspaceName, imageStoreName },
 }: {
-  params: {
-    workspaceName: string;
-    imageStoreName: string;
-  };
+  params: { workspaceName: string; imageStoreName: string };
 }) {
   const { data: imageStore } = api.imageStore.getByName.useQuery({
     workspaceName,
@@ -66,12 +63,7 @@ export default function Page({
           )}
         </div>
       </div>
-      <ReferenceImagesPage
-        params={{
-          workspaceName,
-          imageStoreName,
-        }}
-      />
+      <ReferenceImagesPage params={{ workspaceName, imageStoreName }} />
     </div>
   );
 }

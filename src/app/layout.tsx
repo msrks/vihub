@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import NextAuthProvider from "@/context/NextAuthProvider";
 import { cn } from "@/lib/utils";
-import { getServerAuthSession } from "@/server/auth";
 import { TRPCReactProvider } from "@/trpc/react";
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
@@ -49,7 +48,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerAuthSession();
+  // const session = await getServerAuthSession();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -68,7 +67,7 @@ export default async function RootLayout({
         >
           <TRPCReactProvider>
             <NextAuthProvider>
-              <Header session={session} />
+              <Header />
               {children}
               <Toaster richColors />
               {/* <Footer /> */}
