@@ -13,7 +13,7 @@ export function ContributionsView({
   isLoading,
   dataCounts,
 }: {
-  isLoading: boolean;
+  isLoading?: boolean;
   dataCounts: DataCount[];
 }) {
   const theme = useTheme();
