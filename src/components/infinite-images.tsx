@@ -193,7 +193,7 @@ export function InfiniteImages({
         {selectedImages.length > 0 && (
           <>
             <form className="flex items-center gap-2" onSubmit={handleSubmit}>
-              <Label>SingleClassLabel</Label>
+              <Label>SingleLabel</Label>
               <Select
                 required
                 value={labelClass}
