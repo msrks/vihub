@@ -220,6 +220,7 @@ export const labelClassesRelations = relations(
     promptingExperiments: many(promptingExperiments),
     referenceImages: many(referenceImages),
     multiClassAiPredictions: many(multiClassAiPredictions),
+    imagesToMultiLabelClasss: many(imagesToMultiLabelClasss),
   }),
 );
 
@@ -270,7 +271,37 @@ export const imagesRelations = relations(images, ({ one, many }) => ({
   }),
   experimentResults: many(experimentResults),
   multiClassAiPredictions: many(multiClassAiPredictions),
+  imagesToMultiLabelClasss: many(imagesToMultiLabelClasss),
 }));
+
+export const imagesToMultiLabelClasss = createTable(
+  "image_to_multi_label_class",
+  {
+    imageId: integer("imageId")
+      .notNull()
+      .references(() => images.id, { onDelete: "cascade" }),
+    labelClassId: integer("labelClassId")
+      .notNull()
+      .references(() => labelClasses.id, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.imageId, t.labelClassId] }),
+  }),
+);
+
+export const imagesToMultiLabelClasssRelations = relations(
+  imagesToMultiLabelClasss,
+  ({ one }) => ({
+    image: one(images, {
+      fields: [imagesToMultiLabelClasss.imageId],
+      references: [images.id],
+    }),
+    labelClass: one(labelClasses, {
+      fields: [imagesToMultiLabelClasss.labelClassId],
+      references: [labelClasses.id],
+    }),
+  }),
+);
 
 export const multiClassAiPredictions = createTable(
   "multi_class_ai_prediction",
