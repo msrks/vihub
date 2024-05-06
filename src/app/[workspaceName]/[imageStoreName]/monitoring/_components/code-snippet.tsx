@@ -5,12 +5,41 @@ import { api } from "@/trpc/server";
 import { Code2 } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Suspense } from "react";
 
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
 }
 
-export async function Code({
+export async function Code({ params }: Props) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          Upload by API
+          <Code2 className="ml-2 size-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="h-5/6 w-fit sm:max-w-5xl">
+        <Tabs defaultValue="singleLabelClassification">
+          <TabsList>
+            <TabsTrigger value="singleLabelClassification">
+              Classification(Single Label)
+            </TabsTrigger>
+            <TabsTrigger value="multiLabelClassification">
+              Classification(Multi Label)
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Suspense>
+          <TabsContents params={params} />
+        </Suspense>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+async function TabsContents({
   params: { workspaceName, imageStoreName },
 }: Props) {
   const ws = await api.workspace.getByName({
@@ -58,61 +87,37 @@ with open(FILE_PATH, "rb") as f:
   } as const;
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm">
-          Upload by API
-          <Code2 className="ml-2 size-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="h-5/6 w-fit sm:max-w-5xl">
-        <Tabs defaultValue="singleLabelClassification">
-          <TabsList>
-            <TabsTrigger value="singleLabelClassification">
-              Classification(Single Label)
-            </TabsTrigger>
-            <TabsTrigger value="multiLabelClassification">
-              Classification(Multi Label)
-            </TabsTrigger>
-          </TabsList>
-          {Object.keys(codes).map((key) => (
-            <TabsContent key={key} value={key}>
-              <Highlight
-                theme={themes.vsDark}
-                code={codes[key as keyof typeof codes]}
-                language="py"
+    <>
+      {Object.keys(codes).map((key) => (
+        <TabsContent key={key} value={key}>
+          <Highlight
+            theme={themes.vsDark}
+            code={codes[key as keyof typeof codes]}
+            language="py"
+          >
+            {({ className, style, tokens, getLineProps, getTokenProps }) => (
+              <pre
+                style={style}
+                className={cn(className, "mx-auto w-fit pr-6")}
               >
-                {({
-                  className,
-                  style,
-                  tokens,
-                  getLineProps,
-                  getTokenProps,
-                }) => (
-                  <pre
-                    style={style}
-                    className={cn(className, "mx-auto w-fit pr-6")}
-                  >
-                    {tokens.map((line, i) => {
-                      const { key, ...rest } = getLineProps({ line, key: i });
-                      return (
-                        <div key={i} style={{ position: "relative" }} {...rest}>
-                          <span className="select-none pr-8 text-zinc-500 ">
-                            {i + 1 < 10 ? ` ${i + 1}` : i + 1}
-                          </span>
-                          {line.map((token, key) => (
-                            <span key={key} {...getTokenProps({ token })} />
-                          ))}
-                        </div>
-                      );
-                    })}
-                  </pre>
-                )}
-              </Highlight>
-            </TabsContent>
-          ))}
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+                {tokens.map((line, i) => {
+                  const { key, ...rest } = getLineProps({ line, key: i });
+                  return (
+                    <div key={i} style={{ position: "relative" }} {...rest}>
+                      <span className="select-none pr-8 text-zinc-500 ">
+                        {i + 1 < 10 ? ` ${i + 1}` : i + 1}
+                      </span>
+                      {line.map((token, key) => (
+                        <span key={key} {...getTokenProps({ token })} />
+                      ))}
+                    </div>
+                  );
+                })}
+              </pre>
+            )}
+          </Highlight>
+        </TabsContent>
+      ))}
+    </>
   );
 }
