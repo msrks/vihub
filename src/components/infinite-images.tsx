@@ -2,8 +2,8 @@
 
 import { api } from "@/trpc/react";
 import { useIntersection } from "@mantine/hooks";
-import { Bot, Loader2, TriangleAlert, User } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Bot, Loader2, Save, Trash2, User } from "lucide-react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
@@ -20,6 +20,15 @@ import { useDebounce } from "use-debounce";
 import Image from "next/image";
 import type { RouterOutputs } from "@/server/api/root";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogDescription,
+} from "./ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 type SearchResult = RouterOutputs["ai"]["searchImages"][number];
 
@@ -90,7 +99,8 @@ export function InfiniteImages({
   const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
   const [labelClass, setLabelClass] = useState<string | undefined>(undefined);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (!labelClass) return toast.error("Please select a class");
 
     toast.info("Setting as labeled...");
@@ -170,12 +180,20 @@ export function InfiniteImages({
 
       <div className="mr-12 flex w-full items-center justify-end gap-4">
         <p>{selectedImages.length} images selected</p>
+        <Button
+          variant="outline"
+          disabled={selectedImages.length === 0}
+          size="sm"
+          onClick={() => setSelectedImages([])}
+        >
+          Clear
+        </Button>
+      </div>
+      <div className="mr-12 flex w-full items-center justify-end gap-4 ">
         {selectedImages.length > 0 && (
           <>
-            <Button size="sm" onClick={() => setSelectedImages([])}>
-              Clear Selection
-            </Button>
-            <form className="flex items-center gap-2" action={handleSubmit}>
+            <form className="flex items-center gap-2" onSubmit={handleSubmit}>
+              <Label>SingleClassLabel</Label>
               <Select
                 required
                 value={labelClass}
@@ -195,12 +213,32 @@ export function InfiniteImages({
                 </SelectContent>
               </Select>
               <Button size="sm" disabled={!labelClass}>
-                Assign ClassLabel
+                <Save className="size-4" />
               </Button>
             </form>
-            <Button size="sm" variant="destructive" onClick={deleteAll}>
-              <TriangleAlert className="mr-2 size-4" /> Delete Images
-            </Button>
+
+            <Dialog>
+              <DialogTrigger>
+                <Button size="sm" variant="secondary">
+                  <Trash2 className="size-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. Are you sure to permanently
+                    delete these {selectedImages.length} images from our
+                    servers?
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button variant="destructive" onClick={deleteAll}>
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </>
         )}
       </div>
