@@ -249,6 +249,7 @@ export const images = createTable(
   (t) => ({
     createdAtIdx: index("image_createdAt_idx").on(t.createdAt),
     createdAtDateIdx: index("image_createdAtDate_idx").on(t.createdAtDate),
+    imageStoreIdIdx: index("image_imageStoreId_idx").on(t.imageStoreId),
   }),
 );
 
