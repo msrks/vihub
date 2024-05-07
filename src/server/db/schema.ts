@@ -152,11 +152,14 @@ export const usersToWorkspacesRelations = relations(
   }),
 );
 
+export const typeEnum = pgEnum("type", ["clsS", "clsM", "det", "seg"]);
+
 export const imageStores = createTable(
   "image_store",
   {
     id: serial("id").primaryKey(),
     name: varchar("name").notNull(),
+    type: typeEnum("type").default("clsS").notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
