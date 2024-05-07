@@ -138,7 +138,7 @@ function ClassCell({
             <>
               <div
                 className="size-3.5 rounded-full"
-                style={{ backgroundColor: label_class.color ?? "#555555" }}
+                style={{ backgroundColor: label_class.color }}
               />
               <span>{label_class.displayName}</span>
             </>

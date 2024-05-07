@@ -42,12 +42,12 @@ function ColorCell({ row }: { row: Row<LabelClassWithCount> }) {
       <PopoverTrigger asChild>
         <div
           className="size-3.5 rounded-full"
-          style={{ backgroundColor: color ?? "#555555" }}
+          style={{ backgroundColor: color }}
         />
       </PopoverTrigger>
       <PopoverContent>
         <TwitterPicker
-          color={color ?? "#555555"}
+          color={color}
           onChangeComplete={handleChange}
           triangle="hide"
           styles={{

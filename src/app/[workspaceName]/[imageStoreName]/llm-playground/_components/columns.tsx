@@ -31,7 +31,7 @@ function ClassCell({
     <div className="flex items-center gap-2">
       <div
         className="size-3.5 rounded-full"
-        style={{ backgroundColor: color ?? "#555555" }}
+        style={{ backgroundColor: color }}
       />
       <span>{displayName}</span>
     </div>
