@@ -22,16 +22,14 @@ export async function Code({ params }: Props) {
       </DialogTrigger>
       <DialogContent className="h-5/6 w-fit sm:max-w-5xl">
         <Suspense>
-          <CodeContents params={params} />
+          <Contents params={params} />
         </Suspense>
       </DialogContent>
     </Dialog>
   );
 }
 
-async function CodeContents({
-  params: { workspaceName, imageStoreName },
-}: Props) {
+async function Contents({ params: { workspaceName, imageStoreName } }: Props) {
   const ws = await api.workspace.getByName({
     name: workspaceName,
   });
