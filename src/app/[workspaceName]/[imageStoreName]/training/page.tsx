@@ -25,5 +25,5 @@ async function Training({ params: { workspaceName, imageStoreName } }: Props) {
     imageStoreName,
   });
 
-  return <div>Training</div>;
+  return <div>now unavailable</div>;
 }
