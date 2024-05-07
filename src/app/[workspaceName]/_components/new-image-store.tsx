@@ -1,5 +1,11 @@
 "use client";
 
+import { PenSquare, PlusCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,21 +24,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { imageStoreTypeList, insertImageStoreSchema } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PenSquare, PlusCircle } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 
-const formSchema = z.object({
-  name: z.string().min(2).max(50),
-});
+import type { WSProps } from "../page";
+// const formSchema = z.object({
+//   name: z.string().min(2).max(50),
+//   type: z.enum(["img", "s3"]),
+// });
+const formSchema = insertImageStoreSchema.pick({ name: true, type: true });
 
-const NewImageStore = ({ workspaceId }: { workspaceId: number }) => {
+const NewImageStore = ({ params }: WSProps) => {
+  const { data: ws } = api.workspace.getByName.useQuery({
+    name: params.workspaceName,
+  });
+
   const utils = api.useUtils();
   const [open, setOpen] = useState(false);
-  // const router = useRouter();
+  const router = useRouter();
   const { mutateAsync: createImageStore } = api.imageStore.create.useMutation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,14 +58,14 @@ const NewImageStore = ({ workspaceId }: { workspaceId: number }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { name } = values;
-    const res = await createImageStore({ name, workspaceId });
+    const res = await createImageStore({ name, workspaceId: ws!.id });
     if (res.error) {
       form.setError("name", {
         message: res.error,
       });
       return;
     }
-    // router.push(`/${ownerId}/${id}`);
+    router.push(`/${ws!.id}/${name}`);
     await utils.imageStore.getAll.invalidate();
     setOpen(false);
   };
@@ -80,6 +97,32 @@ const NewImageStore = ({ workspaceId }: { workspaceId: number }) => {
                     <Input placeholder="type here .." {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Class</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent ref={field.ref}>
+                      {imageStoreTypeList.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />

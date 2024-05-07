@@ -19,21 +19,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import type { RouterOutputs } from "@/server/api/root";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { type WSProps } from "../page";
+import { api } from "@/trpc/react";
 
 const formSchema = z.object({
   email: z.string().min(2).max(50),
 });
 
-type Workspace = RouterOutputs["workspace"]["getByName"];
+export default function InviteUser({ params }: WSProps) {
+  const { data: ws } = api.workspace.getByName.useQuery({
+    name: params.workspaceName,
+  });
 
-export default function InviteUser({ ws }: { ws: Workspace }) {
   const [open, setOpen] = useState(false);
   // const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -42,6 +45,7 @@ export default function InviteUser({ ws }: { ws: Workspace }) {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!ws) return;
     const { email } = values;
     toast.info("Sending invitation email ..");
     await sendInviteEmail(email, ws.id.toString(), ws.name);

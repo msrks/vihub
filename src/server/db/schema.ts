@@ -15,7 +15,9 @@ import {
   unique,
   varchar,
 } from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
+import { createInsertSchema } from "drizzle-zod";
+
+import type { AdapterAccount } from "next-auth/adapters";
 
 export const createTable = pgTableCreator((name) => `vihub_${name}`);
 
@@ -152,7 +154,9 @@ export const usersToWorkspacesRelations = relations(
   }),
 );
 
-export const typeEnum = pgEnum("type", ["clsS", "clsM", "det", "seg"]);
+export const imageStoreTypeList = ["clsS", "clsM", "det", "seg"] as const;
+
+export const typeEnum = pgEnum("type", imageStoreTypeList);
 
 export const imageStores = createTable(
   "image_store",
@@ -466,3 +470,7 @@ export const referenceImagesRelations = relations(
     }),
   }),
 );
+
+// insert schema
+
+export const insertImageStoreSchema = createInsertSchema(imageStores);
