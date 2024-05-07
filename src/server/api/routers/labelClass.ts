@@ -1,4 +1,6 @@
+import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
   images,
@@ -6,7 +8,6 @@ import {
   labelClasses,
   multiClassAiPredictions,
 } from "@/server/db/schema";
-import { and, count, eq } from "drizzle-orm";
 
 export const labelClassRouter = createTRPCRouter({
   create: protectedProcedure

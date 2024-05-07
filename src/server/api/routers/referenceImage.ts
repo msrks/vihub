@@ -1,7 +1,8 @@
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { labelClasses, referenceImages } from "@/server/db/schema";
-import { desc, eq } from "drizzle-orm";
 import { put } from "@vercel/blob";
 
 export const referenceImageRouter = createTRPCRouter({

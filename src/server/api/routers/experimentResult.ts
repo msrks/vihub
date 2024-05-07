@@ -1,7 +1,8 @@
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { experimentResults, images, labelClasses } from "@/server/db/schema";
-import { desc, eq } from "drizzle-orm";
 
 export const experimentResultRouter = createTRPCRouter({
   getAllByExperimentId: protectedProcedure

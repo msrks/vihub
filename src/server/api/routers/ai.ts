@@ -1,15 +1,17 @@
+import { eq } from "drizzle-orm";
+import OpenAI from "openai";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { getVectorByReplicate } from "@/server/replicate";
-import { vdbWithMetadaba } from "@/server/pinecone";
 import {
   experimentResults,
   images,
   promptingExperiments,
 } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
-import OpenAI from "openai";
-import { type ChatCompletionContentPart } from "openai/resources/index.mjs";
+import { vdbWithMetadaba } from "@/server/pinecone";
+import { getVectorByReplicate } from "@/server/replicate";
+
+import type { ChatCompletionContentPart } from "openai/resources/index.mjs";
 
 const SYSTEM_PROMPT = (displayName: string, specDefinition: string) => `
 You are Visual Appearance Inspecton AI in a factory.

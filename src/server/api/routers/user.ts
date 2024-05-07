@@ -1,7 +1,8 @@
+import { eq } from "drizzle-orm";
 import { z } from "zod";
+
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { users, usersToWorkspaces } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
 
 export const userRouter = createTRPCRouter({
   getByWorkspaceId: protectedProcedure

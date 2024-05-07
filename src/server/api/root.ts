@@ -1,15 +1,17 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-import { workspaceRouter } from "./routers/workspace";
-import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { imageStoreRouter } from "./routers/imageStore";
-import { imageRouter } from "./routers/image";
+
 import { aiRouter } from "./routers/ai";
+import { experimentResultRouter } from "./routers/experimentResult";
+import { imageRouter } from "./routers/image";
+import { imageStoreRouter } from "./routers/imageStore";
 import { labelClassRouter } from "./routers/labelClass";
-import { userRouter } from "./routers/user";
+import { multiClassAiPredictionRouter } from "./routers/multiClassAiPrediction";
 import { promptingExperimentRouter } from "./routers/propmtingExperiment";
 import { referenceImageRouter } from "./routers/referenceImage";
-import { experimentResultRouter } from "./routers/experimentResult";
-import { multiClassAiPredictionRouter } from "./routers/multiClassAiPrediction";
+import { userRouter } from "./routers/user";
+import { workspaceRouter } from "./routers/workspace";
+
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 export const appRouter = createTRPCRouter({
   ai: aiRouter,
