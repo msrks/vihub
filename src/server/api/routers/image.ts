@@ -4,7 +4,17 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { eq, and, count, isNull, isNotNull, desc, lte, sql } from "drizzle-orm";
+import {
+  eq,
+  and,
+  count,
+  isNull,
+  isNotNull,
+  desc,
+  lte,
+  sql,
+  gte,
+} from "drizzle-orm";
 import {
   images,
   imagesToMultiLabelClasss as i2ml,
@@ -174,13 +184,15 @@ export const imageRouter = createTRPCRouter({
         .where(eq(images.imageStoreId, input.imageStoreId));
     }),
 
-  getSingleClassDataset: protectedProcedure
+  getDataset: protectedProcedure
     .input(
       z.object({
         imageStoreId: z.number(),
+        from: z.date().optional(),
+        to: z.date().optional(),
       }),
     )
-    .mutation(async ({ ctx, input: { imageStoreId } }) => {
+    .mutation(async ({ ctx, input: { imageStoreId, from, to } }) => {
       const labels = await ctx.db
         .select({ id: lc.id, key: lc.key })
         .from(lc)
@@ -197,11 +209,48 @@ export const imageRouter = createTRPCRouter({
               and(
                 eq(images.imageStoreId, imageStoreId),
                 eq(images.humanLabelId, id),
+                from ? gte(images.createdAt, from) : undefined,
+                to ? lte(images.createdAt, to) : undefined,
               ),
             );
           return { key, imgs };
         }),
       );
+    }),
+
+  getDatasetMultiLabel: protectedProcedure
+    .input(
+      z.object({
+        imageStoreId: z.number(),
+        from: z.date().optional(),
+        to: z.date().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { imageStoreId, from, to } }) => {
+      const labels = await ctx.db
+        .select({ key: lc.key })
+        .from(lc)
+        .where(
+          and(
+            eq(lc.imageStoreId, imageStoreId),
+            eq(lc.isMultiClass, true),
+            from ? gte(images.createdAt, from) : undefined,
+            to ? lte(images.createdAt, to) : undefined,
+          ),
+        );
+
+      const imgs = await ctx.db
+        .select({
+          id: images.id,
+          url: images.downloadUrl,
+          labelKeys: sql<string[]>`array_agg(${lc.key})`,
+        })
+        .from(images)
+        .where(and(eq(images.imageStoreId, imageStoreId)))
+        .innerJoin(i2ml, eq(i2ml.imageId, images.id))
+        .innerJoin(lc, eq(lc.id, i2ml.labelClassId))
+        .groupBy(images.id);
+      return { keys: labels.map((l) => l.key), imgs };
     }),
 
   getMultiClassDataset: protectedProcedure

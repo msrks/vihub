@@ -3,6 +3,7 @@ import { InfiniteImages } from "@/components/infinite-images";
 import { ContributionsView } from "@/components/contributions-view";
 import { Suspense } from "react";
 import { Loader } from "@/components/ui/loader";
+import { DownloadImages } from "./_components/downloadImages";
 
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
@@ -15,6 +16,7 @@ export default async function Page({ params }: Props) {
         <h2 className="text-2xl font-semibold tracking-tight">
           Labeled Images
         </h2>
+        <DownloadImages params={params} />
       </div>
       <Suspense fallback={<Loader />}>
         <Dataset params={params} />
