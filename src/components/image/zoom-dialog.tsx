@@ -54,7 +54,10 @@ export function ZoomDialog({
       <DialogTrigger>
         <ZoomIn className="absolute right-0 top-0 size-5 bg-secondary" />
       </DialogTrigger>
-      <DialogContent className="max-w-6xl" onClick={(e) => e.stopPropagation()}>
+      <DialogContent
+        className="max-h-full max-w-4xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <AspectRatio ratio={ratio} className="bg-muted">
           <Image
             src={image.url}
