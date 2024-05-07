@@ -1,5 +1,11 @@
 "use client";
 
+import { PenSquare, PlusCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,10 +27,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PenSquare, PlusCircle } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
@@ -39,7 +41,7 @@ const formSchema = z.object({
 export const NewLabelClass = ({ params, isMultiClass }: Props) => {
   const { data: imageStore } = api.imageStore.getByName.useQuery(params);
 
-  const utils = api.useUtils();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const { mutateAsync: createLabelClass } = api.labelClass.create.useMutation();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -61,7 +63,7 @@ export const NewLabelClass = ({ params, isMultiClass }: Props) => {
       });
       return;
     }
-    await utils.labelClass.invalidate();
+    router.refresh();
     setOpen(false);
   };
 

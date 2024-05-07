@@ -1,21 +1,33 @@
 "use client";
 
-import type { RouterOutputs } from "@/server/api/root";
-import type { Row, ColumnDef } from "@tanstack/react-table";
-import { type ColorResult, TwitterPicker } from "react-color";
-import { api } from "@/trpc/react";
-import { toast } from "sonner";
+import { Bot, Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Bot, Pencil } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { TwitterPicker } from "react-color";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation";
+import { api } from "@/trpc/react";
+
+import type { ColorResult } from "react-color";
+import type { RouterOutputs } from "@/server/api/root";
+import type { Row, ColumnDef } from "@tanstack/react-table";
 
 type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
 
@@ -31,6 +43,7 @@ export const columns: ColumnDef<LabelClass>[] = [
   { header: "Count: AILabel", cell: AICountCell },
   { header: "Spec Definition", cell: SpecDefinitionCell },
   { header: "Run LLM", cell: RunLLMCell },
+  { header: "Delete", cell: DeleteCell },
 ];
 
 export const columnsMulti: ColumnDef<LabelClass>[] = [
@@ -41,11 +54,49 @@ export const columnsMulti: ColumnDef<LabelClass>[] = [
   { header: "Count: AILabel", cell: MultiAiCountCell },
   { header: "Spec Definition", cell: SpecDefinitionCell },
   { header: "Run LLM", cell: RunLLMCell },
+  { header: "Delete", cell: DeleteCell },
 ];
+
+function DeleteCell({ row }: Props) {
+  const { id } = row.original;
+  const router = useRouter();
+  const { mutateAsync } = api.labelClass.deleteById.useMutation();
+
+  const handleDelete = async () => {
+    toast.info("Deleting label class...");
+    await mutateAsync({ id });
+    toast.success("Label class deleted!");
+    router.refresh();
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button size="sm" variant="ghost">
+          <Trash2 className="size-3" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. Are you sure to permanently delete
+            from our servers?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="destructive" onClick={handleDelete}>
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function ColorCell({ row }: Props) {
   const [open, setOpen] = useState(false);
-  const utils = api.useUtils();
+  const router = useRouter();
   const { mutateAsync } = api.labelClass.update.useMutation();
   const { color, id } = row.original;
 
@@ -54,7 +105,8 @@ function ColorCell({ row }: Props) {
     await mutateAsync({ id, color: c.hex });
     toast.success("Color updated!");
     setOpen(false);
-    await utils.labelClass.invalidate();
+    // await utils.labelClass.invalidate();
+    router.refresh();
   };
 
   return (
@@ -88,7 +140,7 @@ function DisplayNameCell({ row }: Props) {
   const [open, setOpen] = useState(false);
   const { displayName, id } = row.original;
   const [value, setValue] = useState(displayName);
-  const utils = api.useUtils();
+  const router = useRouter();
   const { mutateAsync } = api.labelClass.update.useMutation();
 
   const handleSubmit = async () => {
@@ -96,7 +148,7 @@ function DisplayNameCell({ row }: Props) {
     await mutateAsync({ id, displayName: value });
     toast.success("Display name updated!");
     setOpen(false);
-    await utils.labelClass.invalidate();
+    router.refresh();
   };
 
   return (
@@ -120,7 +172,7 @@ function SpecDefinitionCell({ row }: Props) {
   const [open, setOpen] = useState(false);
   const { specDefinition, id } = row.original;
   const [value, setValue] = useState(specDefinition);
-  const utils = api.useUtils();
+  const router = useRouter();
   const { mutateAsync } = api.labelClass.update.useMutation();
 
   const handleSubmit = async () => {
@@ -130,7 +182,7 @@ function SpecDefinitionCell({ row }: Props) {
     await mutateAsync({ id, specDefinition: value });
     toast.success("Spec definition updated!");
     setOpen(false);
-    await utils.labelClass.invalidate();
+    router.refresh();
   };
 
   return (

@@ -68,6 +68,12 @@ export const labelClassRouter = createTRPCRouter({
         .orderBy(labelClasses.key);
     }),
 
+  deleteById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(labelClasses).where(eq(labelClasses.id, input.id));
+    }),
+
   // getAllWithCount: protectedProcedure
   //   .input(
   //     z.object({
