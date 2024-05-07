@@ -65,7 +65,7 @@ const NewImageStore = ({ params }: WSProps) => {
       });
       return;
     }
-    router.push(`/${ws!.id}/${name}`);
+    router.push(`/${params.workspaceName}/${name}/spec-catalog`);
     await utils.imageStore.getAll.invalidate();
     setOpen(false);
   };
