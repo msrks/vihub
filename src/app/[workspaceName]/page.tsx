@@ -4,7 +4,6 @@ import { api } from "@/trpc/react";
 import { ChevronDown, Loader2, Pencil, Settings, Sparkles } from "lucide-react";
 import { DataTable } from "../../components/data-table";
 import NewImageStore from "./_components/new-image-store";
-import { getColumns } from "./_components/columns";
 import { Separator } from "@/components/ui/separator";
 import {
   Popover,
@@ -25,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import InviteUser from "./_components/invite-user";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { columns } from "./_components/columns";
 
 function WorkspaceTitleEdit({ id, current }: { id: number; current: string }) {
   const [open, setOpen] = useState(false);
@@ -71,7 +71,7 @@ export default function Page({
     name: workspaceName,
   });
 
-  const { data, isLoading } = api.imageStore.getAllWithCounts.useQuery({
+  const { data, isLoading } = api.imageStore.getTableData.useQuery({
     workspaceId: ws?.id ?? 0,
   });
 
@@ -131,7 +131,7 @@ export default function Page({
       </div>
       <div className="container">
         {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {data && <DataTable columns={getColumns(workspaceName)} data={data} />}
+        {data && <DataTable columns={columns} data={data} />}
       </div>
     </div>
   );

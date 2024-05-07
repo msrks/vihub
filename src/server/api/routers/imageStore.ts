@@ -150,7 +150,7 @@ export const imageStoreRouter = createTRPCRouter({
         .orderBy(desc(imageStores.createdAt));
     }),
 
-  getAllWithCounts: protectedProcedure
+  getTableData: protectedProcedure
     .input(
       z.object({
         workspaceId: z.number(),
@@ -158,7 +158,13 @@ export const imageStoreRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       return ctx.db
-        .select({ ...{ imageStores }, count: count(images.id) })
+        .select({
+          name: imageStores.name,
+          createdAt: imageStores.createdAt,
+          thumbnailUrl: imageStores.thumbnailUrl,
+          type: imageStores.type,
+          count: count(images.id),
+        })
         .from(imageStores)
         .leftJoin(images, eq(images.imageStoreId, imageStores.id))
         .where(eq(imageStores.workspaceId, input.workspaceId))
