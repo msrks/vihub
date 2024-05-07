@@ -166,9 +166,9 @@ export const imageStores = createTable(
     workspaceId: integer("workspaceId")
       .notNull()
       .references(() => workspaces.id, { onDelete: "no action" }),
-    imageWidth: integer("imageWidth"),
-    imageHeight: integer("imageHeight"),
-    colWidth: integer("colWidth"),
+    imageWidth: integer("imageWidth").default(200).notNull(),
+    imageHeight: integer("imageHeight").default(150).notNull(),
+    colWidth: integer("colWidth").default(200).notNull(),
   },
   (t) => ({
     createdAtIdx: index("image_store_createdAt_idx").on(t.createdAt),
@@ -192,7 +192,7 @@ export const labelClasses = createTable(
     id: serial("id").primaryKey(),
     key: varchar("key").notNull(),
     displayName: varchar("displayName").notNull(),
-    color: varchar("color"),
+    color: varchar("color").default("#555555").notNull(),
     specDefinition: varchar("specDefinition"),
     isMultiClass: boolean("isMultiClass").default(false).notNull(),
 

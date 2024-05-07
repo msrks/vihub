@@ -5,7 +5,11 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import { eq, and, count, isNull, isNotNull, desc, lte, sql } from "drizzle-orm";
-import { images, labelClasses } from "@/server/db/schema";
+import {
+  images,
+  imagesToMultiLabelClasss as i2ml,
+  labelClasses as lc,
+} from "@/server/db/schema";
 import { del, put } from "@vercel/blob";
 import { getVectorByReplicate } from "@/server/replicate";
 import { vdb } from "@/server/pinecone";
@@ -47,12 +51,9 @@ export const imageRouter = createTRPCRouter({
         if (aiLabelKey) {
           const _res = await ctx.db
             .select()
-            .from(labelClasses)
+            .from(lc)
             .where(
-              and(
-                eq(labelClasses.key, aiLabelKey),
-                eq(labelClasses.imageStoreId, imageStoreId),
-              ),
+              and(eq(lc.key, aiLabelKey), eq(lc.imageStoreId, imageStoreId)),
             );
           if (!_res[0]) throw new Error("aiLabelKey not found..");
           aiLabelId = _res[0].id;
@@ -99,16 +100,26 @@ export const imageRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         humanLabelId: z.number().optional(),
+        multiLabelIds: z.array(z.number()).optional(),
         selectedForExperiment: z.boolean().optional(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      const ret = await ctx.db
+    .mutation(async ({ ctx, input: { id, multiLabelIds, ...rest } }) => {
+      await ctx.db
         .update(images)
-        .set(input)
-        .where(eq(images.id, input.id))
+        .set(rest)
+        .where(eq(images.id, id))
         .returning();
-      if (!ret[0]) throw new Error("something went wrong..");
+      if (multiLabelIds) await ctx.db.delete(i2ml).where(eq(i2ml.imageId, id));
+      if (multiLabelIds?.length) {
+        await ctx.db.insert(i2ml).values(
+          multiLabelIds.map((labelClassId) => ({
+            imageId: id,
+            labelClassId,
+          })),
+        );
+      }
+
       return { success: true };
     }),
 
@@ -163,6 +174,66 @@ export const imageRouter = createTRPCRouter({
         .where(eq(images.imageStoreId, input.imageStoreId));
     }),
 
+  getSingleClassDataset: protectedProcedure
+    .input(
+      z.object({
+        imageStoreId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { imageStoreId } }) => {
+      const labels = await ctx.db
+        .select({ id: lc.id, key: lc.key })
+        .from(lc)
+        .where(
+          and(eq(lc.imageStoreId, imageStoreId), eq(lc.isMultiClass, false)),
+        );
+
+      return await Promise.all(
+        labels.map(async ({ key, id }) => {
+          const imgs = await ctx.db
+            .select({ id: images.id, url: images.downloadUrl })
+            .from(images)
+            .where(
+              and(
+                eq(images.imageStoreId, imageStoreId),
+                eq(images.humanLabelId, id),
+              ),
+            );
+          return { key, imgs };
+        }),
+      );
+    }),
+
+  getMultiClassDataset: protectedProcedure
+    .input(
+      z.object({
+        imageStoreId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { imageStoreId } }) => {
+      const labels = await ctx.db
+        .select({ id: lc.id, key: lc.key })
+        .from(lc)
+        .where(
+          and(eq(lc.imageStoreId, imageStoreId), eq(lc.isMultiClass, true)),
+        );
+
+      return await Promise.all(
+        labels.map(async ({ key, id }) => {
+          const imgs = await ctx.db
+            .select({ id: images.id, url: images.downloadUrl })
+            .from(images)
+            .where(
+              and(
+                eq(images.imageStoreId, imageStoreId),
+                eq(images.humanLabelId, id),
+              ),
+            );
+          return { key, imgs };
+        }),
+      );
+    }),
+
   getAllCountsByStoreId: protectedProcedure
     .input(
       z.object({
@@ -197,8 +268,8 @@ export const imageRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const allLabels = await ctx.db
         .select()
-        .from(labelClasses)
-        .where(eq(labelClasses.imageStoreId, input.imageStoreId));
+        .from(lc)
+        .where(eq(lc.imageStoreId, input.imageStoreId));
 
       return await ctx.db
         .select({
@@ -289,4 +360,23 @@ export const imageRouter = createTRPCRouter({
         };
       },
     ),
+
+  getMultiLabels: protectedProcedure
+    .input(
+      z.object({
+        imageId: z.number(),
+      }),
+    )
+    .query(async ({ ctx, input: { imageId } }) => {
+      return await ctx.db
+        .select({
+          id: lc.id,
+          key: lc.key,
+          color: lc.color,
+          displayName: lc.displayName,
+        })
+        .from(i2ml)
+        .where(eq(i2ml.imageId, imageId))
+        .innerJoin(lc, eq(lc.id, i2ml.labelClassId));
+    }),
 });

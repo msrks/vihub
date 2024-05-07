@@ -292,7 +292,7 @@ export function InfiniteImages({
       </div>
 
       {isSearching && <Loader2 className="mx-auto size-8 animate-spin" />}
-      {!isSearching && searchResults.length === 0 && (
+      {imageStore && !isSearching && searchResults.length === 0 && (
         <div className="flex flex-wrap items-center justify-center gap-2">
           {data?.pages.flatMap((page) =>
             page.items
@@ -312,25 +312,16 @@ export function InfiniteImages({
                   image={image}
                   handleImageClick={handleImageClick}
                   isChecked={selectedImages.includes(image.id)}
-                  humanLabelClass={labelClasses?.find(
-                    (lc) => lc.id === image.humanLabelId,
-                  )}
-                  aiLabelClass={labelClasses?.find(
-                    (lc) => lc.id === image.aiLabelId,
-                  )}
-                  aiLabelConfidence={image.aiLabelDetail?.confidence}
                   setAsQueryImage={setAsQueryImage}
-                  imageStoreId={imageStoreId}
-                  aspectWidth={imageStore?.imageWidth ?? undefined}
-                  aspectHeight={imageStore?.imageHeight ?? undefined}
-                  colWidth={imageStore?.colWidth ?? undefined}
+                  aspectRatio={imageStore.imageWidth / imageStore.imageHeight}
+                  colWidth={imageStore.colWidth}
                 />
               )),
           )}
           <div ref={ref} className="-ml-3 h-1 w-1"></div>
         </div>
       )}
-      {!isSearching && searchResults.length > 0 && (
+      {imageStore && !isSearching && searchResults.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-2">
           {searchResults.map(({ image, score }) =>
             image ? (
@@ -339,19 +330,10 @@ export function InfiniteImages({
                 image={image}
                 handleImageClick={handleImageClick}
                 isChecked={selectedImages.includes(image.id)}
-                humanLabelClass={labelClasses?.find(
-                  (lc) => lc.id === image.humanLabelId,
-                )}
-                aiLabelClass={labelClasses?.find(
-                  (lc) => lc.id === image.aiLabelId,
-                )}
-                aiLabelConfidence={image.aiLabelDetail?.confidence}
                 setAsQueryImage={setAsQueryImage}
-                imageStoreId={imageStoreId}
                 score={score}
-                aspectWidth={imageStore?.imageWidth ?? undefined}
-                aspectHeight={imageStore?.imageHeight ?? undefined}
-                colWidth={imageStore?.colWidth ?? undefined}
+                aspectRatio={imageStore.imageWidth / imageStore.imageHeight}
+                colWidth={imageStore.colWidth}
               />
             ) : null,
           )}
