@@ -42,18 +42,14 @@ function ExampleListView({
             >
               <ImageItem
                 image={result.image}
-                handleImageClick={() => void {}}
-                isChecked={false}
-                humanLabelClass={result.label_class}
-                imageStoreId={experiment.prompting_experiment.imageStoreId}
-                isResultView
+                resultLabel={result.label_class}
               />
               <p className="w-[200px] text-xs">
                 {result.experiment_result.predLabel ? (
                   <Badge
                     className="mr-0.5 border-0 px-1 py-0"
                     style={{
-                      backgroundColor: experiment.label_class.color ?? "",
+                      backgroundColor: experiment.label_class.color,
                     }}
                   >
                     <Bot className="mr-0.5 size-3" />
