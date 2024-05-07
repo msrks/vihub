@@ -1,30 +1,15 @@
-"use client";
-
-import { api } from "@/trpc/react";
-import { Loader2 } from "lucide-react";
+import { api } from "@/trpc/server";
 import { DataTable } from "@/components/data-table";
 import { columns } from "./_components/columns";
 import NewReferenceImages from "./_components/new-reference-images";
+import { Suspense } from "react";
+import { Loader } from "@/components/ui/loader";
 
-export default function ReferenceImagesPage({
-  params: { workspaceName, imageStoreName },
-}: {
-  params: {
-    workspaceName: string;
-    imageStoreName: string;
-  };
-}) {
-  const { data: imageStore } = api.imageStore.getByName.useQuery({
-    workspaceName,
-    imageStoreName,
-  });
-  const { data, isLoading } = api.referenceImage.getAll.useQuery(
-    { imageStoreId: imageStore?.id ?? 0 },
-    { enabled: !!imageStore },
-  );
+interface Props {
+  params: { workspaceName: string; imageStoreName: string };
+}
 
-  if (!imageStore) return <Loader2 className="size-6 animate-spin" />;
-
+export default async function Page({ params }: Props) {
   return (
     <div className="flex w-full grow flex-col items-center">
       <div className="container mt-2 flex items-center justify-between">
@@ -32,13 +17,26 @@ export default function ReferenceImagesPage({
           Reference Images
         </h2>
         <div className="ml-auto mr-4 ">
-          <NewReferenceImages imageStoreId={imageStore.id} />
+          <NewReferenceImages params={params} />
         </div>
       </div>
-      <div className="container">
-        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {data && <DataTable columns={columns} data={data} />}
-      </div>
+      <Suspense fallback={<Loader />}>
+        <ReferenceImages params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function ReferenceImages({ params }: Props) {
+  const imageStore = await api.imageStore.getByName(params);
+
+  const referenceImages = await api.referenceImage.getAll({
+    imageStoreId: imageStore.id,
+  });
+
+  return (
+    <div className="container">
+      <DataTable columns={columns} data={referenceImages} />
     </div>
   );
 }

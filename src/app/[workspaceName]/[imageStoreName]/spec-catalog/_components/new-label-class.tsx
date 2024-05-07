@@ -26,18 +26,19 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+interface Props {
+  params: { workspaceName: string; imageStoreName: string };
+  isMultiClass?: boolean;
+}
+
 const formSchema = z.object({
   key: z.string().min(1).max(50),
   displayName: z.string().min(1).max(50),
 });
 
-const NewLabelClass = ({
-  imageStoreId,
-  isMultiClass,
-}: {
-  imageStoreId: number;
-  isMultiClass?: boolean;
-}) => {
+export const NewLabelClass = ({ params, isMultiClass }: Props) => {
+  const { data: imageStore } = api.imageStore.getByName.useQuery(params);
+
   const utils = api.useUtils();
   const [open, setOpen] = useState(false);
   const { mutateAsync: createLabelClass } = api.labelClass.create.useMutation();
@@ -51,7 +52,7 @@ const NewLabelClass = ({
     const res = await createLabelClass({
       key,
       displayName,
-      imageStoreId,
+      imageStoreId: imageStore!.id,
       isMultiClass,
     });
     if (res.error) {
@@ -126,5 +127,3 @@ const NewLabelClass = ({
     </Dialog>
   );
 };
-
-export default NewLabelClass;

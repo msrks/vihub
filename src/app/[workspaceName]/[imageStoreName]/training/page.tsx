@@ -19,11 +19,8 @@ export default async function Page({ params }: Props) {
   );
 }
 
-async function Training({ params: { workspaceName, imageStoreName } }: Props) {
-  const imageStore = await api.imageStore.getByName({
-    workspaceName,
-    imageStoreName,
-  });
+async function Training({ params }: Props) {
+  const imageStore = await api.imageStore.getByName(params);
 
   return <div>now unavailable</div>;
 }

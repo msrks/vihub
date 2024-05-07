@@ -7,19 +7,25 @@ import { Loader2, PlusCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
-const NewReferenceImages = ({ imageStoreId }: { imageStoreId: number }) => {
+interface Props {
+  params: { workspaceName: string; imageStoreName: string };
+}
+
+const NewReferenceImages = ({ params }: Props) => {
+  const { data: imageStore } = api.imageStore.getByName.useQuery(params);
+
   const ref = useRef<HTMLInputElement>(null);
   const utils = api.useUtils();
   const [uploading, setUploading] = useState(false);
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if (imageStore && e.target.files) {
       setUploading(true);
       const form = new FormData();
       const files = Array.from(e.target.files);
       files.forEach((file) => form.append("images", file));
       toast.info("Uploading Reference Images...");
-      await uploadRefImage(imageStoreId, form);
+      await uploadRefImage(imageStore.id, form);
       toast.success("Reference Images uploaded successfully!");
       e.target.files = null;
       if (ref.current) ref.current.value = "";
