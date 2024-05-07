@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/context-menu";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { LabelClass } from "@/app/[workspaceName]/[imageStoreName]/spec-catalog/_components/columns";
 import type { RouterOutputs } from "@/server/api/root";
 import { Badge } from "./ui/badge";
 import { formatDate } from "date-fns";
@@ -35,7 +34,7 @@ export function ImageItem({
   score?: number;
   aspectRatio?: number;
   colWidth?: number;
-  resultLabel?: LabelClass;
+  resultLabel?: RouterOutputs["labelClass"]["getAll"][number];
 }) {
   const utils = api.useUtils();
   const { mutateAsync: delImage } = api.image.deleteById.useMutation();

@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { images, labelClasses } from "@/server/db/schema";
-import { count, eq } from "drizzle-orm";
+import {
+  images,
+  imagesToMultiLabelClasss,
+  labelClasses,
+  multiClassAiPredictions,
+} from "@/server/db/schema";
+import { and, count, eq } from "drizzle-orm";
 
 export const labelClassRouter = createTRPCRouter({
   create: protectedProcedure
@@ -62,43 +67,92 @@ export const labelClassRouter = createTRPCRouter({
         .orderBy(labelClasses.key);
     }),
 
-  getAllWithCount: protectedProcedure
-    .input(
-      z.object({
-        imageStoreId: z.number(),
-      }),
-    )
+  // getAllWithCount: protectedProcedure
+  //   .input(
+  //     z.object({
+  //       imageStoreId: z.number(),
+  //     }),
+  //   )
+  //   .query(async ({ ctx, input }) => {
+  //     const humanLabels = ctx.db
+  //       .select({
+  //         labelId: images.humanLabelId,
+  //         countH: count(images.id).as("countH"),
+  //       })
+  //       .from(images)
+  //       .where(eq(images.imageStoreId, input.imageStoreId))
+  //       .groupBy(images.humanLabelId)
+  //       .as("humanLabels");
+
+  //     const aiLabels = ctx.db
+  //       .select({
+  //         labelId: images.aiLabelId,
+  //         countA: count(images.id).as("countA"),
+  //       })
+  //       .from(images)
+  //       .where(eq(images.imageStoreId, input.imageStoreId))
+  //       .groupBy(images.aiLabelId)
+  //       .as("aiLabels");
+
+  //     return await ctx.db
+  //       .select({
+  //         labelClasses,
+  //         humanCount: humanLabels.countH,
+  //         aiCount: aiLabels.countA,
+  //       })
+  //       .from(labelClasses)
+  //       .where(eq(labelClasses.imageStoreId, input.imageStoreId))
+  //       .orderBy(labelClasses.key)
+  //       .leftJoin(humanLabels, eq(humanLabels.labelId, labelClasses.id))
+  //       .leftJoin(aiLabels, eq(aiLabels.labelId, labelClasses.id));
+  //   }),
+
+  getHumanCount: protectedProcedure
+    .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      const humanLabels = ctx.db
-        .select({
-          labelId: images.humanLabelId,
-          countH: count(images.id).as("countH"),
-        })
+      const res = await ctx.db
+        .select({ count: count() })
         .from(images)
-        .where(eq(images.imageStoreId, input.imageStoreId))
-        .groupBy(images.humanLabelId)
-        .as("humanLabels");
+        .where(eq(images.humanLabelId, input.id))
+        .groupBy(images.humanLabelId);
+      return res[0]?.count ?? 0;
+    }),
 
-      const aiLabels = ctx.db
-        .select({
-          labelId: images.aiLabelId,
-          countA: count(images.id).as("countA"),
-        })
+  getAICount: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.db
+        .select({ count: count() })
         .from(images)
-        .where(eq(images.imageStoreId, input.imageStoreId))
-        .groupBy(images.aiLabelId)
-        .as("aiLabels");
+        .where(eq(images.aiLabelId, input.id))
+        .groupBy(images.aiLabelId);
+      return res[0]?.count ?? 0;
+    }),
 
-      return await ctx.db
-        .select({
-          labelClasses,
-          humanCount: humanLabels.countH,
-          aiCount: aiLabels.countA,
-        })
-        .from(labelClasses)
-        .where(eq(labelClasses.imageStoreId, input.imageStoreId))
-        .orderBy(labelClasses.key)
-        .leftJoin(humanLabels, eq(humanLabels.labelId, labelClasses.id))
-        .leftJoin(aiLabels, eq(aiLabels.labelId, labelClasses.id));
+  getMultiHumanCount: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.db
+        .select({ count: count() })
+        .from(imagesToMultiLabelClasss)
+        .where(eq(imagesToMultiLabelClasss.labelClassId, input.id))
+        .groupBy(imagesToMultiLabelClasss.labelClassId);
+      return res[0]?.count ?? 0;
+    }),
+
+  getMultiAiCount: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.db
+        .select({ count: count() })
+        .from(multiClassAiPredictions)
+        .where(
+          and(
+            eq(multiClassAiPredictions.labelClassId, input.id),
+            eq(multiClassAiPredictions.isPositive, true),
+          ),
+        )
+        .groupBy(multiClassAiPredictions.labelClassId);
+      return res[0]?.count ?? 0;
     }),
 });

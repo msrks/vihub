@@ -1,8 +1,7 @@
 import { api } from "@/trpc/server";
-import { Loader2 } from "lucide-react";
 import { NewLabelClass } from "./_components/new-label-class";
 import { DataTable } from "@/components/data-table";
-import { columns } from "./_components/columns";
+import { columns, columnsMulti } from "./_components/columns";
 import ReferenceImagesPage from "../reference-images/page";
 import { Loader } from "@/components/ui/loader";
 import { Suspense } from "react";
@@ -37,7 +36,7 @@ export default async function Page({ params }: Props) {
           </div>
         </div>
         <Suspense fallback={<Loader />}>
-          <LabelClasses params={params} isMultiClass />
+          <LabelClasses params={params} multi />
         </Suspense>
       </div>
       <ReferenceImagesPage params={params} />
@@ -45,25 +44,15 @@ export default async function Page({ params }: Props) {
   );
 }
 
-async function LabelClasses({
-  params,
-  isMultiClass,
-}: Props & { isMultiClass?: boolean }) {
-  const imageStore = await api.imageStore.getByName(params);
-
-  const labelClasses = await api.labelClass.getAllWithCount({
-    imageStoreId: imageStore.id,
-  });
+async function LabelClasses({ params, multi }: Props & { multi?: boolean }) {
+  const { id } = await api.imageStore.getByName(params);
+  const data = await api.labelClass.getAll({ imageStoreId: id });
 
   return (
     <div className="container">
       <DataTable
-        columns={columns}
-        data={labelClasses.filter((d) =>
-          isMultiClass
-            ? d.labelClasses.isMultiClass
-            : !d.labelClasses.isMultiClass,
-        )}
+        columns={!multi ? columns : columnsMulti}
+        data={data.filter((d) => (multi ? d.isMultiClass : !d.isMultiClass))}
       />
     </div>
   );

@@ -17,17 +17,37 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 
-export type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
-export type LabelClassWithCount =
-  RouterOutputs["labelClass"]["getAllWithCount"][number];
+type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
 
-function ColorCell({ row }: { row: Row<LabelClassWithCount> }) {
+interface Props {
+  row: Row<LabelClass>;
+}
+
+export const columns: ColumnDef<LabelClass>[] = [
+  { header: "Color", cell: ColorCell },
+  { header: "Key", accessorKey: "key" },
+  { header: "Display Name", cell: DisplayNameCell },
+  { header: "Count: HumanLabel", cell: HumanCountCell },
+  { header: "Count: AILabel", cell: AICountCell },
+  { header: "Spec Definition", cell: SpecDefinitionCell },
+  { header: "Run LLM", cell: RunLLMCell },
+];
+
+export const columnsMulti: ColumnDef<LabelClass>[] = [
+  { header: "Color", cell: ColorCell },
+  { header: "Key", accessorKey: "key" },
+  { header: "Display Name", cell: DisplayNameCell },
+  { header: "Count: HumanLabel", cell: MultiHumanCountCell },
+  { header: "Count: AILabel", cell: MultiAiCountCell },
+  { header: "Spec Definition", cell: SpecDefinitionCell },
+  { header: "Run LLM", cell: RunLLMCell },
+];
+
+function ColorCell({ row }: Props) {
   const [open, setOpen] = useState(false);
   const utils = api.useUtils();
   const { mutateAsync } = api.labelClass.update.useMutation();
-  const {
-    labelClasses: { color, id },
-  } = row.original;
+  const { color, id } = row.original;
 
   const handleChange = async (c: ColorResult) => {
     toast.info("Updating color...");
@@ -64,11 +84,9 @@ function ColorCell({ row }: { row: Row<LabelClassWithCount> }) {
   );
 }
 
-function DisplayNameCell({ row }: { row: Row<LabelClassWithCount> }) {
+function DisplayNameCell({ row }: Props) {
   const [open, setOpen] = useState(false);
-  const {
-    labelClasses: { displayName, id },
-  } = row.original;
+  const { displayName, id } = row.original;
   const [value, setValue] = useState(displayName);
   const utils = api.useUtils();
   const { mutateAsync } = api.labelClass.update.useMutation();
@@ -85,7 +103,7 @@ function DisplayNameCell({ row }: { row: Row<LabelClassWithCount> }) {
     <Popover open={open} onOpenChange={(e) => setOpen(e)}>
       <PopoverTrigger>
         <span className="flex items-center gap-1">
-          {row.original.labelClasses.displayName} <Pencil className="size-3" />
+          {displayName} <Pencil className="size-3" />
         </span>
       </PopoverTrigger>
       <PopoverContent>
@@ -98,11 +116,9 @@ function DisplayNameCell({ row }: { row: Row<LabelClassWithCount> }) {
   );
 }
 
-function SpecDefinitionCell({ row }: { row: Row<LabelClassWithCount> }) {
+function SpecDefinitionCell({ row }: Props) {
   const [open, setOpen] = useState(false);
-  const {
-    labelClasses: { specDefinition, id },
-  } = row.original;
+  const { specDefinition, id } = row.original;
   const [value, setValue] = useState(specDefinition);
   const utils = api.useUtils();
   const { mutateAsync } = api.labelClass.update.useMutation();
@@ -121,9 +137,7 @@ function SpecDefinitionCell({ row }: { row: Row<LabelClassWithCount> }) {
     <Popover open={open} onOpenChange={(e) => setOpen(e)}>
       <PopoverTrigger>
         <div className="flex items-center gap-1 ">
-          <p className="whitespace-pre-wrap text-start">
-            {row.original.labelClasses.specDefinition}
-          </p>
+          <p className="whitespace-pre-wrap text-start">{specDefinition}</p>
           <Pencil className="size-3" />
         </div>
       </PopoverTrigger>
@@ -141,10 +155,8 @@ function SpecDefinitionCell({ row }: { row: Row<LabelClassWithCount> }) {
   );
 }
 
-function RunLLMCell({ row }: { row: Row<LabelClassWithCount> }) {
-  const {
-    labelClasses: { id, displayName, imageStoreId, specDefinition },
-  } = row.original;
+function RunLLMCell({ row }: Props) {
+  const { id, displayName, imageStoreId, specDefinition } = row.original;
   const router = useRouter();
   const { mutateAsync } = api.ai.runLLM.useMutation();
   const { data: referenceImages } =
@@ -180,12 +192,26 @@ function RunLLMCell({ row }: { row: Row<LabelClassWithCount> }) {
   );
 }
 
-export const columns: ColumnDef<LabelClassWithCount>[] = [
-  { header: "Color", cell: ColorCell },
-  { header: "Key", accessorKey: "labelClasses.key" },
-  { header: "Display Name", cell: DisplayNameCell },
-  { header: "Count: HumanLabel", accessorKey: "humanCount" },
-  { header: "Count: AILabel", accessorKey: "aiCount" },
-  { header: "Spec Definition", cell: SpecDefinitionCell },
-  { header: "Run LLM", cell: RunLLMCell },
-];
+function HumanCountCell({ row }: Props) {
+  const { id } = row.original;
+  const { data } = api.labelClass.getHumanCount.useQuery({ id });
+  return <>{data}</>;
+}
+
+function AICountCell({ row }: Props) {
+  const { id } = row.original;
+  const { data } = api.labelClass.getAICount.useQuery({ id });
+  return <>{data}</>;
+}
+
+function MultiHumanCountCell({ row }: Props) {
+  const { id } = row.original;
+  const { data } = api.labelClass.getMultiHumanCount.useQuery({ id });
+  return <>{data}</>;
+}
+
+function MultiAiCountCell({ row }: Props) {
+  const { id } = row.original;
+  const { data } = api.labelClass.getMultiAiCount.useQuery({ id });
+  return <>{data}</>;
+}
