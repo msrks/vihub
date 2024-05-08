@@ -281,6 +281,8 @@ export const imagesRelations = relations(images, ({ one, many }) => ({
   imagesToMultiLabelClasss: many(imagesToMultiLabelClasss),
 }));
 
+export const i2mlTypeEnum = pgEnum("type", ["clsM", "det"]);
+
 export const imagesToMultiLabelClasss = createTable(
   "image_to_multi_label_class",
   {
@@ -290,6 +292,13 @@ export const imagesToMultiLabelClasss = createTable(
     labelClassId: integer("labelClassId")
       .notNull()
       .references(() => labelClasses.id, { onDelete: "cascade" }),
+    type: i2mlTypeEnum("type").default("clsM").notNull(),
+    bboxXmin: integer("bboxXmin"),
+    bboxYmin: integer("bboxYmin"),
+    bboxXmax: integer("bboxXmax"),
+    bboxYmax: integer("bboxYmax"),
+    width: integer("width"),
+    height: integer("height"),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.imageId, t.labelClassId] }),
