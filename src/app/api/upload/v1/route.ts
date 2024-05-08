@@ -24,7 +24,7 @@ const schema = z.object({
   multiLabelString: z.string().optional(),
 });
 
-const multiLabelsSchema = z.array(
+const clsMSchema = z.array(
   z.object({
     labelKey: z.string(),
     confidence: z.string().or(z.number()),
@@ -101,31 +101,43 @@ export async function POST(req: NextRequest) {
         : undefined,
     });
 
-    if (imageStoreType === "clsS") return Response.json({ success: true });
-    if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
+    if (imageStoreType === "clsS") {
+      return Response.json({ success: true });
+    } else if (imageStoreType === "clsM") {
+      if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
 
-    const parsed = multiLabelsSchema.parse(JSON.parse(multiLabelString));
-    await Promise.all(
-      parsed.map(async ({ labelKey, confidence, aiModelKey, isPositive }) => {
-        const ret = await db
-          .select()
-          .from(labelClasses)
-          .where(eq(labelClasses.key, labelKey));
-        if (!ret[0]) return;
-        await db.insert(multiClassAiPredictions).values({
-          imageId,
-          labelClassId: ret[0].id,
-          confidence:
-            typeof confidence === "string"
-              ? parseFloat(confidence)
-              : confidence,
-          aiModelKey,
-          isPositive,
-        });
-      }),
-    );
+      const parsed = clsMSchema.parse(JSON.parse(multiLabelString));
+      await Promise.all(
+        parsed.map(async ({ labelKey, confidence, aiModelKey, isPositive }) => {
+          const ret = await db
+            .select()
+            .from(labelClasses)
+            .where(
+              and(
+                eq(labelClasses.key, labelKey),
+                eq(labelClasses.imageStoreId, imageStoreId),
+              ),
+            );
+          if (!ret[0]) return;
+          await db.insert(multiClassAiPredictions).values({
+            imageId,
+            labelClassId: ret[0].id,
+            confidence:
+              typeof confidence === "string"
+                ? parseFloat(confidence)
+                : confidence,
+            aiModelKey,
+            isPositive,
+          });
+        }),
+      );
 
-    return Response.json({ success: true });
+      return Response.json({ success: true });
+    } else if (imageStoreType === "det") {
+      return Response.json({ success: true });
+    } else {
+      throw new Error("Invalid image store type");
+    }
   } catch (e) {
     if (e instanceof Error) {
       return Response.json({ error: e.message });
