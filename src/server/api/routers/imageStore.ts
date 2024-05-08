@@ -1,11 +1,7 @@
 import { and, count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { images, imageStores, workspaces } from "@/server/db/schema";
 import { vdb } from "@/server/pinecone";
 import { del } from "@vercel/blob";
@@ -36,27 +32,27 @@ export const imageStoreRouter = createTRPCRouter({
       }
     }),
 
-  verifyApiKey: publicProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        apiKey: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const ret = await ctx.db
-        .select()
-        .from(imageStores)
-        .innerJoin(workspaces, eq(workspaces.id, imageStores.workspaceId))
-        .where(
-          and(
-            eq(imageStores.id, input.id),
-            eq(workspaces.apiKey, input.apiKey),
-          ),
-        );
-      if (!ret[0]) throw new Error("API Key not found");
-      return ret[0];
-    }),
+  // verifyApiKey: publicProcedure
+  //   .input(
+  //     z.object({
+  //       id: z.number(),
+  //       apiKey: z.string(),
+  //     }),
+  //   )
+  //   .query(async ({ ctx, input }) => {
+  //     const ret = await ctx.db
+  //       .select()
+  //       .from(imageStores)
+  //       .innerJoin(workspaces, eq(workspaces.id, imageStores.workspaceId))
+  //       .where(
+  //         and(
+  //           eq(imageStores.id, input.id),
+  //           eq(workspaces.apiKey, input.apiKey),
+  //         ),
+  //       );
+  //     if (!ret[0]) throw new Error("API Key not found");
+  //     return ret[0];
+  //   }),
 
   update: protectedProcedure
     .input(

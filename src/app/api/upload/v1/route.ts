@@ -1,42 +1,82 @@
-import { db } from "@/server/db";
-import { labelClasses, multiClassAiPredictions } from "@/server/db/schema";
-import { api } from "@/trpc/server";
 import { formatDate } from "date-fns";
-import { eq } from "drizzle-orm";
-import { type NextRequest } from "next/server";
+import { and, eq } from "drizzle-orm";
+import { z } from "zod";
+
+import { db } from "@/server/db";
+import {
+  imageStores,
+  labelClasses,
+  multiClassAiPredictions,
+  workspaces,
+} from "@/server/db/schema";
+import { api } from "@/trpc/server";
+
+import type { NextRequest } from "next/server";
 
 export const maxDuration = 300;
 
+const schema = z.object({
+  imageStoreId: z.coerce.number(),
+  apiKey: z.string(),
+  aiLabelKey: z.string().optional(),
+  aiLabelConfidence: z.string().optional(),
+  createdAt: z.coerce.date().optional(),
+  multiLabelString: z.string().optional(),
+});
+
+const multiLabelsSchema = z.array(
+  z.object({
+    labelKey: z.string(),
+    confidence: z.string().or(z.number()),
+    aiModelKey: z.string().optional(),
+    isPositive: z.boolean(),
+  }),
+);
+
+async function validateApiKey({
+  imageStoreId,
+  apiKey,
+}: {
+  imageStoreId: number;
+  apiKey: string;
+}) {
+  const ret = await db
+    .select()
+    .from(imageStores)
+    .innerJoin(workspaces, eq(workspaces.id, imageStores.workspaceId))
+    .where(
+      and(eq(imageStores.id, imageStoreId), eq(workspaces.apiKey, apiKey)),
+    );
+  if (!ret[0]) throw new Error("API Key not found");
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // 1. validate api key
-    const searchParams = req.nextUrl.searchParams;
-    const id = searchParams.get("storeId");
-    if (!id) throw new Error("Invalid image store id");
-    const imageStoreId = parseInt(id);
-
-    const apiKey = req.headers.get("apiKey");
-    if (!apiKey) throw new Error("No API Key");
-    const result = await api.imageStore.verifyApiKey({
-      id: imageStoreId,
-      apiKey,
-    });
-    if (!result) throw new Error("Invalid API Key");
-
-    // 2, upload file & save to DB, VDB
     const formData = await req.formData();
     const file = formData.get("file") as File;
     if (!file) throw new Error("Invalid file");
-    const aiLabelKey = formData.get("aiLabelKey") as string;
-    const aiLabelConfidence = formData.get("aiLabelConfidence") as string;
-    const _createdAt = formData.get("createdAt") as string | null;
-
-    const createdAt = _createdAt ? new Date(_createdAt) : undefined;
-    const createdAtDate = createdAt && formatDate(createdAt, "yyyy-MM-dd");
-
-    const _image = await api.image.create({
+    const {
+      imageStoreId,
+      apiKey,
+      aiLabelKey,
+      aiLabelConfidence,
       createdAt,
-      createdAtDate,
+      multiLabelString,
+    } = schema.parse({
+      imageStoreId: req.nextUrl.searchParams.get("storeId"),
+      apiKey: req.headers.get("apiKey"),
+      aiLabelKey: formData.get("aiLabelKey"),
+      aiLabelConfidence: formData.get("aiLabelConfidence"),
+      createdAt: formData.get("createdAt"),
+      multiLabelString: formData.get("aiMultiClassLabels"),
+    });
+
+    await validateApiKey({ imageStoreId, apiKey });
+
+    // upload file & save to DB, VDB
+    const { id: imageId } = await api.image.create({
+      createdAt,
+      createdAtDate: createdAt && formatDate(createdAt, "yyyy-MM-dd"),
       imageStoreId,
       file,
       aiLabelKey,
@@ -47,47 +87,30 @@ export async function POST(req: NextRequest) {
         : undefined,
     });
 
-    const aiMultiClassLabels = formData.get("aiMultiClassLabels") as string;
+    if (!multiLabelString) return Response.json({ success: true });
 
-    if (!aiMultiClassLabels) {
-      return Response.json({ success: true, type: "single-label" });
-    }
-
-    const parsed = JSON.parse(aiMultiClassLabels) as {
-      labelKey: string;
-      confidence: string | number;
-      aiModelKey: string | undefined;
-      isPositive: boolean;
-    }[];
-
+    const parsed = multiLabelsSchema.parse(JSON.parse(multiLabelString));
     await Promise.all(
       parsed.map(async ({ labelKey, confidence, aiModelKey, isPositive }) => {
-        const labelClassId = await db
+        const ret = await db
           .select()
           .from(labelClasses)
           .where(eq(labelClasses.key, labelKey));
-
-        if (!labelClassId[0]) return;
-
-        const res = await db
-          .insert(multiClassAiPredictions)
-          .values({
-            imageId: _image.id,
-            labelClassId: labelClassId[0].id,
-            confidence:
-              typeof confidence === "string"
-                ? parseFloat(confidence)
-                : confidence,
-            aiModelKey,
-            isPositive,
-          })
-          .returning();
-        console.log({ res });
-        return;
+        if (!ret[0]) return;
+        await db.insert(multiClassAiPredictions).values({
+          imageId,
+          labelClassId: ret[0].id,
+          confidence:
+            typeof confidence === "string"
+              ? parseFloat(confidence)
+              : confidence,
+          aiModelKey,
+          isPositive,
+        });
       }),
     );
 
-    return Response.json({ success: true, type: "multi-label" });
+    return Response.json({ success: true });
   } catch (e) {
     if (e instanceof Error) {
       return Response.json({ error: e.message });
