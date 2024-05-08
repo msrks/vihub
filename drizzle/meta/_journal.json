@@ -71,6 +71,13 @@
       "when": 1712541514676,
       "tag": "0009_green_shard",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1715126642351,
+      "tag": "0010_nice_silvermane",
+      "breakpoints": true
     }
   ]
 }

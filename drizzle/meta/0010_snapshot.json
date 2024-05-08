@@ -1,0 +1,1186 @@
+{
+  "id": "984b018e-5bd6-43e9-ace7-b984aaac5e4d",
+  "prevId": "41057e54-06f4-4697-93f6-9577e6cc00c0",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "vihub_account": {
+      "name": "vihub_account",
+      "schema": "",
+      "columns": {
+        "userId": {
+          "name": "userId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerAccountId": {
+          "name": "providerAccountId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "token_type": {
+          "name": "token_type",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "session_state": {
+          "name": "session_state",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "account_userId_idx": {
+          "name": "account_userId_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_account_userId_vihub_user_id_fk": {
+          "name": "vihub_account_userId_vihub_user_id_fk",
+          "tableFrom": "vihub_account",
+          "tableTo": "vihub_user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "vihub_account_provider_providerAccountId_pk": {
+          "name": "vihub_account_provider_providerAccountId_pk",
+          "columns": [
+            "provider",
+            "providerAccountId"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "vihub_ai_model": {
+      "name": "vihub_ai_model",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "displayName": {
+          "name": "displayName",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "vihub_experiment_result": {
+      "name": "vihub_experiment_result",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "isPositiveExample": {
+          "name": "isPositiveExample",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "predLabel": {
+          "name": "predLabel",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "predReason": {
+          "name": "predReason",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "promptingExperimentId": {
+          "name": "promptingExperimentId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imageId": {
+          "name": "imageId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "experiment_result_createdAt_idx": {
+          "name": "experiment_result_createdAt_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_experiment_result_promptingExperimentId_vihub_prompting_experiment_id_fk": {
+          "name": "vihub_experiment_result_promptingExperimentId_vihub_prompting_experiment_id_fk",
+          "tableFrom": "vihub_experiment_result",
+          "tableTo": "vihub_prompting_experiment",
+          "columnsFrom": [
+            "promptingExperimentId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "vihub_experiment_result_imageId_vihub_image_id_fk": {
+          "name": "vihub_experiment_result_imageId_vihub_image_id_fk",
+          "tableFrom": "vihub_experiment_result",
+          "tableTo": "vihub_image",
+          "columnsFrom": [
+            "imageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "vihub_image_store": {
+      "name": "vihub_image_store",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "type",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'clsS'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "thumbnailUrl": {
+          "name": "thumbnailUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imageWidth": {
+          "name": "imageWidth",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 200
+        },
+        "imageHeight": {
+          "name": "imageHeight",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 150
+        },
+        "colWidth": {
+          "name": "colWidth",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 200
+        }
+      },
+      "indexes": {
+        "image_store_createdAt_idx": {
+          "name": "image_store_createdAt_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_image_store_workspaceId_vihub_workspace_id_fk": {
+          "name": "vihub_image_store_workspaceId_vihub_workspace_id_fk",
+          "tableFrom": "vihub_image_store",
+          "tableTo": "vihub_workspace",
+          "columnsFrom": [
+            "workspaceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "vihub_image": {
+      "name": "vihub_image",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vectorId": {
+          "name": "vectorId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "downloadUrl": {
+          "name": "downloadUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "selectedForExperiment": {
+          "name": "selectedForExperiment",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at_date": {
+          "name": "created_at_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "imageStoreId": {
+          "name": "imageStoreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aiLabelId": {
+          "name": "aiLabelId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aiLabelDetail": {
+          "name": "aiLabelDetail",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "humanLabelId": {
+          "name": "humanLabelId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "humanLabelDetail": {
+          "name": "humanLabelDetail",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "image_createdAt_idx": {
+          "name": "image_createdAt_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "image_createdAtDate_idx": {
+          "name": "image_createdAtDate_idx",
+          "columns": [
+            "created_at_date"
+          ],
+          "isUnique": false
+        },
+        "image_imageStoreId_idx": {
+          "name": "image_imageStoreId_idx",
+          "columns": [
+            "imageStoreId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_image_imageStoreId_vihub_image_store_id_fk": {
+          "name": "vihub_image_imageStoreId_vihub_image_store_id_fk",
+          "tableFrom": "vihub_image",
+          "tableTo": "vihub_image_store",
+          "columnsFrom": [
+            "imageStoreId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "vihub_image_aiLabelId_vihub_label_class_id_fk": {
+          "name": "vihub_image_aiLabelId_vihub_label_class_id_fk",
+          "tableFrom": "vihub_image",
+          "tableTo": "vihub_label_class",
+          "columnsFrom": [
+            "aiLabelId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "vihub_image_humanLabelId_vihub_label_class_id_fk": {
+          "name": "vihub_image_humanLabelId_vihub_label_class_id_fk",
+          "tableFrom": "vihub_image",
+          "tableTo": "vihub_label_class",
+          "columnsFrom": [
+            "humanLabelId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "vihub_image_url_unique": {
+          "name": "vihub_image_url_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "url"
+          ]
+        },
+        "vihub_image_vectorId_unique": {
+          "name": "vihub_image_vectorId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "vectorId"
+          ]
+        },
+        "vihub_image_downloadUrl_unique": {
+          "name": "vihub_image_downloadUrl_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "downloadUrl"
+          ]
+        }
+      }
+    },
+    "vihub_image_to_multi_label_class": {
+      "name": "vihub_image_to_multi_label_class",
+      "schema": "",
+      "columns": {
+        "imageId": {
+          "name": "imageId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "labelClassId": {
+          "name": "labelClassId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "vihub_image_to_multi_label_class_imageId_vihub_image_id_fk": {
+          "name": "vihub_image_to_multi_label_class_imageId_vihub_image_id_fk",
+          "tableFrom": "vihub_image_to_multi_label_class",
+          "tableTo": "vihub_image",
+          "columnsFrom": [
+            "imageId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "vihub_image_to_multi_label_class_labelClassId_vihub_label_class_id_fk": {
+          "name": "vihub_image_to_multi_label_class_labelClassId_vihub_label_class_id_fk",
+          "tableFrom": "vihub_image_to_multi_label_class",
+          "tableTo": "vihub_label_class",
+          "columnsFrom": [
+            "labelClassId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "vihub_image_to_multi_label_class_imageId_labelClassId_pk": {
+          "name": "vihub_image_to_multi_label_class_imageId_labelClassId_pk",
+          "columns": [
+            "imageId",
+            "labelClassId"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "vihub_label_class": {
+      "name": "vihub_label_class",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "displayName": {
+          "name": "displayName",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "color": {
+          "name": "color",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'#555555'"
+        },
+        "specDefinition": {
+          "name": "specDefinition",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isMultiClass": {
+          "name": "isMultiClass",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "imageStoreId": {
+          "name": "imageStoreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "vihub_label_class_imageStoreId_vihub_image_store_id_fk": {
+          "name": "vihub_label_class_imageStoreId_vihub_image_store_id_fk",
+          "tableFrom": "vihub_label_class",
+          "tableTo": "vihub_image_store",
+          "columnsFrom": [
+            "imageStoreId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unique_image_store_and_key": {
+          "name": "unique_image_store_and_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "imageStoreId",
+            "key"
+          ]
+        }
+      }
+    },
+    "vihub_multi_class_ai_prediction": {
+      "name": "vihub_multi_class_ai_prediction",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "imageId": {
+          "name": "imageId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "labelClassId": {
+          "name": "labelClassId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isPositive": {
+          "name": "isPositive",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aiModelId": {
+          "name": "aiModelId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aiModelKey": {
+          "name": "aiModelKey",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "vihub_prompting_experiment": {
+      "name": "vihub_prompting_experiment",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "specDefinition": {
+          "name": "specDefinition",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "referenceImages": {
+          "name": "referenceImages",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "scorePositive": {
+          "name": "scorePositive",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scoreNegative": {
+          "name": "scoreNegative",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "imageStoreId": {
+          "name": "imageStoreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "labelClassId": {
+          "name": "labelClassId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "prompting_experiment_createdAt_idx": {
+          "name": "prompting_experiment_createdAt_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_prompting_experiment_imageStoreId_vihub_image_store_id_fk": {
+          "name": "vihub_prompting_experiment_imageStoreId_vihub_image_store_id_fk",
+          "tableFrom": "vihub_prompting_experiment",
+          "tableTo": "vihub_image_store",
+          "columnsFrom": [
+            "imageStoreId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "vihub_prompting_experiment_labelClassId_vihub_label_class_id_fk": {
+          "name": "vihub_prompting_experiment_labelClassId_vihub_label_class_id_fk",
+          "tableFrom": "vihub_prompting_experiment",
+          "tableTo": "vihub_label_class",
+          "columnsFrom": [
+            "labelClassId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "vihub_reference_image": {
+      "name": "vihub_reference_image",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "downloadUrl": {
+          "name": "downloadUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "isPositive": {
+          "name": "isPositive",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "imageStoreId": {
+          "name": "imageStoreId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "labelClassId": {
+          "name": "labelClassId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "reference_image_createdAt_idx": {
+          "name": "reference_image_createdAt_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_reference_image_imageStoreId_vihub_image_store_id_fk": {
+          "name": "vihub_reference_image_imageStoreId_vihub_image_store_id_fk",
+          "tableFrom": "vihub_reference_image",
+          "tableTo": "vihub_image_store",
+          "columnsFrom": [
+            "imageStoreId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "vihub_reference_image_labelClassId_vihub_label_class_id_fk": {
+          "name": "vihub_reference_image_labelClassId_vihub_label_class_id_fk",
+          "tableFrom": "vihub_reference_image",
+          "tableTo": "vihub_label_class",
+          "columnsFrom": [
+            "labelClassId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "vihub_reference_image_url_unique": {
+          "name": "vihub_reference_image_url_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "url"
+          ]
+        },
+        "vihub_reference_image_downloadUrl_unique": {
+          "name": "vihub_reference_image_downloadUrl_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "downloadUrl"
+          ]
+        }
+      }
+    },
+    "vihub_session": {
+      "name": "vihub_session",
+      "schema": "",
+      "columns": {
+        "sessionToken": {
+          "name": "sessionToken",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "session_userId_idx": {
+          "name": "session_userId_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_session_userId_vihub_user_id_fk": {
+          "name": "vihub_session_userId_vihub_user_id_fk",
+          "tableFrom": "vihub_session",
+          "tableTo": "vihub_user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "vihub_user": {
+      "name": "vihub_user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "emailVerified": {
+          "name": "emailVerified",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "image": {
+          "name": "image",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "vihub_users_to_workspaces": {
+      "name": "vihub_users_to_workspaces",
+      "schema": "",
+      "columns": {
+        "role": {
+          "name": "role",
+          "type": "role",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'member'"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workspaceId": {
+          "name": "workspaceId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "user_workspace_userId_idx": {
+          "name": "user_workspace_userId_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "user_workspace_workspaceId_idx": {
+          "name": "user_workspace_workspaceId_idx",
+          "columns": [
+            "workspaceId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "vihub_users_to_workspaces_userId_vihub_user_id_fk": {
+          "name": "vihub_users_to_workspaces_userId_vihub_user_id_fk",
+          "tableFrom": "vihub_users_to_workspaces",
+          "tableTo": "vihub_user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk": {
+          "name": "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk",
+          "tableFrom": "vihub_users_to_workspaces",
+          "tableTo": "vihub_workspace",
+          "columnsFrom": [
+            "workspaceId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "vihub_users_to_workspaces_userId_workspaceId_pk": {
+          "name": "vihub_users_to_workspaces_userId_workspaceId_pk",
+          "columns": [
+            "userId",
+            "workspaceId"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "vihub_verificationToken": {
+      "name": "vihub_verificationToken",
+      "schema": "",
+      "columns": {
+        "identifier": {
+          "name": "identifier",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "vihub_verificationToken_identifier_token_pk": {
+          "name": "vihub_verificationToken_identifier_token_pk",
+          "columns": [
+            "identifier",
+            "token"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "vihub_workspace": {
+      "name": "vihub_workspace",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "personal": {
+          "name": "personal",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "apiKey": {
+          "name": "apiKey",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "workspace_createdAt_idx": {
+          "name": "workspace_createdAt_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "vihub_workspace_name_unique": {
+          "name": "vihub_workspace_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {
+    "role": {
+      "name": "role",
+      "values": {
+        "member": "member",
+        "admin": "admin"
+      }
+    },
+    "type": {
+      "name": "type",
+      "values": {
+        "clsS": "clsS",
+        "clsM": "clsM",
+        "det": "det",
+        "seg": "seg"
+      }
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
