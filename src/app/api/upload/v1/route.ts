@@ -27,7 +27,7 @@ const schema = z.object({
 const clsMSchema = z.array(
   z.object({
     labelKey: z.string(),
-    confidence: z.string().or(z.number()),
+    confidence: z.coerce.number(),
     aiModelKey: z.string().optional(),
     isPositive: z.boolean(),
   }),
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
 
       const parsed = clsMSchema.parse(JSON.parse(multiLabelString));
       await Promise.all(
-        parsed.map(async ({ labelKey, confidence, aiModelKey, isPositive }) => {
+        parsed.map(async ({ labelKey, ...rest }) => {
           const ret = await db
             .select()
             .from(labelClasses)
@@ -119,16 +119,11 @@ export async function POST(req: NextRequest) {
               ),
             );
           if (!ret[0]) return;
-          await db.insert(multiClassAiPredictions).values({
-            imageId,
-            labelClassId: ret[0].id,
-            confidence:
-              typeof confidence === "string"
-                ? parseFloat(confidence)
-                : confidence,
-            aiModelKey,
-            isPositive,
-          });
+          const labelClassId = ret[0].id;
+
+          await db
+            .insert(multiClassAiPredictions)
+            .values({ imageId, labelClassId, ...rest });
         }),
       );
 
