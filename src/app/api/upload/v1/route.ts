@@ -41,13 +41,14 @@ async function validateApiKey({
   apiKey: string;
 }) {
   const ret = await db
-    .select()
+    .select({ type: imageStores.type })
     .from(imageStores)
     .innerJoin(workspaces, eq(workspaces.id, imageStores.workspaceId))
     .where(
       and(eq(imageStores.id, imageStoreId), eq(workspaces.apiKey, apiKey)),
     );
   if (!ret[0]) throw new Error("API Key not found");
+  return ret[0].type;
 }
 
 export async function POST(req: NextRequest) {
@@ -71,7 +72,20 @@ export async function POST(req: NextRequest) {
       multiLabelString: formData.get("aiMultiClassLabels"),
     });
 
-    await validateApiKey({ imageStoreId, apiKey });
+    const imageStoreType = await validateApiKey({ imageStoreId, apiKey });
+
+    // for debugging
+    // console.log({
+    //   imageStoreId,
+    //   apiKey,
+    //   aiLabelKey,
+    //   aiLabelConfidence,
+    //   createdAt,
+    //   multiLabelString,
+    //   imageStoreType,
+    // });
+    // return Response.json({ debug: true });
+    // end for debugging
 
     // upload file & save to DB, VDB
     const { id: imageId } = await api.image.create({
@@ -87,7 +101,8 @@ export async function POST(req: NextRequest) {
         : undefined,
     });
 
-    if (!multiLabelString) return Response.json({ success: true });
+    if (imageStoreType === "clsS") return Response.json({ success: true });
+    if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
 
     const parsed = multiLabelsSchema.parse(JSON.parse(multiLabelString));
     await Promise.all(
