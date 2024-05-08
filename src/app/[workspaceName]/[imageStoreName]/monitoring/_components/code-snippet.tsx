@@ -1,10 +1,12 @@
 import "server-only";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Code2 } from "lucide-react";
 import { Suspense } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { api } from "@/trpc/server";
+
 import { CodeTabs } from "./code-tabs";
 
 interface Props {
@@ -29,48 +31,54 @@ export async function Code({ params }: Props) {
   );
 }
 
-async function Contents({ params: { workspaceName, imageStoreName } }: Props) {
-  const ws = await api.workspace.getByName({
-    name: workspaceName,
+async function Contents({ params }: Props) {
+  const { apiKey } = await api.workspace.getByName({
+    name: params.workspaceName,
   });
-
-  const imageStore = await api.imageStore.getByName({
-    workspaceName,
-    imageStoreName,
-  });
+  const { id } = await api.imageStore.getByName(params);
 
   const codes = {
     singleLabelClassification: `
-  import requests
-  
-  with open(FILE_PATH, "rb") as f:
-      res = requests.post(
-          "https://vihub.msrks.dev/api/upload/v1?storeId=${imageStore.id}",
-          headers={"apiKey": "${ws?.apiKey}"},
-          files={"file": (FILE_PATH, f)},
-          data={"aiLabelKey": LABEL_KEY, "aiLabelConfidence": CONFIDENCE},
-      )
+import requests
+
+with open(FILE_PATH, "rb") as f:
+    res = requests.post(
+        "https://vihub.msrks.dev/api/upload/v1?storeId=${id}",
+        headers={"apiKey": "${apiKey}"},
+        files={"file": (FILE_PATH, f)},
+        data={"aiLabelKey": LABEL_KEY, "aiLabelConfidence": CONFIDENCE},
+    )
     `,
     multiLabelClassification: `
-  import requests
-  import json
-  
-  with open(FILE_PATH, "rb") as f:
-      res = requests.post(
-          "https://vihub.msrks.dev/api/upload/v1?storeId=${imageStore.id}",
-          headers={"apiKey": "${ws?.apiKey}"},
-          files={"file": (FILE_PATH, f)},
-          data={
-              "aiLabelKey": LABEL_KEY,
-              "aiLabelConfidence": CONFIDENCE,
-              "aiMultiClassLabels": json.dumps(
-          [
-              {"labelKey": L_KEY_1, "confidence": C_1, "aiModelKey": M_KEY_1, "isPositive": True},
-              {"labelKey": L_KEY_2, "confidence": C_2, "aiModelKey": M_KEY_2, "isPositive": False},
-          ]
-              ),
-          },
-      )   
+import requests
+import json
+
+with open(FILE_PATH, "rb") as f:
+    res = requests.post(
+        "https://vihub.msrks.dev/api/upload/v1?storeId=${id}",
+        headers={"apiKey": "${apiKey}"},
+        files={"file": (FILE_PATH, f)},
+        data={
+            "aiLabelKey": LABEL_KEY,
+            "aiLabelConfidence": CONFIDENCE,
+            "aiMultiClassLabels": json.dumps(
+                [
+                    {
+                        "labelKey": L_KEY_1,
+                        "confidence": C_1,
+                        "aiModelKey": M_KEY_1,
+                        "isPositive": True,
+                    },
+                    {
+                        "labelKey": L_KEY_2,
+                        "confidence": C_2,
+                        "aiModelKey": M_KEY_2,
+                        "isPositive": False,
+                    },
+                ]
+            ),
+        },
+    )    
     `,
   };
 
