@@ -1,11 +1,28 @@
 "use client";
 
+import { Bot, Loader2, Save, Trash2, User } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { useDebounce } from "use-debounce";
+
 import { api } from "@/trpc/react";
 import { useIntersection } from "@mantine/hooks";
-import { Bot, Loader2, Save, Trash2, User } from "lucide-react";
-import { type FormEvent, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+
+import { ImageItem } from "./image-item";
 import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -13,22 +30,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { ImageItem } from "./image-item";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { useDebounce } from "use-debounce";
-import Image from "next/image";
+
 import type { RouterOutputs } from "@/server/api/root";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogDescription,
-} from "./ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import type { FormEvent } from "react";
 
 type SearchResult = RouterOutputs["ai"]["searchImages"][number];
 
