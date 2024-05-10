@@ -17,11 +17,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import {
-  images,
-  imagesToMultiLabelClasss as i2ml,
-  labelClasses as lc,
-} from "@/server/db/schema";
+import { images, labelClasses as lc, labelsClsM } from "@/server/db/schema";
 import { vdb } from "@/server/pinecone";
 import { getVectorByReplicate } from "@/server/replicate";
 import { del, put } from "@vercel/blob";
@@ -122,9 +118,10 @@ export const imageRouter = createTRPCRouter({
         .set(rest)
         .where(eq(images.id, id))
         .returning();
-      if (multiLabelIds) await ctx.db.delete(i2ml).where(eq(i2ml.imageId, id));
+      if (multiLabelIds)
+        await ctx.db.delete(labelsClsM).where(eq(labelsClsM.imageId, id));
       if (multiLabelIds?.length) {
-        await ctx.db.insert(i2ml).values(
+        await ctx.db.insert(labelsClsM).values(
           multiLabelIds.map((labelClassId) => ({
             imageId: id,
             labelClassId,
@@ -249,8 +246,8 @@ export const imageRouter = createTRPCRouter({
         })
         .from(images)
         .where(and(eq(images.imageStoreId, imageStoreId)))
-        .innerJoin(i2ml, eq(i2ml.imageId, images.id))
-        .innerJoin(lc, eq(lc.id, i2ml.labelClassId))
+        .innerJoin(labelsClsM, eq(labelsClsM.imageId, images.id))
+        .innerJoin(lc, eq(lc.id, labelsClsM.labelClassId))
         .groupBy(images.id);
       return { keys: labels.map((l) => l.key), imgs };
     }),
@@ -426,8 +423,8 @@ export const imageRouter = createTRPCRouter({
           color: lc.color,
           displayName: lc.displayName,
         })
-        .from(i2ml)
-        .where(eq(i2ml.imageId, imageId))
-        .innerJoin(lc, eq(lc.id, i2ml.labelClassId));
+        .from(labelsClsM)
+        .where(eq(labelsClsM.imageId, imageId))
+        .innerJoin(lc, eq(lc.id, labelsClsM.labelClassId));
     }),
 });

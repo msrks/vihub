@@ -4,8 +4,8 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
   images,
-  imagesToMultiLabelClasss,
   labelClasses,
+  labelsClsM,
   multiClassAiPredictions,
 } from "@/server/db/schema";
 
@@ -141,9 +141,9 @@ export const labelClassRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const res = await ctx.db
         .select({ count: count() })
-        .from(imagesToMultiLabelClasss)
-        .where(eq(imagesToMultiLabelClasss.labelClassId, input.id))
-        .groupBy(imagesToMultiLabelClasss.labelClassId);
+        .from(labelsClsM)
+        .where(eq(labelsClsM.labelClassId, input.id))
+        .groupBy(labelsClsM.labelClassId);
       return res[0]?.count ?? 0;
     }),
 

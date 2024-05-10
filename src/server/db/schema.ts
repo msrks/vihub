@@ -227,7 +227,8 @@ export const labelClassesRelations = relations(
     promptingExperiments: many(promptingExperiments),
     referenceImages: many(referenceImages),
     multiClassAiPredictions: many(multiClassAiPredictions),
-    imagesToMultiLabelClasss: many(imagesToMultiLabelClasss),
+    labelsClsM: many(labelsClsM),
+    labelsDet: many(labelsDet),
   }),
 );
 
@@ -278,12 +279,11 @@ export const imagesRelations = relations(images, ({ one, many }) => ({
   }),
   experimentResults: many(experimentResults),
   multiClassAiPredictions: many(multiClassAiPredictions),
-  imagesToMultiLabelClasss: many(imagesToMultiLabelClasss),
+  labelsClsM: many(labelsClsM),
+  labelsDet: many(labelsDet),
 }));
 
-export const i2mlTypeEnum = pgEnum("type", ["clsM", "det"]);
-
-export const imagesToMultiLabelClasss = createTable(
+export const labelsClsM = createTable(
   "image_to_multi_label_class",
   {
     imageId: integer("imageId")
@@ -292,32 +292,57 @@ export const imagesToMultiLabelClasss = createTable(
     labelClassId: integer("labelClassId")
       .notNull()
       .references(() => labelClasses.id, { onDelete: "cascade" }),
-    type: i2mlTypeEnum("type").default("clsM").notNull(),
-    bboxXmin: integer("bboxXmin"),
-    bboxYmin: integer("bboxYmin"),
-    bboxXmax: integer("bboxXmax"),
-    bboxYmax: integer("bboxYmax"),
-    width: integer("width"),
-    height: integer("height"),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.imageId, t.labelClassId] }),
   }),
 );
 
-export const imagesToMultiLabelClasssRelations = relations(
-  imagesToMultiLabelClasss,
-  ({ one }) => ({
-    image: one(images, {
-      fields: [imagesToMultiLabelClasss.imageId],
-      references: [images.id],
-    }),
-    labelClass: one(labelClasses, {
-      fields: [imagesToMultiLabelClasss.labelClassId],
-      references: [labelClasses.id],
-    }),
+export const labelsClsMRelations = relations(labelsClsM, ({ one }) => ({
+  image: one(images, {
+    fields: [labelsClsM.imageId],
+    references: [images.id],
+  }),
+  labelClass: one(labelClasses, {
+    fields: [labelsClsM.labelClassId],
+    references: [labelClasses.id],
+  }),
+}));
+
+export const annotationTypeEnum = pgEnum("type", ["ai", "human"]);
+
+export const labelsDet = createTable(
+  "image_to_detection_label",
+  {
+    type: annotationTypeEnum("type").notNull(),
+    imageId: integer("imageId")
+      .notNull()
+      .references(() => images.id, { onDelete: "cascade" }),
+    labelClassId: integer("labelClassId")
+      .notNull()
+      .references(() => labelClasses.id, { onDelete: "cascade" }),
+    bboxXmin: integer("bboxXmin").notNull(),
+    bboxYmin: integer("bboxYmin").notNull(),
+    bboxXmax: integer("bboxXmax").notNull(),
+    bboxYmax: integer("bboxYmax").notNull(),
+    imgWidth: integer("width").notNull(),
+    imgHeight: integer("height").notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.imageId, t.labelClassId] }),
   }),
 );
+
+export const labelsDetRelations = relations(labelsDet, ({ one }) => ({
+  image: one(images, {
+    fields: [labelsDet.imageId],
+    references: [images.id],
+  }),
+  labelClass: one(labelClasses, {
+    fields: [labelsDet.labelClassId],
+    references: [labelClasses.id],
+  }),
+}));
 
 export const multiClassAiPredictions = createTable(
   "multi_class_ai_prediction",
