@@ -59,17 +59,24 @@ export function ZoomDialog({
         <ZoomIn className="absolute right-0 top-0 size-5 bg-secondary" />
       </DialogTrigger>
       <DialogContent
-        className="max-h-full max-w-4xl"
+        className="flex h-[calc(100vh-50px)] max-w-4xl flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <AspectRatio ratio={ratio} className="bg-muted">
-          <Image
-            src={image.url}
-            alt=""
-            fill
-            className="rounded-md object-cover"
-          />
-        </AspectRatio>
+        <div className="grow overflow-hidden">
+          <AspectRatio
+            ratio={ratio}
+            // TODO: need to refactor.. how to fix this?
+            className="h-[calc(100vh-200px)]  bg-muted"
+          >
+            <Image
+              src={image.url}
+              alt=""
+              fill
+              className="rounded-md object-contain"
+            />
+          </AspectRatio>
+        </div>
+
         <div className="grid w-full grid-cols-2">
           <div className="col-span-1 flex flex-col gap-2">
             <DialogTitle>Single Label</DialogTitle>
