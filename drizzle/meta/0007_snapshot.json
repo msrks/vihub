@@ -1,10 +1,8 @@
 {
-  "id": "d254b743-8e8a-42d5-b3af-63839095c11c",
-  "prevId": "263b1706-c3c2-43c8-a7f5-7ae47157866b",
-  "version": "5",
-  "dialect": "pg",
+  "version": "6",
+  "dialect": "postgresql",
   "tables": {
-    "vihub_account": {
+    "public.vihub_account": {
       "name": "vihub_account",
       "schema": "",
       "columns": {
@@ -88,15 +86,15 @@
         "vihub_account_userId_vihub_user_id_fk": {
           "name": "vihub_account_userId_vihub_user_id_fk",
           "tableFrom": "vihub_account",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -110,7 +108,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_image_store": {
+    "public.vihub_image_store": {
       "name": "vihub_image_store",
       "schema": "",
       "columns": {
@@ -165,7 +163,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_image": {
+    "public.vihub_image": {
       "name": "vihub_image",
       "schema": "",
       "columns": {
@@ -233,28 +231,28 @@
       "uniqueConstraints": {
         "vihub_image_url_unique": {
           "name": "vihub_image_url_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "url"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "vihub_image_downloadUrl_unique": {
           "name": "vihub_image_downloadUrl_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "downloadUrl"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "vihub_image_pathname_unique": {
           "name": "vihub_image_pathname_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "pathname"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "vihub_label_class": {
+    "public.vihub_label_class": {
       "name": "vihub_label_class",
       "schema": "",
       "columns": {
@@ -288,7 +286,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_label": {
+    "public.vihub_label": {
       "name": "vihub_label",
       "schema": "",
       "columns": {
@@ -329,7 +327,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_session": {
+    "public.vihub_session": {
       "name": "vihub_session",
       "schema": "",
       "columns": {
@@ -365,21 +363,21 @@
         "vihub_session_userId_vihub_user_id_fk": {
           "name": "vihub_session_userId_vihub_user_id_fk",
           "tableFrom": "vihub_session",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_user": {
+    "public.vihub_user": {
       "name": "vihub_user",
       "schema": "",
       "columns": {
@@ -426,7 +424,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_users_to_workspaces": {
+    "public.vihub_users_to_workspaces": {
       "name": "vihub_users_to_workspaces",
       "schema": "",
       "columns": {
@@ -469,28 +467,28 @@
         "vihub_users_to_workspaces_userId_vihub_user_id_fk": {
           "name": "vihub_users_to_workspaces_userId_vihub_user_id_fk",
           "tableFrom": "vihub_users_to_workspaces",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk": {
           "name": "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk",
           "tableFrom": "vihub_users_to_workspaces",
-          "tableTo": "vihub_workspace",
           "columnsFrom": [
             "workspaceId"
           ],
+          "tableTo": "vihub_workspace",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -504,7 +502,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_verificationToken": {
+    "public.vihub_verificationToken": {
       "name": "vihub_verificationToken",
       "schema": "",
       "columns": {
@@ -540,7 +538,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_workspace": {
+    "public.vihub_workspace": {
       "name": "vihub_workspace",
       "schema": "",
       "columns": {
@@ -591,27 +589,30 @@
       "uniqueConstraints": {
         "vihub_workspace_name_unique": {
           "name": "vihub_workspace_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     }
   },
   "enums": {
-    "role": {
+    "public.role": {
       "name": "role",
-      "values": {
-        "member": "member",
-        "admin": "admin"
-      }
+      "schema": "public",
+      "values": [
+        "member",
+        "admin"
+      ]
     }
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "d254b743-8e8a-42d5-b3af-63839095c11c",
+  "prevId": "263b1706-c3c2-43c8-a7f5-7ae47157866b"
 }

@@ -1,10 +1,8 @@
 {
-  "id": "f195f481-e2d9-4388-8e11-86817ac15887",
-  "prevId": "239bbf07-85cf-4d5b-90ff-da16544b2f44",
-  "version": "5",
-  "dialect": "pg",
+  "version": "6",
+  "dialect": "postgresql",
   "tables": {
-    "vihub_account": {
+    "public.vihub_account": {
       "name": "vihub_account",
       "schema": "",
       "columns": {
@@ -88,15 +86,15 @@
         "vihub_account_userId_vihub_user_id_fk": {
           "name": "vihub_account_userId_vihub_user_id_fk",
           "tableFrom": "vihub_account",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -110,7 +108,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_image_store": {
+    "public.vihub_image_store": {
       "name": "vihub_image_store",
       "schema": "",
       "columns": {
@@ -165,7 +163,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_session": {
+    "public.vihub_session": {
       "name": "vihub_session",
       "schema": "",
       "columns": {
@@ -201,21 +199,21 @@
         "vihub_session_userId_vihub_user_id_fk": {
           "name": "vihub_session_userId_vihub_user_id_fk",
           "tableFrom": "vihub_session",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_user": {
+    "public.vihub_user": {
       "name": "vihub_user",
       "schema": "",
       "columns": {
@@ -262,7 +260,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_users_to_workspaces": {
+    "public.vihub_users_to_workspaces": {
       "name": "vihub_users_to_workspaces",
       "schema": "",
       "columns": {
@@ -305,28 +303,28 @@
         "vihub_users_to_workspaces_userId_vihub_user_id_fk": {
           "name": "vihub_users_to_workspaces_userId_vihub_user_id_fk",
           "tableFrom": "vihub_users_to_workspaces",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk": {
           "name": "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk",
           "tableFrom": "vihub_users_to_workspaces",
-          "tableTo": "vihub_workspace",
           "columnsFrom": [
             "workspaceId"
           ],
+          "tableTo": "vihub_workspace",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -340,7 +338,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_verificationToken": {
+    "public.vihub_verificationToken": {
       "name": "vihub_verificationToken",
       "schema": "",
       "columns": {
@@ -376,7 +374,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_workspace": {
+    "public.vihub_workspace": {
       "name": "vihub_workspace",
       "schema": "",
       "columns": {
@@ -427,27 +425,30 @@
       "uniqueConstraints": {
         "vihub_workspace_name_unique": {
           "name": "vihub_workspace_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     }
   },
   "enums": {
-    "role": {
+    "public.role": {
       "name": "role",
-      "values": {
-        "member": "member",
-        "admin": "admin"
-      }
+      "schema": "public",
+      "values": [
+        "member",
+        "admin"
+      ]
     }
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "f195f481-e2d9-4388-8e11-86817ac15887",
+  "prevId": "239bbf07-85cf-4d5b-90ff-da16544b2f44"
 }

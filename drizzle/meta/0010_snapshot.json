@@ -1,10 +1,8 @@
 {
-  "id": "984b018e-5bd6-43e9-ace7-b984aaac5e4d",
-  "prevId": "41057e54-06f4-4697-93f6-9577e6cc00c0",
-  "version": "5",
-  "dialect": "pg",
+  "version": "6",
+  "dialect": "postgresql",
   "tables": {
-    "vihub_account": {
+    "public.vihub_account": {
       "name": "vihub_account",
       "schema": "",
       "columns": {
@@ -88,15 +86,15 @@
         "vihub_account_userId_vihub_user_id_fk": {
           "name": "vihub_account_userId_vihub_user_id_fk",
           "tableFrom": "vihub_account",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -110,7 +108,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_ai_model": {
+    "public.vihub_ai_model": {
       "name": "vihub_ai_model",
       "schema": "",
       "columns": {
@@ -144,7 +142,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_experiment_result": {
+    "public.vihub_experiment_result": {
       "name": "vihub_experiment_result",
       "schema": "",
       "columns": {
@@ -205,34 +203,34 @@
         "vihub_experiment_result_promptingExperimentId_vihub_prompting_experiment_id_fk": {
           "name": "vihub_experiment_result_promptingExperimentId_vihub_prompting_experiment_id_fk",
           "tableFrom": "vihub_experiment_result",
-          "tableTo": "vihub_prompting_experiment",
           "columnsFrom": [
             "promptingExperimentId"
           ],
+          "tableTo": "vihub_prompting_experiment",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "vihub_experiment_result_imageId_vihub_image_id_fk": {
           "name": "vihub_experiment_result_imageId_vihub_image_id_fk",
           "tableFrom": "vihub_experiment_result",
-          "tableTo": "vihub_image",
           "columnsFrom": [
             "imageId"
           ],
+          "tableTo": "vihub_image",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_image_store": {
+    "public.vihub_image_store": {
       "name": "vihub_image_store",
       "schema": "",
       "columns": {
@@ -315,21 +313,21 @@
         "vihub_image_store_workspaceId_vihub_workspace_id_fk": {
           "name": "vihub_image_store_workspaceId_vihub_workspace_id_fk",
           "tableFrom": "vihub_image_store",
-          "tableTo": "vihub_workspace",
           "columnsFrom": [
             "workspaceId"
           ],
+          "tableTo": "vihub_workspace",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_image": {
+    "public.vihub_image": {
       "name": "vihub_image",
       "schema": "",
       "columns": {
@@ -435,69 +433,69 @@
         "vihub_image_imageStoreId_vihub_image_store_id_fk": {
           "name": "vihub_image_imageStoreId_vihub_image_store_id_fk",
           "tableFrom": "vihub_image",
-          "tableTo": "vihub_image_store",
           "columnsFrom": [
             "imageStoreId"
           ],
+          "tableTo": "vihub_image_store",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "vihub_image_aiLabelId_vihub_label_class_id_fk": {
           "name": "vihub_image_aiLabelId_vihub_label_class_id_fk",
           "tableFrom": "vihub_image",
-          "tableTo": "vihub_label_class",
           "columnsFrom": [
             "aiLabelId"
           ],
+          "tableTo": "vihub_label_class",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         },
         "vihub_image_humanLabelId_vihub_label_class_id_fk": {
           "name": "vihub_image_humanLabelId_vihub_label_class_id_fk",
           "tableFrom": "vihub_image",
-          "tableTo": "vihub_label_class",
           "columnsFrom": [
             "humanLabelId"
           ],
+          "tableTo": "vihub_label_class",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "vihub_image_url_unique": {
           "name": "vihub_image_url_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "url"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "vihub_image_vectorId_unique": {
           "name": "vihub_image_vectorId_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "vectorId"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "vihub_image_downloadUrl_unique": {
           "name": "vihub_image_downloadUrl_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "downloadUrl"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "vihub_image_to_multi_label_class": {
+    "public.vihub_image_to_multi_label_class": {
       "name": "vihub_image_to_multi_label_class",
       "schema": "",
       "columns": {
@@ -519,28 +517,28 @@
         "vihub_image_to_multi_label_class_imageId_vihub_image_id_fk": {
           "name": "vihub_image_to_multi_label_class_imageId_vihub_image_id_fk",
           "tableFrom": "vihub_image_to_multi_label_class",
-          "tableTo": "vihub_image",
           "columnsFrom": [
             "imageId"
           ],
+          "tableTo": "vihub_image",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "vihub_image_to_multi_label_class_labelClassId_vihub_label_class_id_fk": {
           "name": "vihub_image_to_multi_label_class_labelClassId_vihub_label_class_id_fk",
           "tableFrom": "vihub_image_to_multi_label_class",
-          "tableTo": "vihub_label_class",
           "columnsFrom": [
             "labelClassId"
           ],
+          "tableTo": "vihub_label_class",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -554,7 +552,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_label_class": {
+    "public.vihub_label_class": {
       "name": "vihub_label_class",
       "schema": "",
       "columns": {
@@ -608,30 +606,30 @@
         "vihub_label_class_imageStoreId_vihub_image_store_id_fk": {
           "name": "vihub_label_class_imageStoreId_vihub_image_store_id_fk",
           "tableFrom": "vihub_label_class",
-          "tableTo": "vihub_image_store",
           "columnsFrom": [
             "imageStoreId"
           ],
+          "tableTo": "vihub_image_store",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "unique_image_store_and_key": {
           "name": "unique_image_store_and_key",
-          "nullsNotDistinct": false,
           "columns": [
             "imageStoreId",
             "key"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "vihub_multi_class_ai_prediction": {
+    "public.vihub_multi_class_ai_prediction": {
       "name": "vihub_multi_class_ai_prediction",
       "schema": "",
       "columns": {
@@ -683,7 +681,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_prompting_experiment": {
+    "public.vihub_prompting_experiment": {
       "name": "vihub_prompting_experiment",
       "schema": "",
       "columns": {
@@ -751,34 +749,34 @@
         "vihub_prompting_experiment_imageStoreId_vihub_image_store_id_fk": {
           "name": "vihub_prompting_experiment_imageStoreId_vihub_image_store_id_fk",
           "tableFrom": "vihub_prompting_experiment",
-          "tableTo": "vihub_image_store",
           "columnsFrom": [
             "imageStoreId"
           ],
+          "tableTo": "vihub_image_store",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "vihub_prompting_experiment_labelClassId_vihub_label_class_id_fk": {
           "name": "vihub_prompting_experiment_labelClassId_vihub_label_class_id_fk",
           "tableFrom": "vihub_prompting_experiment",
-          "tableTo": "vihub_label_class",
           "columnsFrom": [
             "labelClassId"
           ],
+          "tableTo": "vihub_label_class",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_reference_image": {
+    "public.vihub_reference_image": {
       "name": "vihub_reference_image",
       "schema": "",
       "columns": {
@@ -846,49 +844,49 @@
         "vihub_reference_image_imageStoreId_vihub_image_store_id_fk": {
           "name": "vihub_reference_image_imageStoreId_vihub_image_store_id_fk",
           "tableFrom": "vihub_reference_image",
-          "tableTo": "vihub_image_store",
           "columnsFrom": [
             "imageStoreId"
           ],
+          "tableTo": "vihub_image_store",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "vihub_reference_image_labelClassId_vihub_label_class_id_fk": {
           "name": "vihub_reference_image_labelClassId_vihub_label_class_id_fk",
           "tableFrom": "vihub_reference_image",
-          "tableTo": "vihub_label_class",
           "columnsFrom": [
             "labelClassId"
           ],
+          "tableTo": "vihub_label_class",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "vihub_reference_image_url_unique": {
           "name": "vihub_reference_image_url_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "url"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "vihub_reference_image_downloadUrl_unique": {
           "name": "vihub_reference_image_downloadUrl_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "downloadUrl"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "vihub_session": {
+    "public.vihub_session": {
       "name": "vihub_session",
       "schema": "",
       "columns": {
@@ -924,21 +922,21 @@
         "vihub_session_userId_vihub_user_id_fk": {
           "name": "vihub_session_userId_vihub_user_id_fk",
           "tableFrom": "vihub_session",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_user": {
+    "public.vihub_user": {
       "name": "vihub_user",
       "schema": "",
       "columns": {
@@ -979,7 +977,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "vihub_users_to_workspaces": {
+    "public.vihub_users_to_workspaces": {
       "name": "vihub_users_to_workspaces",
       "schema": "",
       "columns": {
@@ -1023,28 +1021,28 @@
         "vihub_users_to_workspaces_userId_vihub_user_id_fk": {
           "name": "vihub_users_to_workspaces_userId_vihub_user_id_fk",
           "tableFrom": "vihub_users_to_workspaces",
-          "tableTo": "vihub_user",
           "columnsFrom": [
             "userId"
           ],
+          "tableTo": "vihub_user",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk": {
           "name": "vihub_users_to_workspaces_workspaceId_vihub_workspace_id_fk",
           "tableFrom": "vihub_users_to_workspaces",
-          "tableTo": "vihub_workspace",
           "columnsFrom": [
             "workspaceId"
           ],
+          "tableTo": "vihub_workspace",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -1058,7 +1056,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_verificationToken": {
+    "public.vihub_verificationToken": {
       "name": "vihub_verificationToken",
       "schema": "",
       "columns": {
@@ -1094,7 +1092,7 @@
       },
       "uniqueConstraints": {}
     },
-    "vihub_workspace": {
+    "public.vihub_workspace": {
       "name": "vihub_workspace",
       "schema": "",
       "columns": {
@@ -1151,36 +1149,40 @@
       "uniqueConstraints": {
         "vihub_workspace_name_unique": {
           "name": "vihub_workspace_name_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     }
   },
   "enums": {
-    "role": {
+    "public.role": {
       "name": "role",
-      "values": {
-        "member": "member",
-        "admin": "admin"
-      }
+      "schema": "public",
+      "values": [
+        "member",
+        "admin"
+      ]
     },
-    "type": {
+    "public.type": {
       "name": "type",
-      "values": {
-        "clsS": "clsS",
-        "clsM": "clsM",
-        "det": "det",
-        "seg": "seg"
-      }
+      "schema": "public",
+      "values": [
+        "clsS",
+        "clsM",
+        "det",
+        "seg"
+      ]
     }
   },
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "984b018e-5bd6-43e9-ace7-b984aaac5e4d",
+  "prevId": "41057e54-06f4-4697-93f6-9577e6cc00c0"
 }
