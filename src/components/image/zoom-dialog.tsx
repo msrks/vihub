@@ -1,11 +1,15 @@
 "use client";
 
-import { api } from "@/trpc/react";
 import { ZoomIn } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { toast } from "sonner";
-import type { RouterOutputs } from "@/server/api/root";
+
+import { api } from "@/trpc/react";
+
 import { AspectRatio } from "../ui/aspect-ratio";
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -13,25 +17,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
-import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
+import type { RouterOutputs } from "@/server/api/root";
 export function ZoomDialog({
   image,
   multiLabels,
   ratio,
 }: {
   image: RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
-  multiLabels: RouterOutputs["image"]["getMultiLabels"];
+  multiLabels?: RouterOutputs["image"]["getMultiLabels"];
   ratio: number;
 }) {
   const utils = api.useUtils();
   const [open, setOpen] = useState(false);
   const [labelId, setLabelId] = useState(image.humanLabelId?.toString());
-  const [multiLabelIds, setItems] = useState(multiLabels.map((m) => m.id));
+  const [multiLabelIds, setItems] = useState(
+    multiLabels?.map((m) => m.id) ?? [],
+  );
   const { data: labelList } = api.labelClass.getAll.useQuery({
     imageStoreId: image.imageStoreId,
   });

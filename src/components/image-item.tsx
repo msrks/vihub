@@ -1,22 +1,24 @@
 "use client";
 
-import { api } from "@/trpc/react";
+import { formatDate } from "date-fns";
 import { Bot, Check, Download, ImageIcon, Trash2, User } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
+
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/server/api/root";
-import { Badge } from "./ui/badge";
-import { formatDate } from "date-fns";
-import { AspectRatio } from "./ui/aspect-ratio";
-import { ZoomDialog } from "./image/zoom-dialog";
+import { api } from "@/trpc/react";
 
+import { ZoomDialog } from "./image/zoom-dialog";
+import { AspectRatio } from "./ui/aspect-ratio";
+import { Badge } from "./ui/badge";
+
+import type { RouterOutputs } from "@/server/api/root";
 export function ImageItem({
   image,
   handleImageClick,
@@ -149,13 +151,11 @@ export function ImageItem({
                 Score: {score.toFixed(2)}
               </Badge>
             )}
-            {multiLabels && (
-              <ZoomDialog
-                image={image}
-                ratio={aspectRatio}
-                multiLabels={multiLabels}
-              />
-            )}
+            <ZoomDialog
+              image={image}
+              ratio={aspectRatio}
+              multiLabels={multiLabels}
+            />
             {!resultLabel && image.selectedForExperiment && (
               <Badge className="absolute bottom-0 left-0">
                 <Bot className="mr-1 size-3" /> Test
