@@ -1,8 +1,10 @@
-import { api } from "@/trpc/server";
-import { InfiniteImages } from "@/components/infinite-images";
-import { ContributionsView } from "@/components/contributions-view";
 import { Suspense } from "react";
+
+import { ContributionsView } from "@/components/contributions-view";
+import { InfiniteImages } from "@/components/infinite-images";
 import { Loader } from "@/components/ui/loader";
+import { api } from "@/trpc/server";
+
 import { DownloadImages } from "./_components/downloadImages";
 
 interface Props {
@@ -25,14 +27,11 @@ export default async function Page({ params }: Props) {
   );
 }
 
-async function Dataset({ params: { workspaceName, imageStoreName } }: Props) {
-  const imageStore = await api.imageStore.getByName({
-    workspaceName,
-    imageStoreName,
-  });
+async function Dataset({ params }: Props) {
+  const imageStore = await api.imageStore.getByName(params);
 
   const dataCounts = await api.image.getAllCountsByStoreId({
-    imageStoreId: imageStore?.id ?? 0,
+    imageStoreId: imageStore.id,
     onlyLabeled: true,
   });
 

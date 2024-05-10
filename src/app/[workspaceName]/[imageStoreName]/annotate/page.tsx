@@ -1,47 +1,48 @@
-"use client";
+import { Suspense } from "react";
 
-import { api } from "@/trpc/react";
-import { Loader2 } from "lucide-react";
-import { InfiniteImages } from "@/components/infinite-images";
 import { ContributionsView } from "@/components/contributions-view";
+import { InfiniteImages } from "@/components/infinite-images";
+import { Loader } from "@/components/ui/loader";
+import { api } from "@/trpc/server";
 
-export default function Page({
-  params: { workspaceName, imageStoreName },
-}: {
-  params: {
-    workspaceName: string;
-    imageStoreName: string;
-  };
-}) {
-  const { data: imageStore } = api.imageStore.getByName.useQuery({
-    workspaceName,
-    imageStoreName,
-  });
-  const { data: dataCounts, isLoading } =
-    api.image.getAllCountsByStoreId.useQuery(
-      { imageStoreId: imageStore?.id ?? 0, onlyUnlabeled: true },
-      { enabled: !!imageStore },
-    );
+interface Props {
+  params: { workspaceName: string; imageStoreName: string };
+}
 
-  if (!imageStore) return <Loader2 className="size-6 animate-spin" />;
-
+export default async function Page({ params }: Props) {
   return (
     <div className="flex w-full grow flex-col items-center">
       <div className="container flex items-center justify-between gap-2">
         <h2 className="text-2xl font-semibold tracking-tight">
-          Unlabeld Images
+          Unlabeled Images
         </h2>
       </div>
+      <Suspense fallback={<Loader />}>
+        <Dataset params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function Dataset({ params }: Props) {
+  const imageStore = await api.imageStore.getByName(params);
+
+  const dataCounts = await api.image.getAllCountsByStoreId({
+    imageStoreId: imageStore.id,
+  });
+
+  return (
+    <>
       {dataCounts && dataCounts?.length > 0 ? (
         <>
-          <ContributionsView isLoading={isLoading} dataCounts={dataCounts} />
-          <InfiniteImages imageStoreId={imageStore.id} onlyUnlabeled />
+          <ContributionsView dataCounts={dataCounts} />
+          <InfiniteImages imageStoreId={imageStore.id} />
         </>
       ) : (
         <div className="mt-[200px]">
           <p>There is no images.</p>
         </div>
       )}
-    </div>
+    </>
   );
 }
