@@ -1,23 +1,13 @@
-"use client";
+import { api } from "@/trpc/server";
 
-import { api } from "@/trpc/react";
-import { Loader2 } from "lucide-react";
 import ImageUploadClientSide from "./_components/image-upload-client-side";
 
-export default function Page({
-  params: { workspaceName, imageStoreName },
-}: {
-  params: {
-    workspaceName: string;
-    imageStoreName: string;
-  };
-}) {
-  const { data: imageStore } = api.imageStore.getByName.useQuery({
-    workspaceName,
-    imageStoreName,
-  });
+interface Props {
+  params: { workspaceName: string; imageStoreName: string };
+}
 
-  if (!imageStore) return <Loader2 className="size-6 animate-spin" />;
+export default async function Page({ params }: Props) {
+  const imageStore = await api.imageStore.getByName(params);
 
   return (
     <div className="flex w-full grow flex-col items-center">
