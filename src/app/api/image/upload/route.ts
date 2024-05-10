@@ -1,11 +1,21 @@
+import { createHash } from "crypto";
+import sizeOf from "image-size";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { db } from "@/server/db";
 import { images } from "@/server/db/schema";
 import { vdb } from "@/server/pinecone";
 import { getVectorByReplicate } from "@/server/replicate";
-import { type PineconeRecord } from "@pinecone-database/pinecone";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
-import { createHash } from "crypto";
-import { NextResponse } from "next/server";
+import { handleUpload } from "@vercel/blob/client";
+
+import type { PineconeRecord } from "@pinecone-database/pinecone";
+import type { HandleUploadBody } from "@vercel/blob/client";
+
+const schema = z.object({
+  imageStoreId: z.number(),
+  humanLabelId: z.number().optional(),
+});
 
 export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
@@ -31,12 +41,16 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         try {
-          const { imageStoreId, humanLabelId } = JSON.parse(tokenPayload!) as {
-            imageStoreId: number;
-            humanLabelId: number;
-          };
+          const { imageStoreId, humanLabelId } = schema.parse(
+            JSON.parse(tokenPayload!),
+          );
 
           const { url, downloadUrl } = blob;
+
+          // get size of image
+          const res = await fetch(url);
+          const buffer = Buffer.from(await res.arrayBuffer());
+          const { width, height } = sizeOf(buffer);
 
           // get vector embedding & store it to pinecone
           const vector = await getVectorByReplicate(url);
@@ -52,6 +66,8 @@ export async function POST(request: Request): Promise<NextResponse> {
           // save to db
           await db.insert(images).values({
             url,
+            width,
+            height,
             downloadUrl,
             imageStoreId,
             vectorId,

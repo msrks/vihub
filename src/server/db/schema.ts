@@ -237,6 +237,8 @@ export const images = createTable(
   {
     id: serial("id").primaryKey(),
     url: varchar("url").notNull().unique(),
+    width: integer("width"),
+    height: integer("height"),
     vectorId: varchar("vectorId").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     selectedForExperiment: boolean("selectedForExperiment"),
