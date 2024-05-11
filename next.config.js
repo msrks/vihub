@@ -15,6 +15,9 @@ const config = {
       },
     ],
   },
+  experimental: {
+    serverMinification: false,
+  },
 };
 
 export default config;
