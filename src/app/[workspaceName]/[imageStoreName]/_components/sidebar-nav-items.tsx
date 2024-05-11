@@ -1,13 +1,13 @@
 import {
+  Bike,
   Bot,
+  Brush,
+  Images,
+  LineChart,
   MonitorCheck,
   Settings,
   Shapes,
   Upload,
-  LineChart,
-  Images,
-  Brush,
-  Bike,
 } from "lucide-react";
 
 export const getSidebarNavItems = (wsName: string, imageStoreName: string) => [
