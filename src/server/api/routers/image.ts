@@ -75,6 +75,7 @@ export const imageRouter = createTRPCRouter({
         // get aiLabelId if aiLabelKey is provided
         let aiLabelId: number | undefined;
         if (aiLabelKey) {
+          console.info({ aiLabelKey });
           const _res = await ctx.db
             .select()
             .from(lc)
