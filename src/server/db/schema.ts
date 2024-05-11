@@ -237,8 +237,8 @@ export const images = createTable(
   {
     id: serial("id").primaryKey(),
     url: varchar("url").notNull().unique(),
-    width: integer("width").notNull(),
-    height: integer("height").notNull(),
+    width: integer("width").default(1).notNull(),
+    height: integer("height").default(1).notNull(),
     vectorId: varchar("vectorId").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     selectedForExperiment: boolean("selectedForExperiment"),
@@ -316,16 +316,19 @@ export const annotationTypeEnum = pgEnum("annotationTypeEnum", ["ai", "human"]);
 export const labelsDet = createTable("labelsDet", {
   id: serial("id").primaryKey(),
   type: annotationTypeEnum("type").notNull(),
+  xMin: integer("xMin").notNull(),
+  yMin: integer("yMin").notNull(),
+  xMax: integer("xMax").notNull(),
+  yMax: integer("yMax").notNull(),
   imageId: integer("imageId")
     .notNull()
     .references(() => images.id, { onDelete: "cascade" }),
   labelClassId: integer("labelClassId")
     .notNull()
     .references(() => labelClasses.id, { onDelete: "cascade" }),
-  xMin: integer("xMin").notNull(),
-  yMin: integer("yMin").notNull(),
-  xMax: integer("xMax").notNull(),
-  yMax: integer("yMax").notNull(),
+
+  confidence: real("confidence"),
+  aiModelKey: varchar("aiModelKey"),
 });
 
 export const labelsDetRelations = relations(labelsDet, ({ one }) => ({

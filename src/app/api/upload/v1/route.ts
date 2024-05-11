@@ -1,12 +1,12 @@
 import { formatDate } from "date-fns";
 import { and, eq } from "drizzle-orm";
-import sizeOf from "image-size";
 import { z } from "zod";
 
 import { db } from "@/server/db";
 import {
   imageStores,
   labelClasses,
+  labelsDet,
   multiClassAiPredictions,
   workspaces,
 } from "@/server/db/schema";
@@ -39,6 +39,11 @@ const schema = z.object({
     .optional()
     .nullish()
     .transform((x) => x ?? undefined),
+  detLabelString: z
+    .string()
+    .optional()
+    .nullish()
+    .transform((x) => x ?? undefined),
 });
 
 const schemaClsM = z.array(
@@ -51,6 +56,27 @@ const schemaClsM = z.array(
       .nullish()
       .transform((x) => x ?? undefined),
     isPositive: z.boolean(),
+  }),
+);
+
+const schemaDet = z.array(
+  z.object({
+    type: z.enum(["ai", "human"]),
+    labelKey: z.string(),
+    xMin: z.coerce.number(),
+    yMin: z.coerce.number(),
+    xMax: z.coerce.number(),
+    yMax: z.coerce.number(),
+    confidence: z.coerce
+      .number()
+      .optional()
+      .nullish()
+      .transform((x) => x ?? undefined),
+    aiModelKey: z
+      .string()
+      .optional()
+      .nullish()
+      .transform((x) => x ?? undefined),
   }),
 );
 
@@ -84,6 +110,7 @@ export async function POST(req: NextRequest) {
       aiLabelConfidence,
       createdAt,
       multiLabelString,
+      detLabelString,
     } = schema.parse({
       imageStoreId: req.nextUrl.searchParams.get("storeId"),
       apiKey: req.headers.get("apiKey"),
@@ -91,6 +118,7 @@ export async function POST(req: NextRequest) {
       aiLabelConfidence: formData.get("aiLabelConfidence"),
       createdAt: formData.get("createdAt"),
       multiLabelString: formData.get("aiMultiClassLabels"),
+      detLabelString: formData.get("detLabelString"),
     });
 
     const imageStoreType = await validateApiKey({ imageStoreId, apiKey });
@@ -128,9 +156,9 @@ export async function POST(req: NextRequest) {
       case "clsM":
         if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
 
-        const parsed = schemaClsM.parse(JSON.parse(multiLabelString));
+        const multiLabels = schemaClsM.parse(JSON.parse(multiLabelString));
         await Promise.all(
-          parsed.map(async ({ labelKey, ...rest }) => {
+          multiLabels.map(async ({ labelKey, ...rest }) => {
             const ret = await db
               .select()
               .from(labelClasses)
@@ -151,7 +179,28 @@ export async function POST(req: NextRequest) {
 
         return Response.json({ success: true });
       case "det":
-        // TODO: implement detection
+        if (!detLabelString) throw new Error("Invalid detLabelString");
+
+        const detLabels = schemaDet.parse(JSON.parse(detLabelString));
+        await Promise.all(
+          detLabels.map(async ({ labelKey, ...rest }) => {
+            const ret = await db
+              .select()
+              .from(labelClasses)
+              .where(
+                and(
+                  eq(labelClasses.key, labelKey),
+                  eq(labelClasses.imageStoreId, imageStoreId),
+                ),
+              );
+            if (!ret[0]) return;
+            const labelClassId = ret[0].id;
+
+            await db
+              .insert(labelsDet)
+              .values({ imageId, labelClassId, ...rest });
+          }),
+        );
         return Response.json({ success: true });
       default:
         throw new Error("Invalid image store type");
