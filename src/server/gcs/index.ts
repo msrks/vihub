@@ -13,7 +13,6 @@ const getGCPCredentials = () => {
 };
 
 export async function uploadJsonToGCS(destination: string): Promise<void> {
-  console.info(getGCPCredentials().credentials!.private_key);
   const storage = new Storage(getGCPCredentials());
   const bucket = storage.bucket("vihub");
   await bucket.file(destination).save(

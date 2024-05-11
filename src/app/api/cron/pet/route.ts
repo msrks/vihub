@@ -10,7 +10,7 @@ import type { Pet } from "./pet";
 export const maxDuration = 300;
 
 const URL = `https://visual-inspection-template.web.app/predict?modelType=tflite`;
-const STORE_ID_LIST = [14];
+const STORE_ID_LIST = [14, 18];
 
 type PredResponse = {
   confidences: {
