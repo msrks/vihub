@@ -36,7 +36,7 @@ export async function GET() {
     const _res = await axios.post<PredResponse>(
       URL,
       JSON.stringify({ image: b64img }),
-      { headers: { "Content-Type": "application/json" }, timeout: 3000 },
+      { headers: { "Content-Type": "application/json" }, timeout: 5000 },
     );
     pred = _res.data;
   } catch (error) {
