@@ -237,8 +237,8 @@ export const images = createTable(
   {
     id: serial("id").primaryKey(),
     url: varchar("url").notNull().unique(),
-    width: integer("width").default(1).notNull(),
-    height: integer("height").default(1).notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
     vectorId: varchar("vectorId").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     selectedForExperiment: boolean("selectedForExperiment"),
@@ -286,7 +286,7 @@ export const imagesRelations = relations(images, ({ one, many }) => ({
 }));
 
 export const labelsClsM = createTable(
-  "image_to_multi_label_class",
+  "labelsClsM",
   {
     imageId: integer("imageId")
       .notNull()
@@ -311,29 +311,22 @@ export const labelsClsMRelations = relations(labelsClsM, ({ one }) => ({
   }),
 }));
 
-export const annotationTypeEnum = pgEnum("type", ["ai", "human"]);
+export const annotationTypeEnum = pgEnum("annotationTypeEnum", ["ai", "human"]);
 
-export const labelsDet = createTable(
-  "image_to_detection_label",
-  {
-    type: annotationTypeEnum("type").notNull(),
-    imageId: integer("imageId")
-      .notNull()
-      .references(() => images.id, { onDelete: "cascade" }),
-    labelClassId: integer("labelClassId")
-      .notNull()
-      .references(() => labelClasses.id, { onDelete: "cascade" }),
-    bboxXmin: integer("bboxXmin").notNull(),
-    bboxYmin: integer("bboxYmin").notNull(),
-    bboxXmax: integer("bboxXmax").notNull(),
-    bboxYmax: integer("bboxYmax").notNull(),
-    imgWidth: integer("width").notNull(),
-    imgHeight: integer("height").notNull(),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.imageId, t.labelClassId] }),
-  }),
-);
+export const labelsDet = createTable("labelsDet", {
+  id: serial("id").primaryKey(),
+  type: annotationTypeEnum("type").notNull(),
+  imageId: integer("imageId")
+    .notNull()
+    .references(() => images.id, { onDelete: "cascade" }),
+  labelClassId: integer("labelClassId")
+    .notNull()
+    .references(() => labelClasses.id, { onDelete: "cascade" }),
+  xMin: integer("xMin").notNull(),
+  yMin: integer("yMin").notNull(),
+  xMax: integer("xMax").notNull(),
+  yMax: integer("yMax").notNull(),
+});
 
 export const labelsDetRelations = relations(labelsDet, ({ one }) => ({
   image: one(images, {
