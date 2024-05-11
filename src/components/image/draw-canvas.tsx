@@ -87,18 +87,14 @@ export function DrawCanvas({
 
   const drawRectangle = (e: MouseEvent) => {
     if (!isDrawing || !labelTag) return;
-    const canvasOffSet = canvasRef.current!.getBoundingClientRect();
-    const x = e.clientX - canvasOffSet.left;
-    const y = e.clientY - canvasOffSet.top;
+    const offset = canvasRef.current!.getBoundingClientRect();
+    const x = e.clientX - offset.left;
+    const y = e.clientY - offset.top;
     const w = x - startX.current;
     const h = y - startY.current;
     clearCanvas(ctxRef.current);
     // drawBBox();
-    const ctx = ctxRef.current;
-    if (!ctx) return;
-    ctx.strokeStyle =
-      labelClasses.find((l) => l.key === labelTag)?.color ?? "#555555";
-    ctx.strokeRect(startX.current, startY.current, w, h);
+    ctxRef.current!.strokeRect(startX.current, startY.current, w, h);
     bboxW.current = w;
     bboxH.current = h;
   };
@@ -106,9 +102,9 @@ export function DrawCanvas({
   const startDrawing = (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const canvasOffSet = canvasRef.current!.getBoundingClientRect();
-    startX.current = e.clientX - canvasOffSet.left;
-    startY.current = e.clientY - canvasOffSet.top;
+    const offset = canvasRef.current!.getBoundingClientRect();
+    startX.current = e.clientX - offset.left;
+    startY.current = e.clientY - offset.top;
     setIsDrawing(true);
   };
 
@@ -176,7 +172,11 @@ export function DrawCanvas({
         <ToggleGroup
           type="single"
           value={labelTag}
-          onValueChange={(val) => val && setLabelTag(val)}
+          onValueChange={(val) => {
+            val && setLabelTag(val);
+            ctxRef.current.strokeStyle =
+              labelClasses.find((l) => l.key === val)?.color ?? "#555555";
+          }}
         >
           {labelClasses.map((l) => (
             <ToggleGroupItem
