@@ -122,38 +122,39 @@ export async function POST(req: NextRequest) {
         : undefined,
     });
 
-    if (imageStoreType === "clsS") {
-      return Response.json({ success: true });
-    } else if (imageStoreType === "clsM") {
-      if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
+    switch (imageStoreType) {
+      case "clsS":
+        return Response.json({ success: true });
+      case "clsM":
+        if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
 
-      const parsed = clsMSchema.parse(JSON.parse(multiLabelString));
-      await Promise.all(
-        parsed.map(async ({ labelKey, ...rest }) => {
-          const ret = await db
-            .select()
-            .from(labelClasses)
-            .where(
-              and(
-                eq(labelClasses.key, labelKey),
-                eq(labelClasses.imageStoreId, imageStoreId),
-              ),
-            );
-          if (!ret[0]) return;
-          const labelClassId = ret[0].id;
+        const parsed = clsMSchema.parse(JSON.parse(multiLabelString));
+        await Promise.all(
+          parsed.map(async ({ labelKey, ...rest }) => {
+            const ret = await db
+              .select()
+              .from(labelClasses)
+              .where(
+                and(
+                  eq(labelClasses.key, labelKey),
+                  eq(labelClasses.imageStoreId, imageStoreId),
+                ),
+              );
+            if (!ret[0]) return;
+            const labelClassId = ret[0].id;
 
-          await db
-            .insert(multiClassAiPredictions)
-            .values({ imageId, labelClassId, ...rest });
-        }),
-      );
+            await db
+              .insert(multiClassAiPredictions)
+              .values({ imageId, labelClassId, ...rest });
+          }),
+        );
 
-      return Response.json({ success: true });
-    } else if (imageStoreType === "det") {
-      // TODO: implement detection
-      return Response.json({ success: true });
-    } else {
-      throw new Error("Invalid image store type");
+        return Response.json({ success: true });
+      case "det":
+        // TODO: implement detection
+        return Response.json({ success: true });
+      default:
+        throw new Error("Invalid image store type");
     }
   } catch (e) {
     if (e instanceof Error) {
