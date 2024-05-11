@@ -10,6 +10,7 @@ import {
   lte,
   sql,
 } from "drizzle-orm";
+import sizeOf from "image-size";
 import { z } from "zod";
 
 import {
@@ -54,10 +55,23 @@ export const imageRouter = createTRPCRouter({
           aiLabelDetail,
           createdAt,
           createdAtDate,
-          width,
-          height,
         },
       }) => {
+        let width: number | undefined;
+        let height: number | undefined;
+
+        if (file instanceof Buffer) {
+          const { width: w, height: h } = sizeOf(file);
+          width = w;
+          height = h;
+        } else {
+          const res = await fetch(URL.createObjectURL(file));
+          const buffer = Buffer.from(await res.arrayBuffer());
+          const { width: w, height: h } = sizeOf(buffer);
+          width = w;
+          height = h;
+        }
+
         // get aiLabelId if aiLabelKey is provided
         let aiLabelId: number | undefined;
         if (aiLabelKey) {
