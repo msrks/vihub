@@ -10,7 +10,7 @@ import type { Pet } from "./pet";
 export const maxDuration = 300;
 
 const URL = `https://visual-inspection-template.web.app/predict?modelType=tflite`;
-const STORE_ID_LIST = [14, 18];
+const STORE_ID_LIST = [14];
 
 type PredResponse = {
   confidences: {
@@ -45,9 +45,9 @@ export async function GET() {
 
   // upload image & save to DB, VDB
   await Promise.all(
-    STORE_ID_LIST.map(async (STORE_ID) => {
+    STORE_ID_LIST.map(async (id) => {
       await api.image.create({
-        imageStoreId: STORE_ID,
+        imageStoreId: id,
         file,
         ...(pred && {
           aiLabelKey: pred.result,
