@@ -174,7 +174,7 @@ export function DrawCanvas({
           value={labelTag}
           onValueChange={(val) => {
             val && setLabelTag(val);
-            ctxRef.current.strokeStyle =
+            ctxRef.current!.strokeStyle =
               labelClasses.find((l) => l.key === val)?.color ?? "#555555";
           }}
         >

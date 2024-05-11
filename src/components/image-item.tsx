@@ -3,6 +3,7 @@
 import { formatDate } from "date-fns";
 import { Bot, Check, Download, ImageIcon, Trash2, User } from "lucide-react";
 import Image from "next/image";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 import {
@@ -19,26 +20,30 @@ import { AspectRatio } from "./ui/aspect-ratio";
 import { Badge } from "./ui/badge";
 
 import type { RouterOutputs } from "@/server/api/root";
+type TImage =
+  RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
+
 export function ImageItem({
   image,
   handleImageClick,
   isChecked,
   setAsQueryImage,
   score,
-  aspectRatio = 200 / 150,
   colWidth = 200,
   resultLabel,
 }: {
-  image: RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
+  image: TImage;
   handleImageClick?: (imageId: number) => void;
   isChecked?: boolean;
   setAsQueryImage?: (url: string) => void;
   score?: number;
-  aspectRatio?: number;
   colWidth?: number;
   resultLabel?: RouterOutputs["labelClass"]["getAll"][number];
 }) {
   const utils = api.useUtils();
+  const { data: imageStore } = api.imageStore.getById.useQuery({
+    id: image.imageStoreId,
+  });
   const { mutateAsync: delImage } = api.image.deleteById.useMutation();
   const { mutateAsync: setThumb } = api.imageStore.setThumbnail.useMutation();
   const { mutateAsync: setAsExp } = api.image.update.useMutation();
@@ -91,13 +96,17 @@ export function ImageItem({
     >
       <ContextMenu>
         <ContextMenuTrigger>
-          <AspectRatio ratio={aspectRatio} className="relative bg-muted">
+          <AspectRatio
+            ratio={image.width / image.height}
+            className="relative bg-muted"
+          >
             <Image
               src={image.url}
               alt=""
               fill
               className="rounded-md object-cover"
             />
+            {imageStore?.type === "det" && <DetLabelCanvas image={image} />}
             {isChecked && <Check className="absolute size-5 bg-secondary" />}
             <div className="absolute bottom-6 right-0 flex flex-row-reverse">
               {!resultLabel &&
@@ -153,7 +162,7 @@ export function ImageItem({
             )}
             <ZoomDialog
               image={image}
-              ratio={aspectRatio}
+              ratio={image.width / image.height}
               multiLabels={multiLabels}
             />
             {!resultLabel && image.selectedForExperiment && (
@@ -197,5 +206,70 @@ export function ImageItem({
         </ContextMenuContent>
       </ContextMenu>
     </div>
+  );
+}
+
+function DetLabelCanvas({ image }: { image: TImage }) {
+  const { data: labels } = api.labelDet.getAllByImageId.useQuery({
+    imageId: image.id,
+  });
+  const { data: labelClasses } = api.labelClass.getAll.useQuery({
+    imageStoreId: image.imageStoreId,
+  });
+
+  const fixedCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  const clearCanvas = (ctx?: CanvasRenderingContext2D) => {
+    ctx?.clearRect(
+      0,
+      0,
+      fixedCanvasRef.current!.width,
+      fixedCanvasRef.current!.height,
+    );
+  };
+
+  const drawBBox = useCallback(
+    (ctx?: CanvasRenderingContext2D) => {
+      if (!labelClasses || !ctx) return;
+      labels?.forEach((l) => {
+        const { color, displayName } = labelClasses.find(
+          (lc) => lc.id === l.labelClassId,
+        )!;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        const x = (l.xMin * 200) / image.width;
+        const y = (l.yMin * 200) / image.width;
+        const w = ((l.xMax - l.xMin) * 200) / image.width;
+        const h = ((l.yMax - l.yMin) * 200) / image.width;
+        ctx.strokeRect(x, y, w, h);
+        const FONT_SIZE = 12;
+        ctx.fillRect(
+          x,
+          y - FONT_SIZE,
+          (FONT_SIZE / 10) * ctx.measureText(displayName).width,
+          12,
+        );
+        ctx.fillStyle = "white";
+        ctx.font = `${FONT_SIZE}px sans-serif`;
+        ctx.fillText(displayName, x, y);
+      });
+    },
+    [labels, labelClasses, image],
+  );
+
+  useEffect(() => {
+    const ctx = fixedCanvasRef.current!.getContext("2d")!;
+    ctx.lineWidth = 2;
+    clearCanvas(ctx);
+    drawBBox(ctx);
+  }, [labels, drawBBox]);
+
+  return (
+    <canvas
+      ref={fixedCanvasRef}
+      width={200}
+      height={(200 * image.height) / image.width}
+      className="absolute inset-0 rounded-md border bg-transparent"
+    />
   );
 }

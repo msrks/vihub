@@ -297,7 +297,7 @@ export function InfiniteImages({
 
       {isSearching && <Loader2 className="mx-auto size-8 animate-spin" />}
       {imageStore && !isSearching && searchResults.length === 0 && (
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-end justify-center gap-2">
           {data?.pages.flatMap((page) =>
             page.items
               .filter(
@@ -317,7 +317,6 @@ export function InfiniteImages({
                   handleImageClick={handleImageClick}
                   isChecked={selectedImages.includes(image.id)}
                   setAsQueryImage={setAsQueryImage}
-                  aspectRatio={imageStore.imageWidth / imageStore.imageHeight}
                   colWidth={imageStore.colWidth}
                 />
               )),
@@ -326,7 +325,7 @@ export function InfiniteImages({
         </div>
       )}
       {imageStore && !isSearching && searchResults.length > 0 && (
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-end justify-center gap-2">
           {searchResults.map(({ image, score }) =>
             image ? (
               <ImageItem
@@ -336,7 +335,6 @@ export function InfiniteImages({
                 isChecked={selectedImages.includes(image.id)}
                 setAsQueryImage={setAsQueryImage}
                 score={score}
-                aspectRatio={imageStore.imageWidth / imageStore.imageHeight}
                 colWidth={imageStore.colWidth}
               />
             ) : null,
