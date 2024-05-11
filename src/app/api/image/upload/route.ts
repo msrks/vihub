@@ -5,13 +5,13 @@ import { z } from "zod";
 
 import { db } from "@/server/db";
 import { images } from "@/server/db/schema";
+import { uploadToGCS } from "@/server/gcs";
 import { vdb } from "@/server/pinecone";
 import { getVectorByReplicate } from "@/server/replicate";
 import { handleUpload } from "@vercel/blob/client";
 
 import type { PineconeRecord } from "@pinecone-database/pinecone";
 import type { HandleUploadBody } from "@vercel/blob/client";
-
 const schema = z.object({
   imageStoreId: z.number(),
   humanLabelId: z.number().optional(),
@@ -63,6 +63,11 @@ export async function POST(request: Request): Promise<NextResponse> {
             } satisfies PineconeRecord,
           ]);
 
+          // upload to gcs
+          const gcsPath = `${imageStoreId}/${Date.now()}.png`;
+          const gsutilURI = `gs://vihub/${gcsPath}`;
+          await uploadToGCS(buffer, gcsPath);
+
           // save to db
           await db.insert(images).values({
             url,
@@ -72,6 +77,7 @@ export async function POST(request: Request): Promise<NextResponse> {
             imageStoreId,
             vectorId,
             humanLabelId,
+            gsutilURI,
           });
         } catch (error) {
           console.error(error);

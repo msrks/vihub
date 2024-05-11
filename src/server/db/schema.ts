@@ -239,6 +239,7 @@ export const images = createTable(
     url: varchar("url").notNull().unique(),
     width: integer("width").default(1).notNull(),
     height: integer("height").default(1).notNull(),
+    gsutilURI: varchar("gsutilURI").notNull(),
     vectorId: varchar("vectorId").notNull().unique(),
     downloadUrl: varchar("downloadUrl").notNull().unique(),
     selectedForExperiment: boolean("selectedForExperiment"),

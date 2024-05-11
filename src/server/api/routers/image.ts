@@ -19,12 +19,12 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import { images, labelClasses as lc, labelsClsM } from "@/server/db/schema";
+import { uploadToGCS } from "@/server/gcs";
 import { vdb } from "@/server/pinecone";
 import { getVectorByReplicate } from "@/server/replicate";
 import { del, put } from "@vercel/blob";
 
 import type { PineconeRecord } from "@pinecone-database/pinecone";
-
 export const imageRouter = createTRPCRouter({
   create: publicProcedure
     .input(
@@ -57,20 +57,17 @@ export const imageRouter = createTRPCRouter({
           createdAtDate,
         },
       }) => {
-        let width: number | undefined;
-        let height: number | undefined;
+        // get size of image
+        let buffer: Buffer;
 
         if (file instanceof Buffer) {
-          const { width: w, height: h } = sizeOf(file);
-          width = w;
-          height = h;
+          buffer = file;
         } else {
           const res = await fetch(URL.createObjectURL(file));
-          const buffer = Buffer.from(await res.arrayBuffer());
-          const { width: w, height: h } = sizeOf(buffer);
-          width = w;
-          height = h;
+          buffer = Buffer.from(await res.arrayBuffer());
         }
+
+        const { width, height } = sizeOf(buffer);
 
         // get aiLabelId if aiLabelKey is provided
         let aiLabelId: number | undefined;
@@ -90,6 +87,11 @@ export const imageRouter = createTRPCRouter({
         const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${Date.now()}`;
         const blob = await put(filename, file, { access: "public" });
         const { url, downloadUrl } = blob;
+
+        // upload to gcs
+        const gcsPath = `${imageStoreId}/${Date.now()}.png`;
+        const gsutilURI = `gs://vihub/${gcsPath}`;
+        await uploadToGCS(buffer, gcsPath);
 
         // get vector embedding & store it to pinecone
         const vector = await getVectorByReplicate(url);
@@ -117,6 +119,7 @@ export const imageRouter = createTRPCRouter({
             createdAtDate,
             width,
             height,
+            gsutilURI,
           })
           .returning();
         if (!ret[0]) throw new Error("something went wrong..");
