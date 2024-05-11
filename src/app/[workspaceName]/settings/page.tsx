@@ -1,16 +1,19 @@
 "use client";
 
-import { api } from "@/trpc/react";
+import { Copy, ImageIcon, Key, Sparkles, StoreIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import { Copy, ImageIcon, Key, Sparkles, StoreIcon } from "lucide-react";
+import { api } from "@/trpc/react";
+
 import type { RouterOutputs } from "@/server/api/root";
 
 type Workspace = RouterOutputs["workspace"]["getByName"];
 
+// TODO: implement Billing
 function Billing({ ws }: { ws: Workspace }) {
   return (
     <div className="w-full space-y-1">
@@ -20,7 +23,6 @@ function Billing({ ws }: { ws: Workspace }) {
       </Label>
       <div className="ml-4 flex w-full items-center space-x-2">
         <div className="flex items-center gap-2">
-          {/* TODO */}
           <span>hobby</span>
         </div>
       </div>
