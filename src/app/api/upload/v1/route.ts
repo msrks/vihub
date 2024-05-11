@@ -88,18 +88,12 @@ export async function POST(req: NextRequest) {
     // return Response.json({ debug: true });
     // end for debugging
 
-    // get size of image
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const { width, height } = sizeOf(buffer);
-
     // upload file & save to DB, VDB
     const { id: imageId } = await api.image.create({
       createdAt,
       createdAtDate: createdAt && formatDate(createdAt, "yyyy-MM-dd"),
       imageStoreId,
       file,
-      width,
-      height,
       aiLabelKey,
       aiLabelDetail: aiLabelConfidence
         ? {
