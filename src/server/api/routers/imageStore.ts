@@ -2,34 +2,28 @@ import { and, count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { images, imageStores, workspaces } from "@/server/db/schema";
+import {
+  images,
+  imageStores,
+  insertImageStoreSchema,
+  workspaces,
+} from "@/server/db/schema";
 import { vdb } from "@/server/pinecone";
 import { del } from "@vercel/blob";
 
 export const imageStoreRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
-      z.object({
-        name: z.string().min(1),
-        workspaceId: z.number(),
+      insertImageStoreSchema.pick({
+        name: true,
+        type: true,
+        workspaceId: true,
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      try {
-        const ret = await ctx.db
-          .insert(imageStores)
-          .values({
-            name: input.name,
-            workspaceId: input.workspaceId,
-          })
-          .returning();
-
-        if (!ret[0]) throw new Error("something went wrong..");
-
-        return { id: ret[0].id };
-      } catch (error) {
-        return { error: "something went wrong.." };
-      }
+      const ret = await ctx.db.insert(imageStores).values(input).returning();
+      if (!ret[0]) throw new Error("something went wrong..");
+      return { id: ret[0].id };
     }),
 
   // verifyApiKey: publicProcedure
