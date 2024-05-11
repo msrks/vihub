@@ -19,17 +19,37 @@ export const maxDuration = 300;
 const schema = z.object({
   imageStoreId: z.coerce.number(),
   apiKey: z.string(),
-  aiLabelKey: z.string().optional(),
-  aiLabelConfidence: z.string().optional(),
-  createdAt: z.coerce.date().optional(),
-  multiLabelString: z.string().optional(),
+  aiLabelKey: z
+    .string()
+    .optional()
+    .nullish()
+    .transform((x) => x ?? undefined),
+  aiLabelConfidence: z
+    .string()
+    .optional()
+    .nullish()
+    .transform((x) => x ?? undefined),
+  createdAt: z.coerce
+    .date()
+    .optional()
+    .nullish()
+    .transform((x) => x ?? undefined),
+  multiLabelString: z
+    .string()
+    .optional()
+    .nullish()
+    .transform((x) => x ?? undefined),
 });
 
 const clsMSchema = z.array(
   z.object({
     labelKey: z.string(),
     confidence: z.coerce.number(),
-    aiModelKey: z.string().optional(),
+    aiModelKey: z
+      .string()
+      .optional()
+      .nullish()
+      .transform((x) => x ?? undefined),
     isPositive: z.boolean(),
   }),
 );
