@@ -1,12 +1,16 @@
 import axios from "axios";
 import fs from "fs";
-import { type Pet, getRandomPet, getUrl } from "./pet";
+
 import { api } from "@/trpc/server";
+
+import { getRandomPet, getUrl } from "./pet";
+
+import type { Pet } from "./pet";
 
 export const maxDuration = 300;
 
 const URL = `https://visual-inspection-template.web.app/predict?modelType=tflite`;
-const STORE_ID = 8;
+const STORE_ID = 14;
 
 type PredResponse = {
   confidences: {
