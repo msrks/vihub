@@ -5,7 +5,7 @@ import { Loader } from "@/components/ui/loader";
 import { api } from "@/trpc/server";
 
 import ReferenceImagesPage from "../reference-images/page";
-import { columns, columnsMulti } from "./_components/columns";
+import { colClsM, colClsS, colDet } from "./_components/columns";
 import { NewLabelClass } from "./_components/new-label-class";
 
 interface ISProps {
@@ -43,7 +43,7 @@ export default async function Page({ params }: ISProps) {
             </div>
           </div>
           <Suspense>
-            <LabelClasses params={params} multi />
+            <LabelClasses params={params} />
           </Suspense>
         </div>
       )}
@@ -58,7 +58,7 @@ export default async function Page({ params }: ISProps) {
             </div>
           </div>
           <Suspense>
-            <LabelClasses params={params} multi />
+            <LabelClasses params={params} />
           </Suspense>
         </div>
       )}
@@ -68,15 +68,24 @@ export default async function Page({ params }: ISProps) {
   );
 }
 
-async function LabelClasses({ params, multi }: ISProps & { multi?: boolean }) {
-  const { id } = await api.imageStore.getByName(params);
+const columns = {
+  clsS: colClsS,
+  clsM: colClsM,
+  det: colDet,
+  seg: colDet,
+};
+
+async function LabelClasses({ params }: ISProps) {
+  const { id, type } = await api.imageStore.getByName(params);
   const data = await api.labelClass.getAll({ imageStoreId: id });
 
   return (
     <div className="container">
       <DataTable
-        columns={!multi ? columns : columnsMulti}
-        data={data.filter((d) => (multi ? d.isMultiClass : !d.isMultiClass))}
+        columns={columns[type]}
+        data={data.filter((d) =>
+          type !== "clsS" ? d.isMultiClass : !d.isMultiClass,
+        )}
       />
     </div>
   );

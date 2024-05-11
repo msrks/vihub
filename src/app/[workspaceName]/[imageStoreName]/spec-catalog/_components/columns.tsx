@@ -35,7 +35,7 @@ interface Props {
   row: Row<LabelClass>;
 }
 
-export const columns: ColumnDef<LabelClass>[] = [
+export const colClsS: ColumnDef<LabelClass>[] = [
   { header: "Color", cell: ColorCell },
   { header: "Key", accessorKey: "key" },
   { header: "Display Name", cell: DisplayNameCell },
@@ -46,14 +46,23 @@ export const columns: ColumnDef<LabelClass>[] = [
   { header: "Delete", cell: DeleteCell },
 ];
 
-export const columnsMulti: ColumnDef<LabelClass>[] = [
+export const colClsM: ColumnDef<LabelClass>[] = [
   { header: "Color", cell: ColorCell },
   { header: "Key", accessorKey: "key" },
   { header: "Display Name", cell: DisplayNameCell },
   { header: "Count: HumanLabel", cell: MultiHumanCountCell },
   { header: "Count: AILabel", cell: MultiAiCountCell },
   { header: "Spec Definition", cell: SpecDefinitionCell },
-  { header: "Run LLM", cell: RunLLMCell },
+  { header: "Delete", cell: DeleteCell },
+];
+
+export const colDet: ColumnDef<LabelClass>[] = [
+  { header: "Color", cell: ColorCell },
+  { header: "Key", accessorKey: "key" },
+  { header: "Display Name", cell: DisplayNameCell },
+  { header: "Count: HumanLabel", cell: DetHumanCountCell },
+  { header: "Count: AILabel", cell: DetAiCountCell },
+  { header: "Spec Definition", cell: SpecDefinitionCell },
   { header: "Delete", cell: DeleteCell },
 ];
 
@@ -265,5 +274,17 @@ function MultiHumanCountCell({ row }: Props) {
 function MultiAiCountCell({ row }: Props) {
   const { id } = row.original;
   const { data } = api.labelClass.getMultiAiCount.useQuery({ id });
+  return <>{data}</>;
+}
+
+function DetHumanCountCell({ row }: Props) {
+  const { id } = row.original;
+  const { data } = api.labelClass.getDetHumanCount.useQuery({ id });
+  return <>{data}</>;
+}
+
+function DetAiCountCell({ row }: Props) {
+  const { id } = row.original;
+  const { data } = api.labelClass.getDetAiCount.useQuery({ id });
   return <>{data}</>;
 }

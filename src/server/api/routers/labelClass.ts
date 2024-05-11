@@ -6,6 +6,7 @@ import {
   images,
   labelClasses,
   labelsClsM,
+  labelsDet,
   multiClassAiPredictions,
 } from "@/server/db/schema";
 
@@ -160,6 +161,35 @@ export const labelClassRouter = createTRPCRouter({
           ),
         )
         .groupBy(multiClassAiPredictions.labelClassId);
+      return res[0]?.count ?? 0;
+    }),
+
+  getDetHumanCount: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.db
+        .select({ count: count() })
+        .from(labelsDet)
+        .where(
+          and(
+            eq(labelsDet.labelClassId, input.id),
+            eq(labelsDet.type, "human"),
+          ),
+        )
+        .groupBy(labelsDet.labelClassId);
+      return res[0]?.count ?? 0;
+    }),
+
+  getDetAiCount: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const res = await ctx.db
+        .select({ count: count() })
+        .from(labelsDet)
+        .where(
+          and(eq(labelsDet.labelClassId, input.id), eq(labelsDet.type, "ai")),
+        )
+        .groupBy(labelsDet.labelClassId);
       return res[0]?.count ?? 0;
     }),
 });
