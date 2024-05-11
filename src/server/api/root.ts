@@ -5,6 +5,7 @@ import { experimentResultRouter } from "./routers/experimentResult";
 import { imageRouter } from "./routers/image";
 import { imageStoreRouter } from "./routers/imageStore";
 import { labelClassRouter } from "./routers/labelClass";
+import { labelDetRouter } from "./routers/labelDet";
 import { multiClassAiPredictionRouter } from "./routers/multiClassAiPrediction";
 import { promptingExperimentRouter } from "./routers/propmtingExperiment";
 import { referenceImageRouter } from "./routers/referenceImage";
@@ -12,7 +13,6 @@ import { userRouter } from "./routers/user";
 import { workspaceRouter } from "./routers/workspace";
 
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-
 export const appRouter = createTRPCRouter({
   ai: aiRouter,
   workspace: workspaceRouter,
@@ -24,6 +24,7 @@ export const appRouter = createTRPCRouter({
   referenceImage: referenceImageRouter,
   experimentResult: experimentResultRouter,
   multiClassAiPrediction: multiClassAiPredictionRouter,
+  labelDet: labelDetRouter,
 });
 
 export type AppRouter = typeof appRouter;
