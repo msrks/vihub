@@ -91,7 +91,12 @@ export const imageRouter = createTRPCRouter({
         // upload to gcs
         const gcsPath = `${imageStoreId}/${Date.now()}.png`;
         const gsutilURI = `gs://vihub/${gcsPath}`;
-        await uploadToGCS(buffer, gcsPath);
+        try {
+          await uploadToGCS(buffer, gcsPath);
+        } catch (error) {
+          console.error(error);
+          throw new Error("failed to upload image to blob..");
+        }
 
         // get vector embedding & store it to pinecone
         const vector = await getVectorByReplicate(url);
