@@ -39,6 +39,8 @@ export const imageRouter = createTRPCRouter({
           .optional(),
         createdAt: z.date().optional(),
         createdAtDate: z.string().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
       }),
     )
     .mutation(
@@ -52,6 +54,8 @@ export const imageRouter = createTRPCRouter({
           aiLabelDetail,
           createdAt,
           createdAtDate,
+          width,
+          height,
         },
       }) => {
         // get aiLabelId if aiLabelKey is provided
@@ -96,6 +100,8 @@ export const imageRouter = createTRPCRouter({
             aiLabelDetail,
             createdAt,
             createdAtDate,
+            width,
+            height,
           })
           .returning();
         if (!ret[0]) throw new Error("something went wrong..");

@@ -1,5 +1,6 @@
 import { formatDate } from "date-fns";
 import { and, eq } from "drizzle-orm";
+import sizeOf from "image-size";
 import { z } from "zod";
 
 import { db } from "@/server/db";
@@ -87,12 +88,18 @@ export async function POST(req: NextRequest) {
     // return Response.json({ debug: true });
     // end for debugging
 
+    // get size of image
+    const buffer = Buffer.from(file);
+    const { width, height } = sizeOf(buffer);
+
     // upload file & save to DB, VDB
     const { id: imageId } = await api.image.create({
       createdAt,
       createdAtDate: createdAt && formatDate(createdAt, "yyyy-MM-dd"),
       imageStoreId,
       file,
+      width,
+      height,
       aiLabelKey,
       aiLabelDetail: aiLabelConfidence
         ? {
@@ -129,6 +136,7 @@ export async function POST(req: NextRequest) {
 
       return Response.json({ success: true });
     } else if (imageStoreType === "det") {
+      // TODO: implement detection
       return Response.json({ success: true });
     } else {
       throw new Error("Invalid image store type");
