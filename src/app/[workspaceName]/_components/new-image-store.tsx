@@ -4,6 +4,7 @@ import { PenSquare, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -47,26 +48,30 @@ const NewImageStore = ({ params }: WSProps) => {
     name: params.workspaceName,
   });
 
-  const utils = api.useUtils();
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { mutateAsync: createImageStore } = api.imageStore.create.useMutation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "" },
+    defaultValues: { name: "", type: "clsS" },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { name } = values;
-    const res = await createImageStore({ name, workspaceId: ws!.id });
-    if (res.error) {
-      form.setError("name", {
-        message: res.error,
-      });
-      return;
-    }
-    router.push(`/${params.workspaceName}/${name}/spec-catalog`);
-    await utils.imageStore.getAll.invalidate();
+    const { name, type } = values;
+    toast.info("Creating ImageStore");
+    await createImageStore({
+      name,
+      type: type ?? "clsS",
+      workspaceId: ws!.id,
+    });
+    // if (res.error) {
+    //   form.setError("name", {
+    //     message: res.error,
+    //   });
+    //   return;
+    // }
+    toast.success("ImageStore created successfully");
+    router.refresh();
     setOpen(false);
   };
 
