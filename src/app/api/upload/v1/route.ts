@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     // end for debugging
 
     // get size of image
-    const buffer = Buffer.from(file);
+    const buffer = Buffer.from(await file.arrayBuffer());
     const { width, height } = sizeOf(buffer);
 
     // upload file & save to DB, VDB
