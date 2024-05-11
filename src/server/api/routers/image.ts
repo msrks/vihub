@@ -19,7 +19,7 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import { images, labelClasses as lc, labelsClsM } from "@/server/db/schema";
-import { uploadToGCS } from "@/server/gcs";
+import { uploadJsonToGCS, uploadToGCS } from "@/server/gcs";
 import { vdb } from "@/server/pinecone";
 import { getVectorByReplicate } from "@/server/replicate";
 import { del, put } from "@vercel/blob";
@@ -89,10 +89,12 @@ export const imageRouter = createTRPCRouter({
         const { url, downloadUrl } = blob;
 
         // upload to gcs
-        const gcsPath = `${imageStoreId}/${Date.now()}.png`;
+        // const gcsPath = `${imageStoreId}/${Date.now()}.png`;
+        const gcsPath = `${imageStoreId}/${Date.now()}.json`;
         const gsutilURI = `gs://vihub/${gcsPath}`;
         try {
-          await uploadToGCS(buffer, gcsPath);
+          await uploadJsonToGCS(gcsPath);
+          // await uploadToGCS(buffer, gcsPath);
         } catch (error) {
           console.error(error);
           throw new Error("failed to upload image to blob..");
