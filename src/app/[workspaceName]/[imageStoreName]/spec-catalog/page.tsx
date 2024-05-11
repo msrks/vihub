@@ -32,7 +32,7 @@ export default async function Page({ params }: ISProps) {
           </Suspense>
         </div>
       )}
-      {["clsM", "det", "seg"].includes(type) && (
+      {type === "clsM" && (
         <div className="flex w-full flex-col">
           <div className="container mt-2 flex items-center justify-between">
             <h2 className="my-2 text-2xl font-semibold tracking-tight">
@@ -47,6 +47,22 @@ export default async function Page({ params }: ISProps) {
           </Suspense>
         </div>
       )}
+      {type === "det" && (
+        <div className="flex w-full flex-col">
+          <div className="container mt-2 flex items-center justify-between">
+            <h2 className="my-2 text-2xl font-semibold tracking-tight">
+              Detection Label Classes
+            </h2>
+            <div className="ml-auto mr-4 ">
+              <NewLabelClass params={params} isMultiClass />
+            </div>
+          </div>
+          <Suspense>
+            <LabelClasses params={params} multi />
+          </Suspense>
+        </div>
+      )}
+
       <ReferenceImagesPage params={params} />
     </div>
   );
