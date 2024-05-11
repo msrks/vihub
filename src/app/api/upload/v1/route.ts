@@ -41,7 +41,7 @@ const schema = z.object({
     .transform((x) => x ?? undefined),
 });
 
-const clsMSchema = z.array(
+const schemaClsM = z.array(
   z.object({
     labelKey: z.string(),
     confidence: z.coerce.number(),
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       case "clsM":
         if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
 
-        const parsed = clsMSchema.parse(JSON.parse(multiLabelString));
+        const parsed = schemaClsM.parse(JSON.parse(multiLabelString));
         await Promise.all(
           parsed.map(async ({ labelKey, ...rest }) => {
             const ret = await db
