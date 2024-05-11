@@ -191,6 +191,7 @@ export const imageStoresRelations = relations(imageStores, ({ one, many }) => ({
   labelClasses: many(labelClasses),
   promptingExperiments: many(promptingExperiments),
   referenceImages: many(referenceImages),
+  trainingJobs: many(trainingJobs),
 }));
 
 export const labelClasses = createTable(
@@ -284,6 +285,7 @@ export const imagesRelations = relations(images, ({ one, many }) => ({
   multiClassAiPredictions: many(multiClassAiPredictions),
   labelsClsM: many(labelsClsM),
   labelsDet: many(labelsDet),
+  trainingJobsToImages: many(trainingJobsToImages),
 }));
 
 export const labelsClsM = createTable(
@@ -500,6 +502,66 @@ export const referenceImagesRelations = relations(
     labelClass: one(labelClasses, {
       fields: [referenceImages.labelClassId],
       references: [labelClasses.id],
+    }),
+  }),
+);
+
+export const trainingJobTypeList = ["clsS", "clsM", "det", "seg"] as const;
+
+export const trainingJobType = pgEnum("trainingJobType", trainingJobTypeList);
+
+export const trainingJobs = createTable(
+  "training_job",
+  {
+    id: serial("id").primaryKey(),
+    type: trainingJobType("trainingJobType").notNull(),
+    status: varchar("status").notNull(),
+    mAP: real("mAP"),
+    dateRange: jsonb("dateRange").$type<{ start: string; end: string }>(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at"),
+
+    imageStoreId: integer("imageStoreId")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "cascade" }),
+  },
+  (t) => ({
+    createdAtIdx: index("training_job_createdAt_idx").on(t.createdAt),
+  }),
+);
+
+export const trainingJobsRelations = relations(
+  trainingJobs,
+  ({ one, many }) => ({
+    imageStore: one(imageStores, {
+      fields: [trainingJobs.imageStoreId],
+      references: [imageStores.id],
+    }),
+    trainingJobsToImages: many(trainingJobsToImages),
+  }),
+);
+
+export const trainingJobsToImages = createTable(
+  "training_job_to_image",
+  {
+    imageId: integer("imageId").notNull(),
+    trainingJobId: integer("trainingJobId").notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.imageId, t.trainingJobId] }),
+  }),
+);
+
+export const trainingJobsToImagesRelations = relations(
+  trainingJobsToImages,
+  ({ one }) => ({
+    image: one(images, {
+      fields: [trainingJobsToImages.imageId],
+      references: [images.id],
+    }),
+    trainingJob: one(trainingJobs, {
+      fields: [trainingJobsToImages.trainingJobId],
+      references: [trainingJobs.id],
     }),
   }),
 );
