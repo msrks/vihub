@@ -517,11 +517,19 @@ export const trainingJobs = createTable(
     type: trainingJobType("trainingJobType").notNull(),
     state: varchar("state").notNull(),
     numImages: integer("numImages").notNull(),
+    numTrain: integer("numTrain"),
+    numTest: integer("numTest"),
+    numValid: integer("numValid"),
     modelId: varchar("modelId"),
     datasetId: varchar("datasetId").notNull().unique(),
     importFilePath: varchar("importFilePath").notNull(),
     auPrc: real("auPrc"),
     evalId: varchar("evalId"),
+    logLoss: real("logLoss"),
+    confusionMatrix: jsonb("confusionMatrix").$type<{
+      annotationSpecs: { id: string; displayName: string }[];
+      rows: { values: number[] }[];
+    }>(),
     dateRange: jsonb("dateRange").$type<{ start: string; end: string }>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
