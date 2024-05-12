@@ -529,6 +529,7 @@ export const trainingJobs = createTable(
     }>(),
     dateRange: jsonb("dateRange").$type<{ start: string; end: string }>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    durationMinutes: integer("durationMinutes"),
     updatedAt: timestamp("updated_at"),
     urlTFlite: varchar("urlTFlite"),
     urlSavedModel: varchar("urlSavedModel"),
