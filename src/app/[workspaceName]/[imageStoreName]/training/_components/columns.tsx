@@ -17,7 +17,7 @@ export const columns: ColumnDef<TrainingJob>[] = [
       <Button variant="link" asChild>
         <a
           target="_blank"
-          href={`https://console.cloud.google.com/vertex-ai/locations/us-central1/datasets/${row.original.vertexAiDatasetId}/browse?project=dev-msrks`}
+          href={`https://console.cloud.google.com/vertex-ai/locations/us-central1/datasets/${row.original.datasetId}/browse?project=dev-msrks`}
         >
           {row.original.id}
         </a>
@@ -25,15 +25,16 @@ export const columns: ColumnDef<TrainingJob>[] = [
     ),
   },
   { header: "Type", accessorKey: "type" },
-  { header: "Status", accessorKey: "status" },
+  { header: "State", accessorKey: "state" },
   { header: "NumImages", accessorKey: "numImages" },
+  { header: "ModelId", accessorKey: "modelId" },
   {
     header: "ImportFile",
     cell: ({ row }) => (
       <Button variant="link" asChild>
         <a
           target="_blank"
-          href={row.original.gcsDatasetFilePath.replace(
+          href={row.original.importFilePath.replace(
             "gs://",
             "https://storage.cloud.google.com/",
           )}

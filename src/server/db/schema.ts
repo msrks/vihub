@@ -515,14 +515,19 @@ export const trainingJobs = createTable(
   {
     id: serial("id").primaryKey(),
     type: trainingJobType("trainingJobType").notNull(),
-    status: varchar("status").notNull(),
+    state: varchar("state").notNull(),
     numImages: integer("numImages").notNull(),
-    vertexAiDatasetId: varchar("gcpDatasetId").notNull(),
-    gcsDatasetFilePath: varchar("gcsSourceUri").notNull(),
-    mAP: real("mAP"),
+    modelId: varchar("modelId"),
+    datasetId: varchar("datasetId").notNull().unique(),
+    importFilePath: varchar("importFilePath").notNull(),
+    auPrc: real("auPrc"),
+    evalId: varchar("evalId"),
     dateRange: jsonb("dateRange").$type<{ start: string; end: string }>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
+    urlTFlite: varchar("urlTFlite"),
+    urlSavedModel: varchar("urlSavedModel"),
+    urlTFJS: varchar("urlTFJS"),
 
     imageStoreId: integer("imageStoreId")
       .notNull()
