@@ -20,6 +20,8 @@ import {
 import { listTrainingPipelines, trainAutoML } from "@/server/vertexai/pipeline";
 import { Storage } from "@google-cloud/storage";
 
+const clip0to1 = (v: number) => Math.min(1, Math.max(0, v));
+
 const modelSchema = z.object({
   numTrain: z.coerce
     .number()
@@ -84,7 +86,6 @@ export const trainingJobRouter = createTRPCRouter({
   updateModelStatus: protectedProcedure.mutation(async ({ ctx }) => {
     const pipelines = await listTrainingPipelines();
     const uniqueDatasetIds = [...new Set(pipelines.map((p) => p.datasetId!))];
-    // await listModelEvaluation({ modelId: "6246325557395456" });
 
     await Promise.all(
       uniqueDatasetIds.map(async (dId) => {
@@ -136,6 +137,8 @@ export const trainingJobRouter = createTRPCRouter({
               urlSavedModel,
               urlTFJS,
               ...model,
+              durationMinutes: p.durationMinutes,
+              updatedAt: p.endTime,
             })
             .where(eq(trainingJobs.datasetId, dId));
           // TODO: send notification email to workspace members
@@ -196,6 +199,8 @@ export const trainingJobRouter = createTRPCRouter({
             yMin: labelsDet.yMin,
             xMax: labelsDet.xMax,
             yMax: labelsDet.yMax,
+            width: images.width,
+            height: images.height,
           })
           .from(labelsDet)
           .innerJoin(images, eq(labelsDet.imageId, images.id))
@@ -208,10 +213,13 @@ export const trainingJobRouter = createTRPCRouter({
           );
         numImages = dataset.length;
         csvString = dataset
-          .map(
-            (d) =>
-              `${d.url},${d.label},${d.xMin},${d.yMin},,,${d.xMax},${d.yMax},,`,
-          )
+          .map((d) => {
+            const xMin = clip0to1(d.xMin / d.width);
+            const yMin = clip0to1(d.yMin / d.height);
+            const xMax = clip0to1(d.xMax / d.width);
+            const yMax = clip0to1(d.yMax / d.height);
+            return `${d.url},${d.label},${xMin},${yMin},,,${xMax},${yMax},,`;
+          })
           .join("\n");
       }
 
