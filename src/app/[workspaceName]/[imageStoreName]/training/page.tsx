@@ -13,7 +13,7 @@ interface Props {
 
 export default async function Page({ params }: Props) {
   return (
-    <div className="flex w-full grow flex-col items-center">
+    <div className="flex w-full grow flex-col items-center gap-2">
       <div className="container flex items-center justify-between gap-2">
         <h2 className="text-2xl font-semibold tracking-tight">
           AutoML Training
