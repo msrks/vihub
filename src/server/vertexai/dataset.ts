@@ -4,6 +4,8 @@ import { v1 as ai } from "@google-cloud/aiplatform";
 
 import { aiOptions, PARENT, PROJECT_ID, REGION } from "./env";
 
+import type { ImageStoreType } from "../db/schema";
+
 const client = new ai.DatasetServiceClient(aiOptions);
 
 export const createDataset = async ({
@@ -28,6 +30,7 @@ export const createDataset = async ({
 
 const importSchemaUris = {
   clsS: "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_single_label_io_format_1.0.0.yaml",
+  clsM: "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_multi_label_io_format_1.0.0.yaml",
   det: "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_bounding_box_io_format_1.0.0.yaml",
 };
 
@@ -38,7 +41,7 @@ export const importDataset = async ({
 }: {
   datasetId: string;
   gcsSourceUri: string;
-  type: "clsS" | "det";
+  type: ImageStoreType;
 }) => {
   const [response] = await client.importData({
     name: client.datasetPath(PROJECT_ID, REGION, datasetId),
