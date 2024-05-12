@@ -3,9 +3,14 @@ import * as fs from "fs";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { images, labelClasses, trainingJobs } from "@/server/db/schema";
+import {
+  images,
+  labelClasses,
+  labelsDet,
+  trainingJobs,
+} from "@/server/db/schema";
 import { getGCPCredentials } from "@/server/gcs";
-import { createDatasetImage, importDataImage } from "@/server/vertexai/dataset";
+import { createDataset, importDataset } from "@/server/vertexai/dataset";
 import {
   exportModel,
   getModel,
@@ -141,46 +146,82 @@ export const trainingJobRouter = createTRPCRouter({
     );
   }),
 
-  prepareDatasetClsS: protectedProcedure
+  prepareDataset: protectedProcedure
     .input(
       z.object({
         imageStoreId: z.number(),
+        type: z.enum(["clsS", "det"]),
       }),
     )
-    .mutation(async ({ ctx, input: { imageStoreId } }) => {
-      const dataset = await ctx.db
-        .select({
-          url: images.gsutilURI,
-          label: labelClasses.key,
-        })
-        .from(images)
-        .where(
-          and(
-            eq(images.imageStoreId, imageStoreId),
-            isNotNull(images.humanLabelId),
-          ),
-        )
-        .innerJoin(labelClasses, eq(images.humanLabelId, labelClasses.id));
-      const timestamp = Date.now();
-      const fileName = `${timestamp}.csv`;
-      const data = dataset.map((d) => `${d.url},${d.label}`).join("\n");
-      await fs.promises.writeFile(`/tmp/${fileName}`, data, "utf-8");
-
+    .mutation(async ({ ctx, input: { imageStoreId, type } }) => {
+      let csvString = "";
+      let numImages = 0;
+      const displayName = Date.now().toString();
+      const fileName = `${displayName}.csv`;
       const destination = `_jobs/${fileName}`;
-      const storage = new Storage(getGCPCredentials());
-      await storage.bucket("vihub").upload(`/tmp/${fileName}`, { destination });
-
       const gcsSourceUri = `gs://vihub/${destination}`;
 
-      const datasetId = await createDatasetImage({
-        displayName: timestamp.toString(),
-      });
-      await importDataImage({ datasetId, gcsSourceUri });
+      const uploadImportFile = async (csvString: string) => {
+        await fs.promises.writeFile(`/tmp/${fileName}`, csvString, "utf-8");
+        const storage = new Storage(getGCPCredentials());
+        await storage
+          .bucket("vihub")
+          .upload(`/tmp/${fileName}`, { destination });
+      };
+
+      const datasetId = await createDataset({ displayName });
+
+      if (type === "clsS") {
+        const dataset = await ctx.db
+          .select({
+            url: images.gsutilURI,
+            label: labelClasses.key,
+          })
+          .from(images)
+          .where(
+            and(
+              eq(images.imageStoreId, imageStoreId),
+              isNotNull(images.humanLabelId),
+            ),
+          )
+          .innerJoin(labelClasses, eq(images.humanLabelId, labelClasses.id));
+        numImages = dataset.length;
+        csvString = dataset.map((d) => `${d.url},${d.label}`).join("\n");
+      } else if (type === "det") {
+        const dataset = await ctx.db
+          .select({
+            url: images.gsutilURI,
+            label: labelClasses.key,
+            xMin: labelsDet.xMin,
+            yMin: labelsDet.yMin,
+            xMax: labelsDet.xMax,
+            yMax: labelsDet.yMax,
+          })
+          .from(labelsDet)
+          .innerJoin(images, eq(labelsDet.imageId, images.id))
+          .innerJoin(labelClasses, eq(labelsDet.labelClassId, labelClasses.id))
+          .where(
+            and(
+              eq(images.imageStoreId, imageStoreId),
+              eq(labelsDet.type, "human"),
+            ),
+          );
+        numImages = dataset.length;
+        csvString = dataset
+          .map(
+            (d) =>
+              `${d.url},${d.label},${d.xMin},${d.yMin},,,${d.xMax},${d.yMax},,`,
+          )
+          .join("\n");
+      }
+
+      await uploadImportFile(csvString);
+      await importDataset({ datasetId, gcsSourceUri, type });
 
       return await ctx.db.insert(trainingJobs).values({
-        type: "clsS",
+        type,
         state: "preparing",
-        numImages: dataset.length,
+        numImages,
         datasetId,
         importFilePath: gcsSourceUri,
         createdAt: new Date(),
