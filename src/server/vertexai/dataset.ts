@@ -2,18 +2,11 @@ import "server-only";
 
 import { v1 as ai } from "@google-cloud/aiplatform";
 
-import { PARENT, PROJECT_ID, REGION } from "./env";
+import { aiOptions, PARENT, PROJECT_ID, REGION } from "./env";
 
-const client = new ai.DatasetServiceClient({
-  apiEndpoint: "us-central1-aiplatform.googleapis.com",
-  credentials: {
-    client_email: process.env.GCP_SERVICE_ACCOUNT_EMAIL,
-    private_key: process.env.GCP_PRIVATE_KEY,
-  },
-  projectId: process.env.GCP_PROJECT_ID,
-});
+const client = new ai.DatasetServiceClient(aiOptions);
 
-export const createDatasetImage = async ({
+export const createDataset = async ({
   displayName,
 }: {
   displayName: string;
@@ -33,20 +26,26 @@ export const createDatasetImage = async ({
   return datasetId;
 };
 
-export const importDataImage = async ({
+const importSchemaUris = {
+  clsS: "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_single_label_io_format_1.0.0.yaml",
+  det: "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_bounding_box_io_format_1.0.0.yaml",
+};
+
+export const importDataset = async ({
   datasetId,
   gcsSourceUri,
+  type,
 }: {
   datasetId: string;
   gcsSourceUri: string;
+  type: "clsS" | "det";
 }) => {
   const [response] = await client.importData({
     name: client.datasetPath(PROJECT_ID, REGION, datasetId),
     importConfigs: [
       {
         gcsSource: { uris: [gcsSourceUri] },
-        importSchemaUri:
-          "gs://google-cloud-aiplatform/schema/dataset/ioformat/image_classification_single_label_io_format_1.0.0.yaml",
+        importSchemaUri: importSchemaUris[type],
       },
     ],
   });
