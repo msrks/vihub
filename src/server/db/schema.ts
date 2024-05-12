@@ -154,7 +154,8 @@ export const usersToWorkspacesRelations = relations(
   }),
 );
 
-export const imageStoreTypeList = ["clsS", "clsM", "det", "seg"] as const;
+export const imageStoreTypeList = ["clsS", "clsM", "det"] as const;
+export type ImageStoreType = (typeof imageStoreTypeList)[number];
 
 export const typeEnum = pgEnum("type", imageStoreTypeList);
 
@@ -506,15 +507,11 @@ export const referenceImagesRelations = relations(
   }),
 );
 
-export const trainingJobTypeList = ["clsS", "clsM", "det", "seg"] as const;
-
-export const trainingJobType = pgEnum("trainingJobType", trainingJobTypeList);
-
 export const trainingJobs = createTable(
   "training_job",
   {
     id: serial("id").primaryKey(),
-    type: trainingJobType("trainingJobType").notNull(),
+    type: typeEnum("type").notNull(),
     state: varchar("state").notNull(),
     numImages: integer("numImages").notNull(),
     numTrain: integer("numTrain"),
