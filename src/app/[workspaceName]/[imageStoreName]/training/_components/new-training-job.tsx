@@ -15,12 +15,15 @@ export function NewTrainingJob({ params }: Props) {
   const router = useRouter();
   const { data: imageStore } = api.imageStore.getByName.useQuery(params);
   const { mutateAsync, isPending } =
-    api.trainingJob.prepareDatasetClsS.useMutation();
+    api.trainingJob.prepareDataset.useMutation();
 
   const handleClick = async () => {
     if (!imageStore) return;
     toast.info("triggering new training job...");
-    await mutateAsync({ imageStoreId: imageStore.id });
+    await mutateAsync({
+      imageStoreId: imageStore.id,
+      type: imageStore.type as "clsS" | "det",
+    }); //
     toast.success("new training job has started!");
     router.refresh();
   };
