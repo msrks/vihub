@@ -6,7 +6,6 @@ import { protos, v1 as ai } from "@google-cloud/aiplatform";
 import { aiOptions, PARENT } from "./env";
 
 import type { ImageStoreType } from "../db/schema";
-
 const { definition } = protos.google.cloud.aiplatform.v1.schema.trainingjob;
 
 const client = new ai.PipelineServiceClient(aiOptions);
@@ -15,15 +14,21 @@ export const listTrainingPipelines = async () => {
   const [trainingPipelines, ,] = await client.listTrainingPipelines({
     parent: PARENT,
   });
-  const result = trainingPipelines.map((tp) => ({
-    id: tp.name?.split("/").slice(-1)[0],
-    datetime: new Date(1000 * +(tp.createTime?.seconds?.toString() ?? 0)),
-    datasetId: tp.inputDataConfig?.datasetId,
-    modelId: tp.modelToUpload?.name?.split("/").slice(-1)[0],
-    state: tp.state,
-  }));
+  const result = trainingPipelines.map((tp) => {
+    const _startTime = +(tp.createTime?.seconds?.toString() ?? 0);
+    const _endTime = +(tp.endTime?.seconds?.toString() ?? 0);
+    return {
+      id: tp.name?.split("/").slice(-1)[0],
+      startTime: new Date(1000 * _startTime),
+      endTime: new Date(1000 * _endTime),
+      durationMinutes: Math.round((_endTime - _startTime) / 60),
+      datasetId: tp.inputDataConfig?.datasetId,
+      modelId: tp.modelToUpload?.name?.split("/").slice(-1)[0],
+      state: tp.state,
+    };
+  });
   console.log(JSON.stringify(result, null, 2));
-  return result.sort((a, b) => b.datetime.getTime() - a.datetime.getTime());
+  return result.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
 };
 
 const trainingTaskDefinitions = {
@@ -72,7 +77,7 @@ export const trainAutoML = async ({
 
       trainingTaskDefinition: trainingTaskDefinitions[type],
       trainingTaskInputs: (
-        trainingTaskInputsList as unknown as {
+        trainingTaskInputsList[type] as unknown as {
           toValue: () => protos.google.protobuf.IValue;
         }
       ).toValue(),
