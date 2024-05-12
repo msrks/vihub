@@ -5,6 +5,8 @@ import { protos, v1 as ai } from "@google-cloud/aiplatform";
 
 import { aiOptions, PARENT } from "./env";
 
+import type { ImageStoreType } from "../db/schema";
+
 const { definition } = protos.google.cloud.aiplatform.v1.schema.trainingjob;
 
 const client = new ai.PipelineServiceClient(aiOptions);
@@ -24,27 +26,55 @@ export const listTrainingPipelines = async () => {
   return result.sort((a, b) => b.datetime.getTime() - a.datetime.getTime());
 };
 
-export const trainAutoMLImageClassification = async ({
+const trainingTaskDefinitions = {
+  clsS: "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml",
+  clsM: "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml",
+  det: "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_object_detection_1.0.0.yaml",
+};
+
+const trainingTaskInputsList = {
+  clsS: new definition.AutoMlImageClassificationInputs({
+    multiLabel: false,
+    modelType:
+      definition.AutoMlImageClassificationInputs.ModelType
+        .MOBILE_TF_VERSATILE_1,
+    budgetMilliNodeHours: 8000,
+    disableEarlyStopping: false,
+  }),
+  clsM: new definition.AutoMlImageClassificationInputs({
+    multiLabel: true,
+    modelType:
+      definition.AutoMlImageClassificationInputs.ModelType
+        .MOBILE_TF_VERSATILE_1,
+    budgetMilliNodeHours: 15000,
+    disableEarlyStopping: false,
+  }),
+  det: new definition.AutoMlImageObjectDetectionInputs({
+    modelType:
+      definition.AutoMlImageObjectDetectionInputs.ModelType
+        .MOBILE_TF_VERSATILE_1,
+    budgetMilliNodeHours: 20000,
+    disableEarlyStopping: false,
+  }),
+};
+
+export const trainAutoML = async ({
   datasetId,
+  type,
 }: {
   datasetId: string;
+  type: ImageStoreType;
 }) => {
-  await client.createTrainingPipeline({
+  const [res] = await client.createTrainingPipeline({
     parent: PARENT,
     trainingPipeline: {
       displayName: Date.now().toString(),
 
-      trainingTaskDefinition:
-        "gs://google-cloud-aiplatform/schema/trainingjob/definition/automl_image_classification_1.0.0.yaml",
+      trainingTaskDefinition: trainingTaskDefinitions[type],
       trainingTaskInputs: (
-        new definition.AutoMlImageClassificationInputs({
-          multiLabel: false,
-          modelType:
-            definition.AutoMlImageClassificationInputs.ModelType
-              .MOBILE_TF_VERSATILE_1,
-          budgetMilliNodeHours: 8000,
-          disableEarlyStopping: false,
-        }) as unknown as { toValue: () => protos.google.protobuf.IValue }
+        trainingTaskInputsList as unknown as {
+          toValue: () => protos.google.protobuf.IValue;
+        }
       ).toValue(),
       inputDataConfig: {
         datasetId,
@@ -57,4 +87,5 @@ export const trainAutoMLImageClassification = async ({
       modelToUpload: { displayName: Date.now().toString() },
     },
   });
+  console.log(JSON.stringify(res, null, 2));
 };
