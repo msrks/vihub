@@ -15,7 +15,9 @@ export default async function Page({ params }: Props) {
   return (
     <div className="flex w-full grow flex-col items-center">
       <div className="container flex items-center justify-between gap-2">
-        <h2 className="text-2xl font-semibold tracking-tight">Training</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          AutoML Training
+        </h2>
         <NewTrainingJob params={params} />
       </div>
       <Suspense fallback={<Loader />}>
