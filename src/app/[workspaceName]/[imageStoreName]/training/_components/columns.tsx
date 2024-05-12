@@ -24,10 +24,14 @@ import type { ColumnDef, Row } from "@tanstack/react-table";
 type TrainingJob = RouterOutputs["trainingJob"]["getAll"][number];
 
 export const columns: ColumnDef<TrainingJob>[] = [
-  { header: "createdAt", cell: CreatedAt },
-  // { header: "dataset", cell: ID },
+  { header: "dataset", cell: ID },
+  { header: "type", accessorKey: "type" },
+  { header: "createdAt", cell: (v) => <D d={v.row.original.createdAt} /> },
+  {
+    header: "duration",
+    cell: (v) => <>{v.row.original.durationMinutes ?? "-"} min</>,
+  },
   // { header: "eval", cell: ModelEval },
-  // { header: "type", accessorKey: "type" },
   { header: "state", cell: State },
   // { header: "total", accessorKey: "numImages" },
   { header: "nTrain", accessorKey: "numTrain" },
@@ -50,11 +54,7 @@ function State({ row }: { row: Row<TrainingJob> }) {
 
 function ConfMat({ row }: { row: Row<TrainingJob> }) {
   const { confusionMatrix } = row.original;
-  // return (
-  //   <>
-  //     {confusionMatrix?.annotationSpecs.length} <ZoomIn className="size-4" />
-  //   </>
-  // );
+  if (!confusionMatrix) return null;
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -127,7 +127,7 @@ function L({ l }: { l?: string | null }) {
   return (
     <Button variant="link" asChild className="p-0">
       <a
-        target="_blank"
+        // target="_blank"
         href={l.replace("gs://", "https://storage.cloud.google.com/")}
       >
         <LinkIcon className="size-3.5" />
@@ -136,7 +136,7 @@ function L({ l }: { l?: string | null }) {
   );
 }
 
-function CreatedAt({ row }: { row: Row<TrainingJob> }) {
-  const { createdAt } = row.original;
-  return <span>{format(new Date(createdAt), "yy/MM/dd HH:mm")}</span>;
+function D({ d }: { d?: string | Date | null }) {
+  if (!d) return null;
+  return <span>{format(new Date(d), "yy/MM/dd HH:mm")}</span>;
 }
