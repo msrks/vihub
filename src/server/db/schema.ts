@@ -516,6 +516,9 @@ export const trainingJobs = createTable(
     id: serial("id").primaryKey(),
     type: trainingJobType("trainingJobType").notNull(),
     status: varchar("status").notNull(),
+    numImages: integer("numImages").notNull(),
+    vertexAiDatasetId: varchar("gcpDatasetId").notNull(),
+    gcsDatasetFilePath: varchar("gcsSourceUri").notNull(),
     mAP: real("mAP"),
     dateRange: jsonb("dateRange").$type<{ start: string; end: string }>(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -523,7 +526,7 @@ export const trainingJobs = createTable(
 
     imageStoreId: integer("imageStoreId")
       .notNull()
-      .references(() => workspaces.id, { onDelete: "cascade" }),
+      .references(() => imageStores.id, { onDelete: "cascade" }),
   },
   (t) => ({
     createdAtIdx: index("training_job_createdAt_idx").on(t.createdAt),
