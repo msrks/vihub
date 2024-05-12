@@ -22,7 +22,7 @@ export function NewTrainingJob({ params }: Props) {
     toast.info("triggering new training job...");
     await mutateAsync({
       imageStoreId: imageStore.id,
-      type: imageStore.type as "clsS" | "det",
+      type: imageStore.type,
     }); //
     toast.success("new training job has started!");
     router.refresh();

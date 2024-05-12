@@ -41,11 +41,13 @@ export function InfiniteImages({
   date,
   onlyLabeled = false,
   onlyUnlabeled = false,
+  isAnnotation = false,
 }: {
   imageStoreId: number;
   date?: string;
   onlyLabeled?: boolean;
   onlyUnlabeled?: boolean;
+  isAnnotation?: boolean;
 }) {
   const { data: imageStore } = api.imageStore.getById.useQuery({
     id: imageStoreId,

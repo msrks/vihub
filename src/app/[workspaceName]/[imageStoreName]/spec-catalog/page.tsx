@@ -72,7 +72,6 @@ const columns = {
   clsS: colClsS,
   clsM: colClsM,
   det: colDet,
-  seg: colDet,
 };
 
 async function LabelClasses({ params }: ISProps) {

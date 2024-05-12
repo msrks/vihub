@@ -80,6 +80,7 @@ with open(FILE_PATH, "rb") as f:
         },
     )    
     `,
+    // TODO: Add code for object detection
   };
 
   return <CodeTabs codes={codes} />;
