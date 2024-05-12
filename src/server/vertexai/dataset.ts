@@ -1,8 +1,14 @@
 import { v1 as ai } from "@google-cloud/aiplatform";
+
 import { PARENT, PROJECT_ID, REGION } from "./env";
 
 const client = new ai.DatasetServiceClient({
   apiEndpoint: "us-central1-aiplatform.googleapis.com",
+  credentials: {
+    client_email: process.env.GCP_SERVICE_ACCOUNT_EMAIL,
+    private_key: process.env.GCP_PRIVATE_KEY,
+  },
+  projectId: process.env.GCP_PROJECT_ID,
 });
 
 export const createDatasetImage = async ({

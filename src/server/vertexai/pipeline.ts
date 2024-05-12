@@ -7,6 +7,11 @@ const { definition } = protos.google.cloud.aiplatform.v1.schema.trainingjob;
 
 const client = new ai.PipelineServiceClient({
   apiEndpoint: "us-central1-aiplatform.googleapis.com",
+  credentials: {
+    client_email: process.env.GCP_SERVICE_ACCOUNT_EMAIL,
+    private_key: process.env.GCP_PRIVATE_KEY,
+  },
+  projectId: process.env.GCP_PROJECT_ID,
 });
 
 export const listTrainingPipelines = async () => {
