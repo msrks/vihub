@@ -6,12 +6,34 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { images, labelClasses, trainingJobs } from "@/server/db/schema";
 import { getGCPCredentials } from "@/server/gcs";
 import { createDatasetImage, importDataImage } from "@/server/vertexai/dataset";
-import { exportModel, listModelEvaluation } from "@/server/vertexai/model";
+import {
+  exportModel,
+  getModel,
+  getModelEvaluation,
+} from "@/server/vertexai/model";
 import {
   listTrainingPipelines,
   trainAutoMLImageClassification,
 } from "@/server/vertexai/pipeline";
 import { Storage } from "@google-cloud/storage";
+
+const modelSchema = z.object({
+  numTrain: z.coerce
+    .number()
+    .optional()
+    .nullish()
+    .transform((v) => v ?? undefined),
+  numTest: z.coerce
+    .number()
+    .optional()
+    .nullish()
+    .transform((v) => v ?? undefined),
+  numValid: z.coerce
+    .number()
+    .optional()
+    .nullish()
+    .transform((v) => v ?? undefined),
+});
 
 export const trainingJobRouter = createTRPCRouter({
   getAll: protectedProcedure
@@ -59,6 +81,7 @@ export const trainingJobRouter = createTRPCRouter({
   updateModelStatus: protectedProcedure.mutation(async ({ ctx }) => {
     const pipelines = await listTrainingPipelines();
     const uniqueDatasetIds = [...new Set(pipelines.map((p) => p.datasetId!))];
+    // await listModelEvaluation({ modelId: "6246325557395456" });
 
     await Promise.all(
       uniqueDatasetIds.map(async (dId) => {
@@ -82,7 +105,11 @@ export const trainingJobRouter = createTRPCRouter({
           .where(eq(trainingJobs.datasetId, dId));
 
         if (p.modelId && p.state === "PIPELINE_STATE_SUCCEEDED") {
-          const modelEval = await listModelEvaluation({ modelId: p.modelId });
+          const model = modelSchema.parse(
+            await getModel({ modelId: p.modelId }),
+          );
+
+          const result = await getModelEvaluation({ modelId: p.modelId });
           const urlTFlite = await exportModel({
             format: "tflite",
             modelId: p.modelId,
@@ -98,11 +125,14 @@ export const trainingJobRouter = createTRPCRouter({
           await ctx.db
             .update(trainingJobs)
             .set({
-              auPrc: modelEval?.auPrc,
-              evalId: modelEval?.id,
+              auPrc: result?.auPrc,
+              evalId: result?.evalId,
+              logLoss: result?.logLoss,
+              confusionMatrix: result?.confusionMatrix,
               urlTFlite,
               urlSavedModel,
               urlTFJS,
+              ...model,
             })
             .where(eq(trainingJobs.datasetId, dId));
           // TODO: send notification email to workspace members
