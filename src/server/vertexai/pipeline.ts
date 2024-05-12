@@ -1,3 +1,5 @@
+import "server-only";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { protos, v1 as ai } from "@google-cloud/aiplatform";
 

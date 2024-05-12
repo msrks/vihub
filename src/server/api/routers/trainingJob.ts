@@ -40,6 +40,7 @@ export const trainingJobRouter = createTRPCRouter({
             "PIPELINE_STATE_QUEUED",
             "PIPELINE_STATE_PENDING",
             "PIPELINE_STATE_RUNNING",
+            "PIPELINE_STATE_SUCCEEDED",
           ]),
         ),
       );
@@ -104,6 +105,7 @@ export const trainingJobRouter = createTRPCRouter({
               urlTFJS,
             })
             .where(eq(trainingJobs.datasetId, dId));
+          // TODO: send notification email to workspace members
         }
       }),
     );

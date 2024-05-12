@@ -1,3 +1,5 @@
+import "server-only";
+
 import { v1 as ai } from "@google-cloud/aiplatform";
 
 import { PARENT, PROJECT_ID, REGION } from "./env";

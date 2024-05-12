@@ -1,3 +1,5 @@
+import "server-only";
+
 export const PROJECT_ID = process.env.GCP_PROJECT_ID!;
 export const BUCKET = process.env.GCP_BUCKET!;
 export const BUCKET_URL = `gs://${process.env.GCP_BUCKET}`;
