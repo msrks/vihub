@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
   images,
+  imageStoreTypeList,
   labelClasses,
   labelsDet,
   trainingJobs,
@@ -16,10 +17,7 @@ import {
   getModel,
   getModelEvaluation,
 } from "@/server/vertexai/model";
-import {
-  listTrainingPipelines,
-  trainAutoMLImageClassification,
-} from "@/server/vertexai/pipeline";
+import { listTrainingPipelines, trainAutoML } from "@/server/vertexai/pipeline";
 import { Storage } from "@google-cloud/storage";
 
 const modelSchema = z.object({
@@ -73,7 +71,7 @@ export const trainingJobRouter = createTRPCRouter({
       );
     await Promise.all(
       jobs.map(async (job) => {
-        await trainAutoMLImageClassification({ datasetId: job.datasetId }),
+        await trainAutoML({ datasetId: job.datasetId, type: job.type }),
           await ctx.db
             .update(trainingJobs)
             .set({ state: "started" })
@@ -150,7 +148,7 @@ export const trainingJobRouter = createTRPCRouter({
     .input(
       z.object({
         imageStoreId: z.number(),
-        type: z.enum(["clsS", "det"]),
+        type: z.enum(imageStoreTypeList),
       }),
     )
     .mutation(async ({ ctx, input: { imageStoreId, type } }) => {
@@ -187,6 +185,8 @@ export const trainingJobRouter = createTRPCRouter({
           .innerJoin(labelClasses, eq(images.humanLabelId, labelClasses.id));
         numImages = dataset.length;
         csvString = dataset.map((d) => `${d.url},${d.label}`).join("\n");
+      } else if (type === "clsM") {
+        // TODO
       } else if (type === "det") {
         const dataset = await ctx.db
           .select({
