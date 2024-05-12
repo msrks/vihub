@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/pet",
       "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/update-ai-jobs",
+      "schedule": "*/10 * * * *"
     }
   ]
 }
