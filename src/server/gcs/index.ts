@@ -1,6 +1,8 @@
+import "server-only";
+
 import { Storage } from "@google-cloud/storage";
 
-const getGCPCredentials = () => {
+export const getGCPCredentials = () => {
   return process.env.GCP_PRIVATE_KEY
     ? {
         credentials: {
