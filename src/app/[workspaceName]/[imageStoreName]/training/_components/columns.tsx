@@ -11,16 +11,16 @@ import type { ColumnDef, Row } from "@tanstack/react-table";
 type TrainingJob = RouterOutputs["trainingJob"]["getAll"][number];
 
 export const columns: ColumnDef<TrainingJob>[] = [
-  { header: "ID", cell: ID },
+  { header: "dataset", cell: ID },
+  { header: "eval", cell: ModelEval },
   { header: "type", accessorKey: "type" },
   { header: "state", cell: State },
   { header: "numImgs", accessorKey: "numImages" },
-  { header: "vertexAI", cell: ModelEval },
   { header: "fList", cell: ({ row }) => <L l={row.original.importFilePath} /> },
   { header: "tflite", cell: ({ row }) => <L l={row.original.urlTFlite} /> },
   { header: "tfSM", cell: ({ row }) => <L l={row.original.urlSavedModel} /> },
   { header: "tfjs", cell: ({ row }) => <L l={row.original.urlTFJS} /> },
-  { header: "mAP", accessorKey: "mAP" },
+  { header: "mAP", cell: ({ row }) => <>{row.original.auPrc?.toFixed(3)}</> },
   { header: "dateRange", accessorKey: "dateRange" },
   { header: "createdAt", cell: CreatedAt },
 ];
@@ -48,7 +48,7 @@ function ModelEval({ row }: { row: Row<TrainingJob> }) {
     <Button variant="link" className="p-0" asChild>
       <a
         target="_blank"
-        href={`https://console.cloud.google.com/vertex-ai/locations/us-central1/models/${row.modelId}/versions/1/evaluations/${row.evalId}?project=${process.env.NEXT_PUBLIC_PROJECT_ID}`}
+        href={`https://console.cloud.google.com/vertex-ai/locations/us-central1/models/${row.original.modelId}/versions/1/evaluations/${row.original.evalId}?project=dev-msrks`}
       >
         {row.original.modelId}
       </a>
@@ -56,7 +56,7 @@ function ModelEval({ row }: { row: Row<TrainingJob> }) {
   );
 }
 
-function L({ l }: { l?: string }) {
+function L({ l }: { l?: string | null }) {
   if (!l) return null;
   return (
     <Button variant="link" asChild className="p-0">
