@@ -67,7 +67,7 @@ export function ZoomDialog({
         <ZoomIn className="absolute right-0 top-0 size-5 bg-secondary" />
       </DialogTrigger>
       <DialogContent
-        className="flex h-[100vh] max-w-4xl flex-col"
+        className="flex max-h-[100vh] max-w-4xl flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <ScrollArea>
@@ -145,9 +145,11 @@ export function ZoomDialog({
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button onClick={handleClick}>Save</Button>
-          </DialogFooter>
+          {["clsS", "clsM"].includes(imageStore?.type ?? "") && (
+            <DialogFooter>
+              <Button onClick={handleClick}>Save</Button>
+            </DialogFooter>
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>
