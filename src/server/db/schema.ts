@@ -21,6 +21,16 @@ import type { AdapterAccount } from "next-auth/adapters";
 
 export const createTable = pgTableCreator((name) => `vihub_${name}`);
 
+// Enums
+
+export const imageStoreTypeList = ["clsS", "clsM", "det"] as const;
+export type ImageStoreType = (typeof imageStoreTypeList)[number];
+export const typeEnum = pgEnum("type", imageStoreTypeList);
+export const roleEnum = pgEnum("role", ["member", "admin"]);
+export const annotationTypeEnum = pgEnum("annotationTypeEnum", ["ai", "human"]);
+
+// Tables, Relations
+
 export const users = createTable("user", {
   id: varchar("id").notNull().primaryKey(),
   name: varchar("name"),
@@ -119,8 +129,6 @@ export const workspacesRelations = relations(workspaces, ({ many }) => ({
   imageStores: many(imageStores),
 }));
 
-export const roleEnum = pgEnum("role", ["member", "admin"]);
-
 export const usersToWorkspaces = createTable(
   "users_to_workspaces",
   {
@@ -153,11 +161,6 @@ export const usersToWorkspacesRelations = relations(
     }),
   }),
 );
-
-export const imageStoreTypeList = ["clsS", "clsM", "det"] as const;
-export type ImageStoreType = (typeof imageStoreTypeList)[number];
-
-export const typeEnum = pgEnum("type", imageStoreTypeList);
 
 export const imageStores = createTable(
   "image_store",
@@ -203,7 +206,7 @@ export const labelClasses = createTable(
     displayName: varchar("displayName").notNull(),
     color: varchar("color").default("#555555").notNull(),
     specDefinition: varchar("specDefinition"),
-    isMultiClass: boolean("isMultiClass").default(false).notNull(),
+    type: typeEnum("type").default("clsS").notNull(),
 
     imageStoreId: integer("imageStoreId")
       .notNull()
@@ -315,8 +318,6 @@ export const labelsClsMRelations = relations(labelsClsM, ({ one }) => ({
     references: [labelClasses.id],
   }),
 }));
-
-export const annotationTypeEnum = pgEnum("annotationTypeEnum", ["ai", "human"]);
 
 export const labelsDet = createTable("labelsDet", {
   id: serial("id").primaryKey(),
