@@ -78,6 +78,13 @@
       "when": 1715126642351,
       "tag": "0010_nice_silvermane",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1715642455693,
+      "tag": "0011_spotty_magdalene",
+      "breakpoints": true
     }
   ]
 }
