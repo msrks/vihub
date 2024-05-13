@@ -13,7 +13,10 @@ import { Button } from "../ui/button";
 
 import type { RouterOutputs } from "@/server/api/root";
 import type { MouseEvent } from "react";
+
 const W_DEFAULT = 400;
+const minOf = (a: number, b: number) => (a < b ? a : b);
+const maxOf = (a: number, b: number) => (a > b ? a : b);
 
 export function DrawCanvas({
   image,
@@ -45,8 +48,8 @@ export function DrawCanvas({
 
   const startX = useRef(0);
   const startY = useRef(0);
-  const bboxW = useRef(0);
-  const bboxH = useRef(0);
+  const endX = useRef(0);
+  const endY = useRef(0);
 
   const clearCanvas = (ctx?: CanvasRenderingContext2D) => {
     ctx?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
@@ -88,15 +91,13 @@ export function DrawCanvas({
   const drawRectangle = (e: MouseEvent) => {
     if (!isDrawing || !labelTag) return;
     const offset = canvasRef.current!.getBoundingClientRect();
-    const x = e.clientX - offset.left;
-    const y = e.clientY - offset.top;
-    const w = x - startX.current;
-    const h = y - startY.current;
+    endX.current = e.clientX - offset.left;
+    endY.current = e.clientY - offset.top;
+    const w = endX.current - startX.current;
+    const h = endY.current - startY.current;
     clearCanvas(ctxRef.current);
     // drawBBox();
     ctxRef.current!.strokeRect(startX.current, startY.current, w, h);
-    bboxW.current = w;
-    bboxH.current = h;
   };
 
   const startDrawing = (e: MouseEvent) => {
@@ -111,31 +112,25 @@ export function DrawCanvas({
   const stopDrawing = async () => {
     if (!isDrawing) return;
     setIsDrawing(false);
-    if (bboxW.current < 20 && bboxH.current < 20) {
-      clearCanvas(ctxRef.current);
-    } else {
-      const xMin = Math.round((image.width / W_DEFAULT) * startX.current);
-      const yMin = Math.round((image.width / W_DEFAULT) * startY.current);
-      const xMax = Math.round(
-        (image.width / W_DEFAULT) * (startX.current + bboxW.current),
-      );
-      const yMax = Math.round(
-        (image.width / W_DEFAULT) * (startY.current + bboxH.current),
-      );
 
-      toast.info("Adding New Label ...");
-      await createLabel({
-        type: "human",
-        imageId: image.id,
-        labelClassId: labelClasses.find((l) => l.key === labelTag)!.id,
-        xMin,
-        yMin,
-        xMax,
-        yMax,
-      });
-      toast.success("Label Added");
-      await utils.labelDet.getAllByImageId.invalidate({ imageId: image.id });
-    }
+    const scale = image.width / W_DEFAULT;
+    const xMin = Math.round(scale * minOf(startX.current, endX.current));
+    const yMin = Math.round(scale * minOf(startY.current, endY.current));
+    const xMax = Math.round(scale * maxOf(startX.current, endX.current));
+    const yMax = Math.round(scale * maxOf(startY.current, endY.current));
+
+    toast.info("Adding New Label ...");
+    await createLabel({
+      type: "human",
+      imageId: image.id,
+      labelClassId: labelClasses.find((l) => l.key === labelTag)!.id,
+      xMin,
+      yMin,
+      xMax,
+      yMax,
+    });
+    toast.success("Label Added");
+    await utils.labelDet.getAllByImageId.invalidate({ imageId: image.id });
   };
 
   return (
