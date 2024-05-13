@@ -12,6 +12,7 @@ import { handleUpload } from "@vercel/blob/client";
 
 import type { PineconeRecord } from "@pinecone-database/pinecone";
 import type { HandleUploadBody } from "@vercel/blob/client";
+
 const schema = z.object({
   imageStoreId: z.number(),
   humanLabelId: z.number().optional(),
