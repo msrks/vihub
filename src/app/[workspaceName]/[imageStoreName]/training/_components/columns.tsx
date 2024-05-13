@@ -37,14 +37,14 @@ export const columns: ColumnDef<TrainingJob>[] = [
   { header: "nTrain", accessorKey: "numTrain" },
   { header: "nTest", accessorKey: "numTest" },
   { header: "nValid", accessorKey: "numValid" },
-  { header: "confMat", cell: ConfMat },
   { header: "mAP", cell: (v) => <>{v.row.original.auPrc?.toFixed(3)}</> },
-  { header: "loss", cell: (v) => <>{v.row.original.logLoss?.toFixed(3)}</> },
   { header: "tflite", cell: (v) => <L l={v.row.original.urlTFlite} /> },
   { header: "tfjs", cell: (v) => <L l={v.row.original.urlTFJS} /> },
   { header: "savedModel", cell: (v) => <L l={v.row.original.urlSavedModel} /> },
-  { header: "dateRange", accessorKey: "dateRange" },
+  // { header: "dateRange", accessorKey: "dateRange" },
   { header: "source", cell: (v) => <L l={v.row.original.importFilePath} /> },
+  { header: "loss", cell: (v) => <>{v.row.original.logLoss?.toFixed(3)}</> },
+  { header: "confMat", cell: ConfMat },
 ];
 
 function State({ row }: { row: Row<TrainingJob> }) {
@@ -53,8 +53,8 @@ function State({ row }: { row: Row<TrainingJob> }) {
 }
 
 function ConfMat({ row }: { row: Row<TrainingJob> }) {
-  const { confusionMatrix } = row.original;
-  if (!confusionMatrix) return null;
+  const { confusionMatrix, type } = row.original;
+  if (type === "det" || !confusionMatrix) return null;
   return (
     <Popover>
       <PopoverTrigger asChild>
