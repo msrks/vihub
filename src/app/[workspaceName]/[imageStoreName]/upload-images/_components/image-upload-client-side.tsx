@@ -68,7 +68,7 @@ export default function ImageUploadClientSide({
         setUploading(false);
         await utils.image.invalidate();
       }}
-      className="w-full space-y-4 px-6"
+      className=" flex h-[calc(100vh-84px)] w-full flex-col space-y-4 px-6"
     >
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold">Upload</h3>
@@ -98,11 +98,11 @@ export default function ImageUploadClientSide({
 
       <div
         {...getRootProps()}
-        className="flex w-full items-center justify-center"
+        className="flex w-full grow items-center justify-center border border-dashed"
       >
         <label
           htmlFor="images"
-          className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed py-20"
+          className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg py-20"
         >
           <div className="max-w-md text-center">
             {uploading ? (
