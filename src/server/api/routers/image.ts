@@ -162,6 +162,17 @@ export const imageRouter = createTRPCRouter({
       return { success: true };
     }),
 
+  toggleIsLabeled: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input: { id } }) => {
+      await ctx.db
+        .update(images)
+        .set({ isLabeled: sql`not ${images.isLabeled}` })
+        .where(eq(images.id, id))
+        .returning();
+      return { success: true };
+    }),
+
   deleteById: protectedProcedure
     .input(
       z.object({
@@ -328,8 +339,8 @@ export const imageRouter = createTRPCRouter({
           .where(
             and(
               eq(images.imageStoreId, imageStoreId),
-              onlyLabeled ? isNotNull(images.humanLabelId) : undefined,
-              onlyUnlabeled ? isNull(images.humanLabelId) : undefined,
+              onlyLabeled ? eq(images.isLabeled, true) : undefined,
+              onlyUnlabeled ? eq(images.isLabeled, false) : undefined,
             ),
           )
           .groupBy(images.createdAtDate)
@@ -421,8 +432,8 @@ export const imageRouter = createTRPCRouter({
               eq(images.imageStoreId, imageStoreId),
               lte(images.createdAt, cursor ?? new Date()),
               date ? eq(images.createdAtDate, date) : undefined,
-              onlyLabeled ? isNotNull(images.humanLabelId) : undefined,
-              onlyUnlabeled ? isNull(images.humanLabelId) : undefined,
+              onlyLabeled ? eq(images.isLabeled, true) : undefined,
+              onlyUnlabeled ? eq(images.isLabeled, false) : undefined,
             ),
           );
 
