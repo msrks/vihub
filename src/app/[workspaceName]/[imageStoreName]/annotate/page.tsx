@@ -29,6 +29,7 @@ async function Dataset({ params }: Props) {
 
   const dataCounts = await api.image.getAllCountsByStoreId({
     imageStoreId: imageStore.id,
+    onlyUnlabeled: true,
   });
 
   return (
