@@ -41,13 +41,11 @@ export function InfiniteImages({
   date,
   onlyLabeled = false,
   onlyUnlabeled = false,
-  isAnnotation = false,
 }: {
   imageStoreId: number;
   date?: string;
   onlyLabeled?: boolean;
   onlyUnlabeled?: boolean;
-  isAnnotation?: boolean;
 }) {
   const { data: imageStore } = api.imageStore.getById.useQuery({
     id: imageStoreId,
@@ -103,6 +101,8 @@ export function InfiniteImages({
   });
   const { mutateAsync: updateImage } = api.image.update.useMutation();
   const { mutateAsync: deleteImage } = api.image.deleteById.useMutation();
+  const { mutateAsync: toggleIsLabeled } =
+    api.image.toggleIsLabeled.useMutation();
   const [labelClass, setLabelClass] = useState<string | undefined>(undefined);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -129,6 +129,14 @@ export function InfiniteImages({
       }),
     );
     toast.success("Images deleted");
+    setSelectedImages([]);
+    await utils.image.invalidate();
+  };
+
+  const toggleAll = async () => {
+    toast.info("Updating isLabeledProperty...");
+    await Promise.all(selectedImages.map((id) => toggleIsLabeled({ id })));
+    toast.success("isLabeledProperty updated");
     setSelectedImages([]);
     await utils.image.invalidate();
   };
@@ -222,6 +230,17 @@ export function InfiniteImages({
                 <Save className="size-4" />
               </Button>
             </form>
+
+            {onlyLabeled && (
+              <Button size="sm" variant="secondary" onClick={toggleAll}>
+                register as unlabeled
+              </Button>
+            )}
+            {onlyUnlabeled && (
+              <Button size="sm" variant="secondary" onClick={toggleAll}>
+                move to dataset
+              </Button>
+            )}
 
             <Dialog>
               <DialogTrigger>
