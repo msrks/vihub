@@ -10,7 +10,7 @@ import type { Pet } from "./pet";
 export const maxDuration = 300;
 
 const URL = `https://visual-inspection-template.web.app/predict?modelType=tflite`;
-const STORE_ID_LIST = [14, 18];
+const STORE_ID_LIST = [14, 18, 19];
 
 type PredResponse = {
   confidences: {
@@ -22,8 +22,12 @@ type PredResponse = {
 export async function GET() {
   const url = await getUrl(getRandomPet());
 
+  if (url.endsWith(".gif")) {
+    return Response.json({ success: false, message: "GIF not supported" });
+  }
+
   // fetch image to fPath
-  const fPath = `/tmp/${Date.now()}.jpg`;
+  const fPath = `/tmp/${Date.now()}.png`;
   const res = await axios.get<fs.WriteStream>(url, { responseType: "stream" });
   const w = res.data.pipe(fs.createWriteStream(fPath));
   await new Promise((resolve) => w.on("finish", resolve));
@@ -36,7 +40,7 @@ export async function GET() {
     const _res = await axios.post<PredResponse>(
       URL,
       JSON.stringify({ image: b64img }),
-      { headers: { "Content-Type": "application/json" }, timeout: 5000 },
+      { headers: { "Content-Type": "application/json" }, timeout: 3000 },
     );
     pred = _res.data;
   } catch (error) {
