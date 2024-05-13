@@ -6,16 +6,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-export function CodeTabs({ codes }: { codes: Record<string, string> }) {
+import type { ImageStoreType } from "@/server/db/schema";
+
+export function CodeTabs({
+  codes,
+  type,
+}: {
+  codes: Record<string, string>;
+  type: ImageStoreType;
+}) {
   return (
-    <Tabs defaultValue="singleLabelClassification">
+    <Tabs defaultValue={type}>
       <TabsList>
-        <TabsTrigger value="singleLabelClassification">
-          Classification(Single Label)
-        </TabsTrigger>
-        <TabsTrigger value="multiLabelClassification">
-          Classification(Multi Label)
-        </TabsTrigger>
+        <TabsTrigger value="clsS">Classification(Single Label)</TabsTrigger>
+        <TabsTrigger value="clsM">Classification(Multi Label)</TabsTrigger>
+        <TabsTrigger value="det">Object Detection</TabsTrigger>
       </TabsList>
       {Object.entries(codes).map(([_key, value]) => (
         <TabsContent key={_key} value={_key}>

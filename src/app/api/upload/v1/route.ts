@@ -19,6 +19,11 @@ export const maxDuration = 300;
 const schema = z.object({
   imageStoreId: z.coerce.number(),
   apiKey: z.string(),
+  skipAnnotation: z.coerce
+    .string()
+    .optional()
+    .nullish()
+    .transform((x) => ["True", "true"].includes(x ?? "")),
   aiLabelKey: z
     .string()
     .optional()
@@ -111,6 +116,7 @@ export async function POST(req: NextRequest) {
       createdAt,
       multiLabelString,
       detLabelString,
+      skipAnnotation,
     } = schema.parse({
       imageStoreId: req.nextUrl.searchParams.get("storeId"),
       apiKey: req.headers.get("apiKey"),
@@ -119,6 +125,7 @@ export async function POST(req: NextRequest) {
       createdAt: formData.get("createdAt"),
       multiLabelString: formData.get("aiMultiClassLabels"),
       detLabelString: formData.get("detLabelString"),
+      skipAnnotation: formData.get("skipAnnotation"),
     });
 
     const imageStoreType = await validateApiKey({ imageStoreId, apiKey });
@@ -148,6 +155,7 @@ export async function POST(req: NextRequest) {
             confidence: parseFloat(aiLabelConfidence),
           }
         : undefined,
+      isLabeled: skipAnnotation,
     });
 
     switch (imageStoreType) {

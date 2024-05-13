@@ -1,15 +1,5 @@
 import { createHash } from "crypto";
-import {
-  and,
-  count,
-  desc,
-  eq,
-  gte,
-  isNotNull,
-  isNull,
-  lte,
-  sql,
-} from "drizzle-orm";
+import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import sizeOf from "image-size";
 import { z } from "zod";
 
@@ -42,6 +32,7 @@ export const imageRouter = createTRPCRouter({
         createdAtDate: z.string().optional(),
         width: z.number().optional(),
         height: z.number().optional(),
+        isLabeled: z.boolean().optional(),
       }),
     )
     .mutation(
@@ -55,6 +46,7 @@ export const imageRouter = createTRPCRouter({
           aiLabelDetail,
           createdAt,
           createdAtDate,
+          isLabeled,
         },
       }) => {
         // get size of image
@@ -126,6 +118,7 @@ export const imageRouter = createTRPCRouter({
             width,
             height,
             gsutilURI,
+            isLabeled,
           })
           .returning();
         if (!ret[0]) throw new Error("something went wrong..");
