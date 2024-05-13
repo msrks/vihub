@@ -237,21 +237,23 @@ function DetLabelCanvas({ image }: { image: TImage }) {
         )!;
         ctx.strokeStyle = color;
         ctx.fillStyle = color;
+        ctx.setLineDash(l.type === "human" ? [] : [3, 5]);
         const x = (l.xMin * 200) / image.width;
         const y = (l.yMin * 200) / image.width;
         const w = ((l.xMax - l.xMin) * 200) / image.width;
         const h = ((l.yMax - l.yMin) * 200) / image.width;
         ctx.strokeRect(x, y, w, h);
         const FONT_SIZE = 12;
+        const filltext = `${displayName}${l.type === "ai" && "(AI)"}`;
         ctx.fillRect(
           x,
           y - FONT_SIZE,
-          (FONT_SIZE / 10) * ctx.measureText(displayName).width,
+          (FONT_SIZE / 10) * ctx.measureText(filltext).width,
           12,
         );
         ctx.fillStyle = "white";
         ctx.font = `${FONT_SIZE}px sans-serif`;
-        ctx.fillText(displayName, x, y);
+        ctx.fillText(filltext, x, y);
       });
     },
     [labels, labelClasses, image],
