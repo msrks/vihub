@@ -133,7 +133,7 @@ export const trainingJobRouter = createTRPCRouter({
           await ctx.db
             .update(trainingJobs)
             .set({
-              auPrc: result?.auPrc,
+              auPrc: result?.auPrc ?? result?.mAPbbox,
               evalId: result?.evalId,
               logLoss: result?.logLoss,
               confusionMatrix: result?.confusionMatrix,
