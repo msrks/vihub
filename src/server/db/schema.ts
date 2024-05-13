@@ -247,6 +247,7 @@ export const images = createTable(
     selectedForExperiment: boolean("selectedForExperiment"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdAtDate: date("created_at_date").defaultNow().notNull(),
+    isLabeled: boolean("isLabeled").default(false).notNull(),
 
     imageStoreId: integer("imageStoreId")
       .notNull()

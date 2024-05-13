@@ -36,7 +36,7 @@ async function Dataset({ params }: Props) {
       {dataCounts && dataCounts?.length > 0 ? (
         <>
           <ContributionsView dataCounts={dataCounts} />
-          <InfiniteImages imageStoreId={imageStore.id} isAnnotation />
+          <InfiniteImages imageStoreId={imageStore.id} onlyUnlabeled />
         </>
       ) : (
         <div className="mt-[200px]">
