@@ -9,6 +9,6 @@ interface Props {
 
 export default function Page({ params }: Props) {
   return redirect(
-    `/${params.workspaceName}/${params.imageStoreName}/monitoring`,
+    `/${params.workspaceName}/${params.imageStoreName}/spec-catalog`,
   );
 }
