@@ -2,7 +2,11 @@ import { and, eq, isNotNull, notInArray } from "drizzle-orm";
 import * as fs from "fs";
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import {
   images,
   imageStoreTypeList,
@@ -54,7 +58,7 @@ export const trainingJobRouter = createTRPCRouter({
         .where(eq(trainingJobs.imageStoreId, imagesStoreId));
     }),
 
-  trainAllOfReady: protectedProcedure.mutation(async ({ ctx }) => {
+  trainAllOfReady: publicProcedure.mutation(async ({ ctx }) => {
     // https://cloud.google.com/vertex-ai/docs/reference/rest/v1/PipelineState
     const jobs = await ctx.db
       .select()
@@ -83,7 +87,7 @@ export const trainingJobRouter = createTRPCRouter({
     return { numTriggerd: jobs.length };
   }),
 
-  updateModelStatus: protectedProcedure.mutation(async ({ ctx }) => {
+  updateModelStatus: publicProcedure.mutation(async ({ ctx }) => {
     const pipelines = await listTrainingPipelines();
     const uniqueDatasetIds = [...new Set(pipelines.map((p) => p.datasetId!))];
 
