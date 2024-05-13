@@ -229,9 +229,7 @@ export const imageRouter = createTRPCRouter({
       const labels = await ctx.db
         .select({ id: lc.id, key: lc.key })
         .from(lc)
-        .where(
-          and(eq(lc.imageStoreId, imageStoreId), eq(lc.isMultiClass, false)),
-        );
+        .where(and(eq(lc.imageStoreId, imageStoreId), eq(lc.type, "clsS")));
 
       return await Promise.all(
         labels.map(async ({ key, id }) => {
@@ -251,6 +249,7 @@ export const imageRouter = createTRPCRouter({
       );
     }),
 
+  // TODO: check is dupulicate??
   getDatasetMultiLabel: protectedProcedure
     .input(
       z.object({
@@ -266,7 +265,7 @@ export const imageRouter = createTRPCRouter({
         .where(
           and(
             eq(lc.imageStoreId, imageStoreId),
-            eq(lc.isMultiClass, true),
+            eq(lc.type, "clsM"),
             from ? gte(images.createdAt, from) : undefined,
             to ? lte(images.createdAt, to) : undefined,
           ),
@@ -286,6 +285,7 @@ export const imageRouter = createTRPCRouter({
       return { keys: labels.map((l) => l.key), imgs };
     }),
 
+  // TODO: check is dupulicate??
   getMultiClassDataset: protectedProcedure
     .input(
       z.object({
@@ -296,9 +296,7 @@ export const imageRouter = createTRPCRouter({
       const labels = await ctx.db
         .select({ id: lc.id, key: lc.key })
         .from(lc)
-        .where(
-          and(eq(lc.imageStoreId, imageStoreId), eq(lc.isMultiClass, true)),
-        );
+        .where(and(eq(lc.imageStoreId, imageStoreId), eq(lc.type, "clsM")));
 
       return await Promise.all(
         labels.map(async ({ key, id }) => {

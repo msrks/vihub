@@ -218,7 +218,7 @@ export function InfiniteImages({
                 </SelectTrigger>
                 <SelectContent>
                   {labelClasses
-                    ?.filter((lc) => !lc.isMultiClass)
+                    ?.filter((lc) => lc.type === "clsS")
                     .map((lc) => (
                       <SelectItem key={lc.id} value={lc.id.toString()}>
                         {lc.displayName}
@@ -282,7 +282,7 @@ export function InfiniteImages({
             <Label htmlFor="r1">All</Label>
           </div>
           {labelClasses
-            ?.filter((lc) => !lc.isMultiClass)
+            ?.filter((lc) => lc.type === "clsS")
             .map((lc) => (
               <div key={lc.id} className="flex items-center gap-1">
                 <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
@@ -306,7 +306,7 @@ export function InfiniteImages({
             <Label htmlFor="r1">All</Label>
           </div>
           {labelClasses
-            ?.filter((lc) => !lc.isMultiClass)
+            ?.filter((lc) => lc.type === "clsS")
             .map((lc) => (
               <div key={lc.id} className="flex items-center gap-1">
                 <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />

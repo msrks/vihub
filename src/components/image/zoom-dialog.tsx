@@ -74,7 +74,7 @@ export function ZoomDialog({
           {labelList && imageStore?.type === "det" && (
             <DrawCanvas
               image={image}
-              labelClasses={labelList.filter((l) => l.isMultiClass)}
+              labelClasses={labelList.filter((l) => l.type === "det")}
             />
           )}
 
@@ -105,7 +105,7 @@ export function ZoomDialog({
                   className="flex items-center justify-center gap-4"
                 >
                   {labelList
-                    ?.filter((l) => !l.isMultiClass)
+                    ?.filter((l) => l.type === "clsS")
                     .map((l) => (
                       <div key={l.id} className="flex items-center gap-1">
                         <RadioGroupItem
@@ -124,7 +124,7 @@ export function ZoomDialog({
                 <DialogTitle>Multi Label</DialogTitle>
                 <div className="flex items-center justify-center gap-4">
                   {labelList
-                    ?.filter((l) => l.isMultiClass)
+                    ?.filter((l) => l.type === "clsM")
                     .map(({ id, key, displayName }) => (
                       <div key={id} className="flex items-center gap-1">
                         <Checkbox

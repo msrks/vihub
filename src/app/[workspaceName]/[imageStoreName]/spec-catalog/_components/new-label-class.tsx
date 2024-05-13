@@ -30,7 +30,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
-  isMultiClass?: boolean;
 }
 
 const formSchema = z.object({
@@ -38,7 +37,7 @@ const formSchema = z.object({
   displayName: z.string().min(1).max(50),
 });
 
-export const NewLabelClass = ({ params, isMultiClass }: Props) => {
+export const NewLabelClass = ({ params }: Props) => {
   const { data: imageStore } = api.imageStore.getByName.useQuery(params);
 
   const router = useRouter();
@@ -55,7 +54,7 @@ export const NewLabelClass = ({ params, isMultiClass }: Props) => {
       key,
       displayName,
       imageStoreId: imageStore!.id,
-      isMultiClass,
+      type: imageStore!.type,
     });
     if (res.error) {
       form.setError("key", {

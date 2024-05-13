@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
   images,
+  imageStoreTypeList,
   labelClasses,
   labelsClsM,
   labelsDet,
@@ -17,7 +18,7 @@ export const labelClassRouter = createTRPCRouter({
         imageStoreId: z.number(),
         key: z.string(),
         displayName: z.string(),
-        isMultiClass: z.boolean().optional(),
+        type: z.enum(imageStoreTypeList),
       }),
     )
     .mutation(async ({ ctx, input }) => {
