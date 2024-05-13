@@ -18,33 +18,30 @@ import {
 import { api } from "@/trpc/react";
 import { upload } from "@vercel/blob/client";
 
+import type { ImageStoreType } from "@/server/db/schema";
+import type { FormEvent } from "react";
+
 export default function ImageUploadClientSide({
   imageStoreId,
+  type,
 }: {
   imageStoreId: number;
+  type: ImageStoreType;
 }) {
-  const { data: labelClasses } = api.labelClass.getAll.useQuery({
-    imageStoreId,
-  });
+  const { data: classes } = api.labelClass.getAll.useQuery({ imageStoreId });
   const utils = api.useUtils();
-
   const [uploading, setUploading] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
-  const onDrop = useCallback((files: File[]) => {
-    setSelectedFiles(files);
-  }, []);
-
+  const onDrop = useCallback((files: File[]) => setSelectedFiles(files), []);
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
     <form
-      onSubmit={async (e) => {
+      onSubmit={async (
+        e: FormEvent<HTMLFormElement & { humanLabelId?: HTMLInputElement }>,
+      ) => {
         e.preventDefault();
-        toast.info("Uploading images...", {
-          duration: 100000,
-          id: "uploading",
-        });
+        toast.info("Uploading...", { duration: 100000, id: "uploading" });
         setUploading(true);
         const filepath = `${process.env.NEXT_PUBLIC_BLOB_NAME_SPACE!}/${imageStoreId}/images/`;
         await Promise.all(
@@ -54,10 +51,13 @@ export default function ImageUploadClientSide({
               handleUploadUrl: "/api/image/upload",
               clientPayload: JSON.stringify({
                 imageStoreId,
-                humanLabelId: parseInt(
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                  e.currentTarget.humanLabelId.value as string,
-                ),
+                ...(e.currentTarget.humanLabelId
+                  ? {
+                      humanLabelId: parseInt(
+                        e.currentTarget.humanLabelId.value,
+                      ),
+                    }
+                  : {}),
               }),
             });
           }),
@@ -78,21 +78,23 @@ export default function ImageUploadClientSide({
         </Button>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Label>LabelClass</Label>
-        <Select name="humanLabelId" required>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder=" -- select -- " />
-          </SelectTrigger>
-          <SelectContent>
-            {labelClasses?.map((lc) => (
-              <SelectItem key={lc.id} value={lc.id.toString()}>
-                {lc.displayName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {type === "clsS" && (
+        <div className="flex items-center gap-2">
+          <Label>LabelClass</Label>
+          <Select name="humanLabelId">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder=" -- select -- " />
+            </SelectTrigger>
+            <SelectContent>
+              {classes?.map((lc) => (
+                <SelectItem key={lc.id} value={lc.id.toString()}>
+                  {lc.displayName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div
         {...getRootProps()}

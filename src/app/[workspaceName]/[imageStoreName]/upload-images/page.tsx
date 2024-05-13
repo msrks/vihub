@@ -7,11 +7,11 @@ interface Props {
 }
 
 export default async function Page({ params }: Props) {
-  const imageStore = await api.imageStore.getByName(params);
+  const { id, type } = await api.imageStore.getByName(params);
 
   return (
     <div className="flex w-full grow flex-col items-center">
-      <ImageUploadClientSide imageStoreId={imageStore.id} />
+      <ImageUploadClientSide imageStoreId={id} type={type} />
     </div>
   );
 }
