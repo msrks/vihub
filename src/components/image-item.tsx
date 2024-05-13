@@ -244,7 +244,7 @@ function DetLabelCanvas({ image }: { image: TImage }) {
         const h = ((l.yMax - l.yMin) * 200) / image.width;
         ctx.strokeRect(x, y, w, h);
         const FONT_SIZE = 12;
-        const filltext = `${displayName}${l.type === "ai" && "(AI)"}`;
+        const filltext = displayName + (l.type === "ai" ? "(AI)" : "");
         ctx.fillRect(
           x,
           y - FONT_SIZE,

@@ -62,6 +62,7 @@ export function DrawCanvas({
         ctx.strokeStyle = labelClasses.find(
           (lc) => lc.id === l.labelClassId,
         )!.color;
+        ctx.setLineDash(l.type === "human" ? [] : [3, 5]);
         const x = (l.xMin * W_DEFAULT) / image.width;
         const y = (l.yMin * W_DEFAULT) / image.width;
         const w = ((l.xMax - l.xMin) * W_DEFAULT) / image.width;
@@ -189,7 +190,7 @@ export function DrawCanvas({
         </ToggleGroup>
       </div>
       <DataTable
-        data={labels ?? []}
+        data={labels?.filter((l) => l.type === "human") ?? []}
         columns={[
           { header: "type", accessorKey: "type" },
           {
