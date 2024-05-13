@@ -70,7 +70,7 @@ export const trainAutoML = async ({
   datasetId: string;
   type: ImageStoreType;
 }) => {
-  const [res] = await client.createTrainingPipeline({
+  await client.createTrainingPipeline({
     parent: PARENT,
     trainingPipeline: {
       displayName: Date.now().toString(),
@@ -92,5 +92,4 @@ export const trainAutoML = async ({
       modelToUpload: { displayName: Date.now().toString() },
     },
   });
-  console.log(JSON.stringify(res, null, 2));
 };
