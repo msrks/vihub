@@ -28,6 +28,8 @@ import { Input } from "@/components/ui/input";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { ImageStoreType } from "@/server/db/schema";
+
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
 }
@@ -37,7 +39,10 @@ const formSchema = z.object({
   displayName: z.string().min(1).max(50),
 });
 
-export const NewLabelClass = ({ params }: Props) => {
+export const NewLabelClass = ({
+  params,
+  type,
+}: Props & { type: ImageStoreType }) => {
   const { data: imageStore } = api.imageStore.getByName.useQuery(params);
 
   const router = useRouter();
@@ -54,7 +59,7 @@ export const NewLabelClass = ({ params }: Props) => {
       key,
       displayName,
       imageStoreId: imageStore!.id,
-      type: imageStore!.type,
+      type,
     });
     if (res.error) {
       form.setError("key", {
