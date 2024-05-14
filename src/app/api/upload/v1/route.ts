@@ -158,61 +158,56 @@ export async function POST(req: NextRequest) {
       isLabeled: skipAnnotation,
     });
 
-    switch (imageStoreType) {
-      case "clsS":
-        return Response.json({ success: true });
-      case "clsM":
-        if (!multiLabelString) throw new Error("Invalid aiMultiClassLabels");
-
-        const multiLabels = schemaClsM.parse(JSON.parse(multiLabelString));
-        await Promise.all(
-          multiLabels.map(async ({ labelKey, ...rest }) => {
-            const ret = await db
-              .select()
-              .from(labelClasses)
-              .where(
-                and(
-                  eq(labelClasses.key, labelKey),
-                  eq(labelClasses.imageStoreId, imageStoreId),
-                ),
-              );
-            if (!ret[0]) return;
-            const labelClassId = ret[0].id;
-
-            await db
-              .insert(multiClassAiPredictions)
-              .values({ imageId, labelClassId, ...rest });
-          }),
-        );
-
-        return Response.json({ success: true });
-      case "det":
-        if (!detLabelString) throw new Error("Invalid detLabelString");
-
-        const detLabels = schemaDet.parse(JSON.parse(detLabelString));
-        await Promise.all(
-          detLabels.map(async ({ labelKey, ...rest }) => {
-            const ret = await db
-              .select()
-              .from(labelClasses)
-              .where(
-                and(
-                  eq(labelClasses.key, labelKey),
-                  eq(labelClasses.imageStoreId, imageStoreId),
-                ),
-              );
-            if (!ret[0]) return;
-            const labelClassId = ret[0].id;
-
-            await db
-              .insert(labelsDet)
-              .values({ imageId, labelClassId, ...rest });
-          }),
-        );
-        return Response.json({ success: true });
-      default:
-        throw new Error("Invalid image store type");
+    if (!multiLabelString && !detLabelString) {
+      // clsS
+      return Response.json({ success: true });
     }
+
+    if (multiLabelString) {
+      const multiLabels = schemaClsM.parse(JSON.parse(multiLabelString));
+      await Promise.all(
+        multiLabels.map(async ({ labelKey, ...rest }) => {
+          const ret = await db
+            .select()
+            .from(labelClasses)
+            .where(
+              and(
+                eq(labelClasses.key, labelKey),
+                eq(labelClasses.imageStoreId, imageStoreId),
+              ),
+            );
+          if (!ret[0]) return;
+          const labelClassId = ret[0].id;
+
+          await db
+            .insert(multiClassAiPredictions)
+            .values({ imageId, labelClassId, ...rest });
+        }),
+      );
+    }
+
+    if (detLabelString) {
+      const detLabels = schemaDet.parse(JSON.parse(detLabelString));
+      await Promise.all(
+        detLabels.map(async ({ labelKey, ...rest }) => {
+          const ret = await db
+            .select()
+            .from(labelClasses)
+            .where(
+              and(
+                eq(labelClasses.key, labelKey),
+                eq(labelClasses.imageStoreId, imageStoreId),
+              ),
+            );
+          if (!ret[0]) return;
+          const labelClassId = ret[0].id;
+
+          await db.insert(labelsDet).values({ imageId, labelClassId, ...rest });
+        }),
+      );
+    }
+
+    return Response.json({ success: true });
   } catch (e) {
     if (e instanceof Error) {
       return Response.json({ error: e.message });
