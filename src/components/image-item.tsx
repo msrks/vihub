@@ -82,14 +82,16 @@ export function ImageItem({
     await utils.image.invalidate();
   };
 
+  if (!imageStore) return null;
+
   return (
     <div
       className={cn(
         "relative cursor-pointer overflow-hidden text-center outline-2 outline-primary hover:outline",
         {
-          "w-[300px]": colWidth === 300,
-          "w-[400px]": colWidth === 400,
-          "w-[200px]": colWidth !== 300 && colWidth !== 400,
+          "w-[300px]": imageStore.colWidth === 300,
+          "w-[400px]": imageStore.colWidth === 400,
+          "w-[200px]": imageStore.colWidth === 200,
         },
       )}
       onClick={() => handleImageClick?.(image.id)}
@@ -97,7 +99,11 @@ export function ImageItem({
       <ContextMenu>
         <ContextMenuTrigger>
           <AspectRatio
-            ratio={image.width / image.height}
+            ratio={
+              imageStore.type === "det"
+                ? image.width / image.height
+                : imageStore.imageWidth / imageStore.imageHeight
+            }
             className="relative bg-muted"
           >
             <Image
@@ -106,7 +112,9 @@ export function ImageItem({
               fill
               className="rounded-md object-cover"
             />
-            {imageStore?.type === "det" && <DetLabelCanvas image={image} />}
+            {imageStore?.type === "det" && (
+              <DetLabelCanvas image={image} W={colWidth} />
+            )}
             {isChecked && <Check className="absolute size-5 bg-secondary" />}
             <div className="absolute bottom-6 right-0 flex flex-row-reverse">
               {!resultLabel &&
@@ -209,7 +217,7 @@ export function ImageItem({
   );
 }
 
-function DetLabelCanvas({ image }: { image: TImage }) {
+function DetLabelCanvas({ image, W }: { image: TImage; W: number }) {
   const { data: labels } = api.labelDet.getAllByImageId.useQuery({
     imageId: image.id,
   });
@@ -238,10 +246,10 @@ function DetLabelCanvas({ image }: { image: TImage }) {
         ctx.strokeStyle = color;
         ctx.fillStyle = color;
         ctx.setLineDash(l.type === "human" ? [] : [3, 5]);
-        const x = (l.xMin * 200) / image.width;
-        const y = (l.yMin * 200) / image.width;
-        const w = ((l.xMax - l.xMin) * 200) / image.width;
-        const h = ((l.yMax - l.yMin) * 200) / image.width;
+        const x = (l.xMin * W) / image.width;
+        const y = (l.yMin * W) / image.width;
+        const w = ((l.xMax - l.xMin) * W) / image.width;
+        const h = ((l.yMax - l.yMin) * W) / image.width;
         ctx.strokeRect(x, y, w, h);
         const FONT_SIZE = 12;
         const filltext = displayName + (l.type === "ai" ? "(AI)" : "");
@@ -269,8 +277,8 @@ function DetLabelCanvas({ image }: { image: TImage }) {
   return (
     <canvas
       ref={fixedCanvasRef}
-      width={200}
-      height={(200 * image.height) / image.width}
+      width={W}
+      height={(W * image.height) / image.width}
       className="absolute inset-0 rounded-md border bg-transparent"
     />
   );
