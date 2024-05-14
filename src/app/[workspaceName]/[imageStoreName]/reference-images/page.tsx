@@ -1,9 +1,11 @@
-import { api } from "@/trpc/server";
+import { Suspense } from "react";
+
 import { DataTable } from "@/components/data-table";
+import { Loader } from "@/components/ui/loader";
+import { api } from "@/trpc/server";
+
 import { columns } from "./_components/columns";
 import NewReferenceImages from "./_components/new-reference-images";
-import { Suspense } from "react";
-import { Loader } from "@/components/ui/loader";
 
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
@@ -13,7 +15,7 @@ export default async function Page({ params }: Props) {
   return (
     <div className="flex w-full grow flex-col items-center">
       <div className="container mt-2 flex items-center justify-between">
-        <h2 className="my-2 text-2xl font-semibold tracking-tight">
+        <h2 className="my-2 text-xl font-semibold tracking-tight">
           Reference Images
         </h2>
         <div className="ml-auto mr-4 ">
