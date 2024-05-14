@@ -144,7 +144,7 @@ export function ImageItem({
                 ?.filter((lc) => lc.id === image.aiLabelId)
                 .map((lc) => (
                   <Badge key={lc.id} style={{ backgroundColor: lc.color }}>
-                    <User className="mr-1 size-3" /> {lc.displayName}{" "}
+                    <Bot className="mr-1 size-3" /> {lc.displayName}{" "}
                     {image.aiLabelDetail?.confidence?.toFixed(2)}
                   </Badge>
                 ))}
@@ -264,7 +264,7 @@ function DetLabelCanvas({ image, W }: { image: TImage; W: number }) {
         ctx.fillText(filltext, x, y);
       });
     },
-    [labels, labelClasses, image],
+    [labels, labelClasses, image, W],
   );
 
   useEffect(() => {
