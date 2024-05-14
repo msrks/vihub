@@ -1,4 +1,5 @@
 import axios from "axios";
+
 export type Pet = "dog" | "cat";
 
 const apis = {
