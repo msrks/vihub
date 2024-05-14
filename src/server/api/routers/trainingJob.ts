@@ -1,5 +1,5 @@
 import { and, eq, isNotNull, notInArray } from "drizzle-orm";
-import * as fs from "fs";
+import { promises } from "fs";
 import { z } from "zod";
 
 import {
@@ -167,7 +167,7 @@ export const trainingJobRouter = createTRPCRouter({
       const gcsSourceUri = `gs://vihub/${destination}`;
 
       const uploadImportFile = async (csvString: string) => {
-        await fs.promises.writeFile(`/tmp/${fileName}`, csvString, "utf-8");
+        await promises.writeFile(`/tmp/${fileName}`, csvString, "utf-8");
         const storage = new Storage(getGCPCredentials());
         await storage
           .bucket("vihub")
