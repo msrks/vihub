@@ -1,11 +1,14 @@
 "use client";
 
-import Link from "next/link";
-import ActivityCalendar, { type Activity } from "react-activity-calendar";
 import "react-tooltip/dist/react-tooltip.css";
-import { Tooltip } from "react-tooltip";
-import { type RouterOutputs } from "@/server/api/root";
+
 import { useTheme } from "next-themes";
+import Link from "next/link";
+import ActivityCalendar from "react-activity-calendar";
+import { Tooltip } from "react-tooltip";
+
+import type { RouterOutputs } from "@/server/api/root";
+import type { Activity } from "react-activity-calendar";
 
 type DataCount = RouterOutputs["image"]["getAllCountsByStoreId"][number];
 
@@ -63,6 +66,7 @@ export function ContributionsView({
                 activity.count + " @" + activity.date.slice(5).replace("-", "/")
               }
               data-tooltip-place="top"
+              prefetch={false}
             >
               {block}
             </Link>
