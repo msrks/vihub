@@ -26,7 +26,7 @@ function NameCell({ row }: { row: Row<ImageStoreWithCount> }) {
   const { name } = row.original;
   return (
     <Link
-      href={`/${workspaceName}/${name}`}
+      href={`/${workspaceName}/${name}/spec-catalog`}
       className={buttonVariants({ variant: "link" })}
     >
       {name}
