@@ -1,16 +1,13 @@
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import {
-  getServerSession,
-  type DefaultSession,
-  type NextAuthOptions,
-} from "next-auth";
-import { type Adapter } from "next-auth/adapters";
+import { getServerSession } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
 import { createTable } from "@/server/db/schema";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 
+import type { DefaultSession, NextAuthOptions } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
@@ -48,6 +45,9 @@ export const authOptions: NextAuthOptions = {
     }),
   },
   adapter: DrizzleAdapter(db, createTable) as Adapter,
+  // session: {
+  //   strategy: "jwt",
+  // },
   providers: [
     GithubProvider({
       clientId: env.GITHUB_CLIENT_ID,
