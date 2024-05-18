@@ -238,6 +238,8 @@ function DetLabelCanvas({ image, W }: { image: TImage; W: number }) {
 
   const drawBBox = useCallback(
     (ctx?: CanvasRenderingContext2D) => {
+      if (typeof window === "undefined") return;
+
       if (!labelClasses || !ctx) return;
       labels?.forEach((l) => {
         const { color, displayName } = labelClasses.find(

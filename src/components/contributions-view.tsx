@@ -36,6 +36,8 @@ export function ContributionsView({
                 : 4,
     })) ?? [];
 
+  if (typeof window === "undefined") return;
+
   return (
     <>
       <div className="mb-4 mt-2 flex flex-col items-start gap-10">
