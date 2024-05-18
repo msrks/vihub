@@ -1,5 +1,13 @@
 "use client";
 
+import { format, parse } from "date-fns";
+import { CalendarIcon, ChevronDown } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { getSidebarNavItems } from "@/app/[workspaceName]/[imageStoreName]/_components/sidebar-nav-items";
 import {
   BreadcrumbItem,
   BreadcrumbSeparator,
@@ -10,18 +18,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { Button } from "../ui/button";
-import { api } from "@/trpc/react";
-import { usePathname, useRouter } from "next/navigation";
-import { CalendarIcon, ChevronDown } from "lucide-react";
-import { getSidebarNavItems } from "@/app/[workspaceName]/[imageStoreName]/_components/sidebar-nav-items";
-import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Calendar } from "../ui/calendar";
 import { cn } from "@/lib/utils";
-import { format, parse } from "date-fns";
+import { api } from "@/trpc/react";
+
+import { Button } from "../ui/button";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 function WorkspaceNav({ current }: { current: string }) {
   const { data } = api.workspace.getAll.useQuery();
