@@ -1,18 +1,13 @@
 "use client";
 
-import { api } from "@/trpc/react";
 import { Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Separator } from "@/components/ui/separator";
-import { type ImageStore } from "../../_components/columns";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -22,6 +17,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { api } from "@/trpc/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import type { RouterOutputs } from "@/server/api/root";
 
 function RenameField({ id, current }: { id: number; current: string }) {
   const utils = api.useUtils();
@@ -94,7 +96,7 @@ function ImageListViewField({
   current,
 }: {
   id: number;
-  current: ImageStore;
+  current: RouterOutputs["imageStore"]["getByName"];
 }) {
   const utils = api.useUtils();
   const { mutateAsync } = api.imageStore.update.useMutation();
