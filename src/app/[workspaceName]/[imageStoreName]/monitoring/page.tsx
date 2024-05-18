@@ -16,7 +16,9 @@ export default async function Page({ params }: ISProps) {
     <div className="flex w-full grow flex-col items-center">
       <div className="container flex items-center justify-between gap-2">
         <h2 className="text-2xl font-semibold tracking-tight">All Images</h2>
-        <Code params={params} />
+        <Suspense>
+          <Code params={params} />
+        </Suspense>
       </div>
       <Suspense fallback={<Loader />}>
         <Monitoring params={params} />
