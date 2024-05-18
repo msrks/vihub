@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -35,6 +34,8 @@ import {
 import { imageStoreTypeList, insertImageStoreSchema } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import type { z } from "zod";
 
 import type { WSProps } from "../page";
 // const formSchema = z.object({
