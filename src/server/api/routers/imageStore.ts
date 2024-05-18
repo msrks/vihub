@@ -186,20 +186,25 @@ export const imageStoreRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const ws = await ctx.db
-        .select({ id: workspaces.id })
-        .from(workspaces)
-        .where(eq(workspaces.name, input.workspaceName));
-
-      if (!ws[0]) throw Error("workspace not found");
-
       const res = await ctx.db
-        .select()
+        .select({
+          id: imageStores.id,
+          name: imageStores.name,
+          type: imageStores.type,
+          createdAt: imageStores.createdAt,
+          thumbnailUrl: imageStores.thumbnailUrl,
+          workspaceId: imageStores.workspaceId,
+          imageWidth: imageStores.imageWidth,
+          imageHeight: imageStores.imageHeight,
+          colWidth: imageStores.colWidth,
+        })
         .from(imageStores)
-        .where(
+        .where(eq(imageStores.name, input.imageStoreName))
+        .innerJoin(
+          workspaces,
           and(
-            eq(imageStores.name, input.imageStoreName),
-            eq(imageStores.workspaceId, ws[0].id),
+            eq(imageStores.workspaceId, workspaces.id),
+            eq(workspaces.name, input.workspaceName),
           ),
         );
 
