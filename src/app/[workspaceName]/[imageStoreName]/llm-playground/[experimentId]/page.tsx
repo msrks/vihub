@@ -1,12 +1,15 @@
 "use client";
 
-import { api } from "@/trpc/react";
-import { columns } from "../_components/columns";
 import { Bot, Loader2 } from "lucide-react";
+
 import { DataTable } from "@/components/data-table";
-import { type RouterOutputs } from "@/server/api/root";
 import { ImageItem } from "@/components/image-item";
 import { Badge } from "@/components/ui/badge";
+import { api } from "@/trpc/react";
+
+import { columns } from "../_components/columns";
+
+import type { RouterOutputs } from "@/server/api/root";
 
 type Experiment = RouterOutputs["promptingExperiment"]["getById"];
 
@@ -74,7 +77,7 @@ function ExampleListView({
 }
 
 export default function Page({
-  params: { workspaceName, imageStoreName, experimentId },
+  params: { experimentId },
 }: {
   params: {
     workspaceName: string;
