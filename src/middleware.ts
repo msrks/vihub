@@ -1,15 +1,39 @@
 import withAuth from "next-auth/middleware";
+import { getSession } from "next-auth/react";
 
 export default withAuth(
-  function middleware(req) {
-    // console.log("middleware", req.nextauth.token);
-  },
+  // async function middleware(req) {
+  //   // console.log("middleware", req.nextauth.token);
+  //   const session = await getSession({
+  //     req: {
+  //       ...req,
+  //       headers: {
+  //         ...Object.fromEntries(req.headers),
+  //       },
+  //     },
+  //   });
+  //   console.log("middleware", session?.user);
+  //   return NextResponse.next();
+  // },
   {
     callbacks: {
-      authorized: ({ req, token }) => {
+      authorized: async ({ req }) => {
+        const session = await getSession({
+          req: {
+            ...req,
+            headers: {
+              ...Object.fromEntries(req.headers),
+            },
+          },
+        });
+        // console.log("authorized", session?.user);
+        return !!session?.user;
         // return !!token;
-        return true;
+        // return true;
       },
+    },
+    pages: {
+      signIn: "/auth/signin",
     },
   },
 );
@@ -22,7 +46,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - root path (/)
      */
-    "/((?!api|trpc|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|trpc|_next/static|_next/image|favicon.ico|$).*)",
   ],
 };
