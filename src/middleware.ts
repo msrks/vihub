@@ -1,5 +1,4 @@
 import withAuth from "next-auth/middleware";
-import { getSession } from "next-auth/react";
 
 export default withAuth(
   // async function middleware(req) {
@@ -17,19 +16,18 @@ export default withAuth(
   // },
   {
     callbacks: {
-      authorized: async ({ req }) => {
-        const session = await getSession({
-          req: {
-            ...req,
-            headers: {
-              ...Object.fromEntries(req.headers),
-            },
-          },
-        });
-        // console.log("authorized", session?.user);
-        return !!session?.user;
-        // return !!token;
-        // return true;
+      authorized: async ({ req, token }) => {
+        // const session = await getSession({
+        //   req: {
+        //     ...req,
+        //     headers: {
+        //       ...Object.fromEntries(req.headers),
+        //     },
+        //   },
+        // });
+        // return !!session?.user;
+        // console.log(token);
+        return !!token;
       },
     },
     pages: {

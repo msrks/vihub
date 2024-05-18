@@ -36,18 +36,19 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        // id: user.id,
+        id: token.sub,
       },
     }),
   },
   adapter: DrizzleAdapter(db, createTable) as Adapter,
-  // session: {
-  //   strategy: "jwt",
-  // },
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     GithubProvider({
       clientId: env.GITHUB_CLIENT_ID,
