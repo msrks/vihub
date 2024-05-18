@@ -23,9 +23,7 @@ export async function Code({ params }: Props) {
         </Button>
       </DialogTrigger>
       <DialogContent className="h-5/6 w-fit sm:max-w-5xl">
-        <Suspense>
-          <Contents params={params} />
-        </Suspense>
+        <Contents params={params} />
       </DialogContent>
     </Dialog>
   );
