@@ -7,6 +7,7 @@ import { getRandomPet, getUrl } from "./pet";
 
 import type { Pet } from "./pet";
 
+export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 const URL = `https://visual-inspection-template.web.app/predict?modelType=tflite`;
