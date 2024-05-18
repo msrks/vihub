@@ -1,15 +1,19 @@
 import "@/styles/globals.css";
+
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
+
+import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/context/NextAuthProvider";
 import { cn } from "@/lib/utils";
 import { TRPCReactProvider } from "@/trpc/react";
-import type { Metadata } from "next";
-import { Toaster } from "@/components/ui/sonner";
-import Header from "@/components/header";
-import { baseUrl, description, title } from "./sitemap";
 import { Analytics } from "@vercel/analytics/react";
 
+import { baseUrl, description, title } from "./sitemap";
+
+import type { Metadata } from "next";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -67,7 +71,9 @@ export default async function RootLayout({
         >
           <TRPCReactProvider>
             <NextAuthProvider>
-              <Header />
+              <Suspense>
+                <Header />
+              </Suspense>
               {children}
               <Toaster richColors />
               {/* <Footer /> */}
