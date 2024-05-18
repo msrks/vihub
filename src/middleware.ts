@@ -16,7 +16,7 @@ export default withAuth(
   // },
   {
     callbacks: {
-      authorized: async ({ req, token }) => {
+      authorized: async ({ token }) => {
         // const session = await getSession({
         //   req: {
         //     ...req,
