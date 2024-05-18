@@ -158,16 +158,14 @@ function DatePickerNav({ current }: { current: string }) {
   );
 }
 
-export function HeaderNav() {
-  const { data } = useSession();
+function HeaderNavMain() {
   const pathname = usePathname();
   const workspaceName = pathname.split("/")[1];
   const imageStoreName = pathname.split("/")[2];
   const menuItem = pathname.split("/")[3];
   const date = pathname.split("/")[4];
 
-  if (!data?.user || !workspaceName) return null;
-
+  if (!workspaceName) return null;
   return (
     <>
       <WorkspaceNav current={workspaceName} />
@@ -198,4 +196,10 @@ export function HeaderNav() {
       )}
     </>
   );
+}
+
+export function HeaderNav() {
+  const { data } = useSession();
+  if (!data?.user) return null;
+  return <HeaderNavMain />;
 }
