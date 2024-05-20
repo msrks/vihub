@@ -1,7 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { subDays } from "date-fns";
+import { saveAs } from "file-saver";
+import JSZip from "jszip";
 import { Download } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,93 +20,97 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
-import { type DateRange } from "react-day-picker";
-import { subDays } from "date-fns";
 import { api } from "@/trpc/react";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
-import { toast } from "sonner";
 
+import type { ImageStoreType as IST } from "@/server/db/schema";
+import type { DateRange } from "react-day-picker";
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
 }
 
-export function DownloadImages({
-  params: { imageStoreName, workspaceName },
-}: Props) {
-  const { data: imageStore } = api.imageStore.getByName.useQuery({
-    imageStoreName,
-    workspaceName,
-  });
-  const { mutateAsync: download } = api.image.getDataset.useMutation();
-  const { mutateAsync: downloadMultiLabel } =
-    api.image.getDatasetMultiLabel.useMutation();
+const clip0toMax = (v: number, max: number) => Math.min(max, Math.max(0, v));
 
-  const downloadDataset = async (dateRange?: DateRange) => {
-    toast.info("Downloading...", {
-      duration: 100000,
-      id: "downloading",
-    });
-    const dataset = await download({
-      imageStoreId: imageStore!.id,
-      from: dateRange?.from,
-      to: dateRange?.to,
-    });
+export function DownloadImages({ params }: Props) {
+  const { data: IS } = api.imageStore.getByName.useQuery(params);
+  const { mutateAsync: dlClsS } = api.image.getDatasetClsS.useMutation();
+  const { mutateAsync: dlClsM } = api.image.getDatasetClsM.useMutation();
+  const { mutateAsync: dlDet } = api.image.getDatasetDet.useMutation();
+
+  const dl = (type: IST) => async (props: { from?: Date; to?: Date }) => {
+    const { from, to } = props;
+    toast.info("Downloading...", { duration: 100000, id: "downloading" });
     const zip = new JSZip();
-    await Promise.all(
-      dataset.map(async (data) => {
-        const folder = zip.folder(data.key);
-        if (!folder) return;
-        await Promise.all(
-          data.imgs.map(async (img) => {
-            const res = await fetch(img.url);
-            const blob = await res.blob();
-            folder.file(`${img.id}.png`, blob, { base64: true });
-          }),
-        );
-      }),
-    );
-    const content = await zip.generateAsync({ type: "blob" });
-    saveAs(content, "dataset.zip");
 
-    toast.dismiss("downloading");
-    toast.success("Images downloaded successfully");
-  };
-
-  const downloadMultiLabelDataset = async (dateRange?: DateRange) => {
-    toast.info("Downloading...", {
-      duration: 100000,
-      id: "downloading",
-    });
-
-    const { imgs, keys } = await downloadMultiLabel({
-      imageStoreId: imageStore!.id,
-      from: dateRange?.from,
-      to: dateRange?.to,
-    });
-    const zip = new JSZip();
-    const folder = zip.folder("images");
-    if (!folder) return;
-
-    await Promise.all(
-      imgs.map(async (img) => {
-        const res = await fetch(img.url);
-        const blob = await res.blob();
-        folder.file(`${img.id}.png`, blob, { base64: true });
-      }),
-    );
-
-    const header = ["name", ...keys].join(",");
-    const rows = imgs.map((img) =>
-      [
-        `${img.id}.png`,
-        ...keys.map((k) => (img.labelKeys.includes(k) ? 1 : 0)),
-      ].join(","),
-    );
-
-    zip.file("labels.csv", [header, ...rows].join("\n"));
+    if (type === "clsS") {
+      const dataset = await dlClsS({ storeId: IS!.id, from, to });
+      if (!dataset.length) {
+        toast.dismiss("downloading");
+        toast.error("No clsS labels found");
+        return;
+      }
+      await Promise.allSettled(
+        dataset.map(async (data) => {
+          const folder = zip.folder(data.key)!;
+          await Promise.all(
+            data.imgs.map(async (img) => {
+              const res = await fetch(img.url);
+              const blob = await res.blob();
+              folder.file(`${img.id}.png`, blob, { base64: true });
+            }),
+          );
+        }),
+      );
+    } else if (type === "clsM") {
+      const { imgs, keys } = await dlClsM({ storeId: IS!.id, from, to });
+      // create images folder
+      const folder = zip.folder("images")!;
+      await Promise.allSettled(
+        imgs.map(async (img) => {
+          const res = await fetch(img.url);
+          const blob = await res.blob();
+          folder.file(`${img.id}.png`, blob, { base64: true });
+        }),
+      );
+      // create labels.csv
+      const header = ["name", ...keys].join(",");
+      const rows = imgs.map((img) =>
+        [
+          `${img.id}.png`,
+          ...keys.map((k) => (img.labelKeys.includes(k) ? 1 : 0)),
+        ].join(","),
+      );
+      zip.file("labels.csv", [header, ...rows].join("\n"));
+    } else if (type === "det") {
+      const imgs = await dlDet({ storeId: IS!.id, from, to });
+      // create images folder
+      const folder = zip.folder("images")!;
+      await Promise.allSettled(
+        imgs.map(async (img) => {
+          const res = await fetch(img.url);
+          const blob = await res.blob();
+          folder.file(`${img.id}.png`, blob, { base64: true });
+        }),
+      );
+      // create labels.csv
+      const h = ["", "width", "height", "cls", "xmin", "ymin", "xmax", "ymax"];
+      const rows = imgs.map((img) =>
+        [
+          `${img.id}.png`,
+          img.width,
+          img.height,
+          img.label,
+          img.label ? clip0toMax(img.xMin, img.width) : null,
+          img.label ? clip0toMax(img.yMin, img.height) : null,
+          img.label ? clip0toMax(img.xMax, img.width) : null,
+          img.label ? clip0toMax(img.yMax, img.height) : null,
+        ].join(","),
+      );
+      zip.file("labels.csv", [h.join(","), ...rows].join("\n"));
+    } else {
+      toast.dismiss("downloading");
+      toast.error("Invalid type");
+      return;
+    }
 
     const content = await zip.generateAsync({ type: "blob" });
     saveAs(content, "dataset.zip");
@@ -117,9 +128,14 @@ export function DownloadImages({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DownloadMenu label="Single Label" handler={downloadDataset} />
+        <DownloadMenu label="Single Label" download={dl("clsS")} />
         <DropdownMenuSeparator />
-        <DownloadMenu label="Multi Label" handler={downloadMultiLabelDataset} />
+        {IS?.type === "clsM" && (
+          <DownloadMenu label="Multi Label" download={dl("clsM")} />
+        )}
+        {IS?.type === "det" && (
+          <DownloadMenu label="Object Detection" download={dl("det")} />
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -127,10 +143,10 @@ export function DownloadImages({
 
 function DownloadMenu({
   label,
-  handler,
+  download,
 }: {
   label: string;
-  handler: (dateRange?: DateRange) => void;
+  download: (props: { from?: Date; to?: Date }) => Promise<void>;
 }) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 29),
@@ -140,7 +156,7 @@ function DownloadMenu({
     <>
       <DropdownMenuLabel>{label}</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <DropdownMenuItem onClick={() => handler()}>All Time</DropdownMenuItem>
+      <DropdownMenuItem onClick={() => download({})}>All Time</DropdownMenuItem>
       <DropdownMenuSub>
         <DropdownMenuSubTrigger>Custom</DropdownMenuSubTrigger>
         <DropdownMenuSubContent>
@@ -155,7 +171,7 @@ function DownloadMenu({
             />
             <DropdownMenuItem>
               <Button
-                onClick={() => dateRange && handler(dateRange)}
+                onClick={() => dateRange && download(dateRange)}
                 disabled={dateRange == null}
                 className="w-full"
               >
