@@ -28,7 +28,8 @@ interface Props {
   params: { workspaceName: string; imageStoreName: string };
 }
 
-const clip0toMax = (v: number, max: number) => Math.min(max, Math.max(0, v));
+const clip0toMax = (v: number | null, max: number) =>
+  Math.min(max, Math.max(0, v ?? 0));
 
 export function DownloadImages({ params }: Props) {
   const { data: IS } = api.imageStore.getByName.useQuery(params);
