@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Pencil, Trash2 } from "lucide-react";
+import { Bot, Pencil, Trash2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { TwitterPicker } from "react-color";
@@ -23,46 +23,85 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 
 import type { ColorResult } from "react-color";
 import type { RouterOutputs } from "@/server/api/root";
 import type { Row, ColumnDef } from "@tanstack/react-table";
-
 type LabelClass = RouterOutputs["labelClass"]["getAll"][number];
 
 interface Props {
   row: Row<LabelClass>;
 }
 
-export const colClsS: ColumnDef<LabelClass>[] = [
+export const columns: ColumnDef<LabelClass>[] = [
   { header: "Color", cell: ColorCell },
+  { header: "Type", accessorKey: "type" },
   { header: "Key", accessorKey: "key" },
   { header: "Display Name", cell: DisplayNameCell },
-  { header: "Count: HumanLabel", cell: HumanCountCell },
-  { header: "Count: AILabel", cell: AICountCell },
+  {
+    id: "human:clsS",
+    cell: HumanCountCell,
+    header: () => (
+      <p className="flex items-center gap-1">
+        <User className="size-4" />
+        clsS
+      </p>
+    ),
+  },
+  {
+    id: "ai:clsS",
+    cell: AICountCell,
+    header: () => (
+      <p className="flex items-center gap-1">
+        <Bot className="size-4" />
+        clsS
+      </p>
+    ),
+  },
+  {
+    id: "human:clsM",
+    cell: MultiHumanCountCell,
+    header: () => (
+      <p className="flex items-center gap-1">
+        <User className="size-4" />
+        clsM
+      </p>
+    ),
+  },
+  {
+    id: "ai:clsM",
+    cell: MultiAiCountCell,
+    header: () => (
+      <p className="flex items-center gap-1">
+        <Bot className="size-4" />
+        clsM
+      </p>
+    ),
+  },
+  {
+    id: "human:det",
+    cell: DetHumanCountCell,
+    header: () => (
+      <p className="flex items-center gap-1">
+        <User className="size-4" />
+        det
+      </p>
+    ),
+  },
+  {
+    id: "ai:det",
+    cell: DetAiCountCell,
+    header: () => (
+      <p className="flex items-center gap-1">
+        <Bot className="size-4" />
+        det
+      </p>
+    ),
+  },
   { header: "Spec Definition", cell: SpecDefinitionCell },
   { header: "Run LLM", cell: RunLLMCell },
-  { header: "Delete", cell: DeleteCell },
-];
-
-export const colClsM: ColumnDef<LabelClass>[] = [
-  { header: "Color", cell: ColorCell },
-  { header: "Key", accessorKey: "key" },
-  { header: "Display Name", cell: DisplayNameCell },
-  { header: "Count: HumanLabel", cell: MultiHumanCountCell },
-  { header: "Count: AILabel", cell: MultiAiCountCell },
-  { header: "Spec Definition", cell: SpecDefinitionCell },
-  { header: "Delete", cell: DeleteCell },
-];
-
-export const colDet: ColumnDef<LabelClass>[] = [
-  { header: "Color", cell: ColorCell },
-  { header: "Key", accessorKey: "key" },
-  { header: "Display Name", cell: DisplayNameCell },
-  { header: "Count: HumanLabel", cell: DetHumanCountCell },
-  { header: "Count: AILabel", cell: DetAiCountCell },
-  { header: "Spec Definition", cell: SpecDefinitionCell },
   { header: "Delete", cell: DeleteCell },
 ];
 
@@ -254,37 +293,52 @@ function RunLLMCell({ row }: Props) {
 }
 
 function HumanCountCell({ row }: Props) {
-  const { id } = row.original;
+  const { id, type } = row.original;
   const { data } = api.labelClass.getHumanCount.useQuery({ id });
-  return <>{data}</>;
+  if (type !== "clsS") return null;
+  return (
+    <span className={cn({ "text-muted-foreground": data === 0 })}>{data}</span>
+  );
 }
 
 function AICountCell({ row }: Props) {
   const { id } = row.original;
   const { data } = api.labelClass.getAICount.useQuery({ id });
-  return <>{data}</>;
+  return (
+    <span className={cn({ "text-muted-foreground": data === 0 })}>{data}</span>
+  );
 }
 
 function MultiHumanCountCell({ row }: Props) {
-  const { id } = row.original;
+  const { id, type } = row.original;
   const { data } = api.labelClass.getMultiHumanCount.useQuery({ id });
-  return <>{data}</>;
+  if (type !== "clsM") return null;
+  return (
+    <span className={cn({ "text-muted-foreground": data === 0 })}>{data}</span>
+  );
 }
 
 function MultiAiCountCell({ row }: Props) {
   const { id } = row.original;
   const { data } = api.labelClass.getMultiAiCount.useQuery({ id });
-  return <>{data}</>;
+  return (
+    <span className={cn({ "text-muted-foreground": data === 0 })}>{data}</span>
+  );
 }
 
 function DetHumanCountCell({ row }: Props) {
-  const { id } = row.original;
+  const { id, type } = row.original;
   const { data } = api.labelClass.getDetHumanCount.useQuery({ id });
-  return <>{data}</>;
+  if (type !== "det") return null;
+  return (
+    <span className={cn({ "text-muted-foreground": data === 0 })}>{data}</span>
+  );
 }
 
 function DetAiCountCell({ row }: Props) {
   const { id } = row.original;
   const { data } = api.labelClass.getDetAiCount.useQuery({ id });
-  return <>{data}</>;
+  return (
+    <span className={cn({ "text-muted-foreground": data === 0 })}>{data}</span>
+  );
 }
