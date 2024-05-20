@@ -53,8 +53,8 @@ export function ZoomDialog({
     toast.info("Updating labels...");
     await mutateAsync({
       id: image.id,
-      humanLabelId: labelId ? parseInt(labelId) : undefined,
       multiLabelIds,
+      ...(labelId ? { humanLabelId: parseInt(labelId) } : {}),
     });
     toast.success("Labels updated");
     await utils.image.invalidate();
