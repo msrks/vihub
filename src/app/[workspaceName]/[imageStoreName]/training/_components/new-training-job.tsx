@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -13,24 +13,26 @@ interface Props {
 
 export function NewTrainingJob({ params }: Props) {
   const router = useRouter();
-  const { data: imageStore } = api.imageStore.getByName.useQuery(params);
+  const { data: IS } = api.imageStore.getByName.useQuery(params);
   const { mutateAsync, isPending } =
     api.trainingJob.prepareDataset.useMutation();
 
   const handleClick = async () => {
-    if (!imageStore) return;
     toast.info("triggering new training job...");
-    await mutateAsync({
-      imageStoreId: imageStore.id,
-      type: imageStore.type,
-    }); //
+    await mutateAsync({ imageStoreId: IS!.id, type: IS!.type });
     toast.success("new training job has started!");
     router.refresh();
   };
 
   return (
-    <Button size="sm" disabled={isPending} onClick={handleClick}>
-      <PlusCircle className="mr-1 size-4" /> New
+    <Button size="sm" disabled={isPending || !IS} onClick={handleClick}>
+      {isPending ? (
+        <Loader2 className="size-4 animate-spin" />
+      ) : (
+        <>
+          <PlusCircle className="mr-1 size-4" /> New
+        </>
+      )}
     </Button>
   );
 }
