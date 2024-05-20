@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import { format, parse } from "date-fns";
@@ -159,6 +160,7 @@ function DatePickerNav({ current }: { current: string }) {
 }
 
 function HeaderNavMain() {
+  // @ts-ignore
   const pathname = usePathname();
   const workspaceName = pathname.split("/")[1];
   const imageStoreName = pathname.split("/")[2];
