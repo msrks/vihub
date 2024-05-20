@@ -135,7 +135,7 @@ export function ImageItem({
               )}
               {multiLabels?.map(({ key, color, displayName }) => (
                 <Badge key={key} style={{ backgroundColor: color }}>
-                  {displayName ?? key}
+                  <User className="mr-1 size-3" /> {displayName ?? key}
                 </Badge>
               ))}
             </div>
