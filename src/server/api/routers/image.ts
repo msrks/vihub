@@ -8,13 +8,19 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { images, labelClasses as lc, labelsClsM } from "@/server/db/schema";
+import {
+  images as I,
+  labelClasses as lc,
+  labelsClsM,
+  labelsDet as lDet,
+} from "@/server/db/schema";
 import { uploadToGCS } from "@/server/gcs";
 import { vdb } from "@/server/pinecone";
 import { getVectorByReplicate } from "@/server/replicate";
 import { del, put } from "@vercel/blob";
 
 import type { PineconeRecord } from "@pinecone-database/pinecone";
+
 export const imageRouter = createTRPCRouter({
   create: publicProcedure
     .input(
@@ -76,7 +82,7 @@ export const imageRouter = createTRPCRouter({
         }
 
         // upload to vercel blob
-        const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/images/${Date.now()}`;
+        const filename = `${process.env.BLOB_NAME_SPACE!}/${imageStoreId}/I/${Date.now()}`;
         const blob = await put(filename, file, { access: "public" });
         const { url, downloadUrl } = blob;
 
@@ -104,7 +110,7 @@ export const imageRouter = createTRPCRouter({
 
         // save to db
         const ret = await ctx.db
-          .insert(images)
+          .insert(I)
           .values({
             url,
             downloadUrl,
@@ -137,11 +143,7 @@ export const imageRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input: { id, multiLabelIds, ...rest } }) => {
       if (Object.keys(rest).length > 0) {
-        await ctx.db
-          .update(images)
-          .set(rest)
-          .where(eq(images.id, id))
-          .returning();
+        await ctx.db.update(I).set(rest).where(eq(I.id, id)).returning();
       }
       if (multiLabelIds)
         await ctx.db.delete(labelsClsM).where(eq(labelsClsM.imageId, id));
@@ -161,9 +163,9 @@ export const imageRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input: { id } }) => {
       await ctx.db
-        .update(images)
-        .set({ isLabeled: sql`not ${images.isLabeled}` })
-        .where(eq(images.id, id))
+        .update(I)
+        .set({ isLabeled: sql`not ${I.isLabeled}` })
+        .where(eq(I.id, id))
         .returning();
       return { success: true };
     }),
@@ -175,10 +177,7 @@ export const imageRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: { id } }) => {
-      const ret = await ctx.db
-        .delete(images)
-        .where(eq(images.id, id))
-        .returning();
+      const ret = await ctx.db.delete(I).where(eq(I.id, id)).returning();
       if (!ret[0]) throw new Error("something went wrong..");
 
       // delete from vercel blob
@@ -191,59 +190,51 @@ export const imageRouter = createTRPCRouter({
     }),
 
   getByImagePath: protectedProcedure
-    .input(
-      z.object({
-        imagePath: z.string(),
-      }),
-    )
+    .input(z.object({ imagePath: z.string() }))
     .query(async ({ ctx, input }) => {
       const ret = await ctx.db
         .select()
-        .from(images)
-        .where(eq(images.url, input.imagePath));
-
+        .from(I)
+        .where(eq(I.url, input.imagePath));
       if (!ret[0]) throw new Error("something went wrong..");
       return ret[0];
     }),
 
   getAll: protectedProcedure
-    .input(
-      z.object({
-        imageStoreId: z.number(),
-      }),
-    )
+    .input(z.object({ imageStoreId: z.number() }))
     .query(async ({ ctx, input }) => {
       return ctx.db
         .select()
-        .from(images)
-        .where(eq(images.imageStoreId, input.imageStoreId));
+        .from(I)
+        .where(eq(I.imageStoreId, input.imageStoreId));
     }),
 
-  getDataset: protectedProcedure
+  getDatasetClsS: protectedProcedure
     .input(
       z.object({
-        imageStoreId: z.number(),
+        storeId: z.number(),
         from: z.date().optional(),
         to: z.date().optional(),
       }),
     )
-    .mutation(async ({ ctx, input: { imageStoreId, from, to } }) => {
+    .mutation(async ({ ctx, input: { storeId, from, to } }) => {
       const labels = await ctx.db
         .select({ id: lc.id, key: lc.key })
         .from(lc)
-        .where(and(eq(lc.imageStoreId, imageStoreId), eq(lc.type, "clsS")));
+        .where(and(eq(lc.imageStoreId, storeId), eq(lc.type, "clsS")));
 
       return await Promise.all(
         labels.map(async ({ key, id }) => {
           const imgs = await ctx.db
-            .select({ id: images.id, url: images.downloadUrl })
-            .from(images)
+            .select({ id: I.id, url: I.downloadUrl })
+            .from(I)
             .where(
               and(
-                eq(images.imageStoreId, imageStoreId),
-                eq(images.humanLabelId, id),
-                from ? gte(images.createdAt, from) : undefined,
-                to ? lte(images.createdAt, to) : undefined,
+                eq(I.imageStoreId, storeId),
+                eq(I.humanLabelId, id),
+                eq(I.isLabeled, true),
+                from ? gte(I.createdAt, from) : undefined,
+                to ? lte(I.createdAt, to) : undefined,
               ),
             );
           return { key, imgs };
@@ -251,49 +242,78 @@ export const imageRouter = createTRPCRouter({
       );
     }),
 
-  // TODO: check is dupulicate??
-  getDatasetMultiLabel: protectedProcedure
+  getDatasetClsM: protectedProcedure
     .input(
       z.object({
-        imageStoreId: z.number(),
+        storeId: z.number(),
         from: z.date().optional(),
         to: z.date().optional(),
       }),
     )
-    .mutation(async ({ ctx, input: { imageStoreId, from, to } }) => {
+    .mutation(async ({ ctx, input: { storeId, from, to } }) => {
       const labels = await ctx.db
         .select({ key: lc.key })
         .from(lc)
-        .where(
-          and(
-            eq(lc.imageStoreId, imageStoreId),
-            eq(lc.type, "clsM"),
-            from ? gte(images.createdAt, from) : undefined,
-            to ? lte(images.createdAt, to) : undefined,
-          ),
-        );
+        .where(and(eq(lc.imageStoreId, storeId), eq(lc.type, "clsM")));
 
       const imgs = await ctx.db
         .select({
-          id: images.id,
-          url: images.downloadUrl,
+          id: I.id,
+          url: I.downloadUrl,
           labelKeys: sql<string[]>`array_agg(${lc.key})`,
         })
-        .from(images)
-        .where(and(eq(images.imageStoreId, imageStoreId)))
-        .innerJoin(labelsClsM, eq(labelsClsM.imageId, images.id))
-        .innerJoin(lc, eq(lc.id, labelsClsM.labelClassId))
-        .groupBy(images.id);
+        .from(I)
+        .where(
+          and(
+            eq(I.imageStoreId, storeId),
+            eq(I.isLabeled, true),
+            from ? gte(I.createdAt, from) : undefined,
+            to ? lte(I.createdAt, to) : undefined,
+          ),
+        )
+        .leftJoin(labelsClsM, eq(labelsClsM.imageId, I.id))
+        .leftJoin(lc, eq(lc.id, labelsClsM.labelClassId))
+        .groupBy(I.id);
       return { keys: labels.map((l) => l.key), imgs };
+    }),
+
+  getDatasetDet: protectedProcedure
+    .input(
+      z.object({
+        storeId: z.number(),
+        from: z.date().optional(),
+        to: z.date().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { storeId, from, to } }) => {
+      return await ctx.db
+        .select({
+          id: I.id,
+          url: I.downloadUrl,
+          width: I.width,
+          height: I.height,
+          label: lc.key,
+          xMin: lDet.xMin,
+          yMin: lDet.yMin,
+          xMax: lDet.xMax,
+          yMax: lDet.yMax,
+        })
+        .from(I)
+        .where(
+          and(
+            eq(I.imageStoreId, storeId),
+            eq(I.isLabeled, true),
+            from ? gte(I.createdAt, from) : undefined,
+            to ? lte(I.createdAt, to) : undefined,
+          ),
+        )
+        .leftJoin(lDet, and(eq(lDet.imageId, I.id), eq(lDet.type, "human")))
+        .leftJoin(lc, eq(lc.id, lDet.labelClassId));
     }),
 
   // TODO: check is dupulicate??
   getMultiClassDataset: protectedProcedure
-    .input(
-      z.object({
-        imageStoreId: z.number(),
-      }),
-    )
+    .input(z.object({ imageStoreId: z.number() }))
     .mutation(async ({ ctx, input: { imageStoreId } }) => {
       const labels = await ctx.db
         .select({ id: lc.id, key: lc.key })
@@ -303,13 +323,10 @@ export const imageRouter = createTRPCRouter({
       return await Promise.all(
         labels.map(async ({ key, id }) => {
           const imgs = await ctx.db
-            .select({ id: images.id, url: images.downloadUrl })
-            .from(images)
+            .select({ id: I.id, url: I.downloadUrl })
+            .from(I)
             .where(
-              and(
-                eq(images.imageStoreId, imageStoreId),
-                eq(images.humanLabelId, id),
-              ),
+              and(eq(I.imageStoreId, imageStoreId), eq(I.humanLabelId, id)),
             );
           return { key, imgs };
         }),
@@ -327,26 +344,22 @@ export const imageRouter = createTRPCRouter({
     .query(
       async ({ ctx, input: { imageStoreId, onlyLabeled, onlyUnlabeled } }) => {
         return await ctx.db
-          .select({ date: images.createdAtDate, count: count() })
-          .from(images)
+          .select({ date: I.createdAtDate, count: count() })
+          .from(I)
           .where(
             and(
-              eq(images.imageStoreId, imageStoreId),
-              onlyLabeled ? eq(images.isLabeled, true) : undefined,
-              onlyUnlabeled ? eq(images.isLabeled, false) : undefined,
+              eq(I.imageStoreId, imageStoreId),
+              onlyLabeled ? eq(I.isLabeled, true) : undefined,
+              onlyUnlabeled ? eq(I.isLabeled, false) : undefined,
             ),
           )
-          .groupBy(images.createdAtDate)
-          .orderBy(images.createdAtDate);
+          .groupBy(I.createdAtDate)
+          .orderBy(I.createdAtDate);
       },
     ),
 
   getAllCountsPerLabelPerDate: protectedProcedure
-    .input(
-      z.object({
-        imageStoreId: z.number(),
-      }),
-    )
+    .input(z.object({ imageStoreId: z.number() }))
     .query(async ({ ctx, input }) => {
       const allLabels = await ctx.db
         .select()
@@ -355,39 +368,35 @@ export const imageRouter = createTRPCRouter({
 
       return await ctx.db
         .select({
-          date: images.createdAtDate,
+          date: I.createdAtDate,
           count: count(),
           ...allLabels.reduce(
             (acc, curr) => ({
               ...acc,
               [curr.key]:
-                sql`count(*) filter (where ${images.aiLabelId} = ${curr.id})`.mapWith(
+                sql`count(*) filter (where ${I.aiLabelId} = ${curr.id})`.mapWith(
                   Number,
                 ),
             }),
             {},
           ),
         })
-        .from(images)
-        .where(eq(images.imageStoreId, input.imageStoreId))
-        .groupBy(images.createdAtDate)
-        .orderBy(images.createdAtDate);
+        .from(I)
+        .where(eq(I.imageStoreId, input.imageStoreId))
+        .groupBy(I.createdAtDate)
+        .orderBy(I.createdAtDate);
     }),
 
   getTestImages: protectedProcedure
-    .input(
-      z.object({
-        imageStoreId: z.number(),
-      }),
-    )
+    .input(z.object({ imageStoreId: z.number() }))
     .query(async ({ ctx, input }) => {
       return ctx.db
         .select()
-        .from(images)
+        .from(I)
         .where(
           and(
-            eq(images.imageStoreId, input.imageStoreId),
-            eq(images.selectedForExperiment, true),
+            eq(I.imageStoreId, input.imageStoreId),
+            eq(I.selectedForExperiment, true),
           ),
         );
     }),
@@ -417,16 +426,16 @@ export const imageRouter = createTRPCRouter({
       }) => {
         const items = await ctx.db
           .select()
-          .from(images)
-          .orderBy(desc(images.createdAt))
+          .from(I)
+          .orderBy(desc(I.createdAt))
           .limit(limit + 1)
           .where(
             and(
-              eq(images.imageStoreId, imageStoreId),
-              lte(images.createdAt, cursor ?? new Date()),
-              date ? eq(images.createdAtDate, date) : undefined,
-              onlyLabeled ? eq(images.isLabeled, true) : undefined,
-              onlyUnlabeled ? eq(images.isLabeled, false) : undefined,
+              eq(I.imageStoreId, imageStoreId),
+              lte(I.createdAt, cursor ?? new Date()),
+              date ? eq(I.createdAtDate, date) : undefined,
+              onlyLabeled ? eq(I.isLabeled, true) : undefined,
+              onlyUnlabeled ? eq(I.isLabeled, false) : undefined,
             ),
           );
 
@@ -444,11 +453,7 @@ export const imageRouter = createTRPCRouter({
     ),
 
   getMultiLabels: protectedProcedure
-    .input(
-      z.object({
-        imageId: z.number(),
-      }),
-    )
+    .input(z.object({ imageId: z.number() }))
     .query(async ({ ctx, input: { imageId } }) => {
       return await ctx.db
         .select({
