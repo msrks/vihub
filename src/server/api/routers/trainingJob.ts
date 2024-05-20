@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, notInArray } from "drizzle-orm";
+import { and, eq, isNotNull, notInArray, sql } from "drizzle-orm";
 import { promises } from "fs";
 import { z } from "zod";
 
@@ -8,9 +8,10 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import {
-  images,
+  images as I,
   imageStoreTypeList,
-  labelClasses,
+  labelClasses as lc,
+  labelsClsM,
   labelsDet,
   trainingJobs,
 } from "@/server/db/schema";
@@ -26,31 +27,21 @@ import { Storage } from "@google-cloud/storage";
 
 const clip0to1 = (v: number) => Math.min(1, Math.max(0, v));
 
+const zOptionalNumber = z.coerce
+  .number()
+  .optional()
+  .nullish()
+  .transform((v) => v ?? undefined);
+
 const modelSchema = z.object({
-  numTrain: z.coerce
-    .number()
-    .optional()
-    .nullish()
-    .transform((v) => v ?? undefined),
-  numTest: z.coerce
-    .number()
-    .optional()
-    .nullish()
-    .transform((v) => v ?? undefined),
-  numValid: z.coerce
-    .number()
-    .optional()
-    .nullish()
-    .transform((v) => v ?? undefined),
+  numTrain: zOptionalNumber,
+  numTest: zOptionalNumber,
+  numValid: zOptionalNumber,
 });
 
 export const trainingJobRouter = createTRPCRouter({
   getAll: protectedProcedure
-    .input(
-      z.object({
-        imagesStoreId: z.number(),
-      }),
-    )
+    .input(z.object({ imagesStoreId: z.number() }))
     .query(async ({ ctx, input: { imagesStoreId } }) => {
       return await ctx.db
         .select()
@@ -178,46 +169,64 @@ export const trainingJobRouter = createTRPCRouter({
 
       if (type === "clsS") {
         const dataset = await ctx.db
-          .select({
-            url: images.gsutilURI,
-            label: labelClasses.key,
-          })
-          .from(images)
+          .select({ url: I.gsutilURI, label: lc.key })
+          .from(I)
           .where(
             and(
-              eq(images.imageStoreId, imageStoreId),
-              isNotNull(images.humanLabelId),
+              eq(I.imageStoreId, imageStoreId),
+              eq(I.isLabeled, true),
+              isNotNull(I.humanLabelId),
             ),
           )
-          .innerJoin(labelClasses, eq(images.humanLabelId, labelClasses.id));
+          .innerJoin(lc, eq(I.humanLabelId, lc.id));
         numImages = dataset.length;
         csvString = dataset.map((d) => `${d.url},${d.label}`).join("\n");
       } else if (type === "clsM") {
-        // TODO
+        const dataset = await ctx.db
+          .select({
+            id: I.id,
+            url: I.gsutilURI,
+            labelKeys: sql<string[]>`array_agg(${lc.key})`,
+          })
+          .from(I)
+          .where(and(eq(I.imageStoreId, imageStoreId), eq(I.isLabeled, true)))
+          .leftJoin(labelsClsM, eq(labelsClsM.imageId, I.id))
+          .leftJoin(lc, eq(lc.id, labelsClsM.labelClassId))
+          .groupBy(I.id);
+        numImages = dataset.length;
+        csvString = dataset
+          .map((d) =>
+            d.labelKeys.length > 0
+              ? `${d.url},${d.labelKeys.join(",")}`
+              : d.url,
+          )
+          .join("\n");
       } else if (type === "det") {
         const dataset = await ctx.db
           .select({
-            url: images.gsutilURI,
-            label: labelClasses.key,
+            url: I.gsutilURI,
+            label: lc.key,
             xMin: labelsDet.xMin,
             yMin: labelsDet.yMin,
             xMax: labelsDet.xMax,
             yMax: labelsDet.yMax,
-            width: images.width,
-            height: images.height,
+            width: I.width,
+            height: I.height,
           })
-          .from(labelsDet)
-          .innerJoin(images, eq(labelsDet.imageId, images.id))
-          .innerJoin(labelClasses, eq(labelsDet.labelClassId, labelClasses.id))
-          .where(
-            and(
-              eq(images.imageStoreId, imageStoreId),
-              eq(labelsDet.type, "human"),
-            ),
-          );
+          .from(I)
+          .where(and(eq(I.imageStoreId, imageStoreId), eq(I.isLabeled, true)))
+          .leftJoin(
+            labelsDet,
+            and(eq(labelsDet.imageId, I.id), eq(labelsDet.type, "human")),
+          )
+          .leftJoin(lc, eq(labelsDet.labelClassId, lc.id));
         numImages = dataset.length;
         csvString = dataset
           .map((d) => {
+            // https://cloud.google.com/vertex-ai/docs/image-data/object-detection/prepare-data?hl=ja#csv
+            if (!d.label || !d.xMin || !d.yMin || !d.xMax || !d.yMax) {
+              return d.url;
+            }
             const xMin = clip0to1(d.xMin / d.width);
             const yMin = clip0to1(d.yMin / d.height);
             const xMax = clip0to1(d.xMax / d.width);
