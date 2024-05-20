@@ -1,4 +1,4 @@
-import { and, count, eq } from "drizzle-orm";
+import { and, asc, count, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
@@ -67,7 +67,7 @@ export const labelClassRouter = createTRPCRouter({
         .select()
         .from(labelClasses)
         .where(eq(labelClasses.imageStoreId, input.imageStoreId))
-        .orderBy(labelClasses.key);
+        .orderBy(asc(labelClasses.type), asc(labelClasses.key));
     }),
 
   deleteById: protectedProcedure
