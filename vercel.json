@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/pet",
-      "schedule": "* * * * *"
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/cron/update-ai-jobs",
