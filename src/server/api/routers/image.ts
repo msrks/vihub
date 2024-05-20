@@ -136,11 +136,13 @@ export const imageRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: { id, multiLabelIds, ...rest } }) => {
-      await ctx.db
-        .update(images)
-        .set(rest)
-        .where(eq(images.id, id))
-        .returning();
+      if (Object.keys(rest).length > 0) {
+        await ctx.db
+          .update(images)
+          .set(rest)
+          .where(eq(images.id, id))
+          .returning();
+      }
       if (multiLabelIds)
         await ctx.db.delete(labelsClsM).where(eq(labelsClsM.imageId, id));
       if (multiLabelIds?.length) {
