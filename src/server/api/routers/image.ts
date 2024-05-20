@@ -88,7 +88,7 @@ export const imageRouter = createTRPCRouter({
 
         // upload to gcs
         // const gcsPath = `${imageStoreId}/${Date.now()}.png`;
-        const gcsPath = `${imageStoreId}/${Date.now()}.json`;
+        const gcsPath = `${imageStoreId}/${Date.now()}.png`;
         const gsutilURI = `gs://vihub/${gcsPath}`;
         try {
           await uploadToGCS(buffer, gcsPath);
