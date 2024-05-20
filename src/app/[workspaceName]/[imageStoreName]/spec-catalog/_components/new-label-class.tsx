@@ -25,10 +25,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { imageStoreTypeList } from "@/server/db/schema";
 import { api } from "@/trpc/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import type { ImageStoreType } from "@/server/db/schema";
 
 interface Props {
   params: { workspaceName: string; imageStoreName: string };
@@ -37,12 +43,10 @@ interface Props {
 const formSchema = z.object({
   key: z.string().min(1).max(50),
   displayName: z.string().min(1).max(50),
+  type: z.enum(imageStoreTypeList),
 });
 
-export const NewLabelClass = ({
-  params,
-  type,
-}: Props & { type: ImageStoreType }) => {
+export const NewLabelClass = ({ params }: Props) => {
   const { data: imageStore } = api.imageStore.getByName.useQuery(params);
 
   const router = useRouter();
@@ -50,11 +54,11 @@ export const NewLabelClass = ({
   const { mutateAsync: createLabelClass } = api.labelClass.create.useMutation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { key: "", displayName: "" },
+    defaultValues: { key: "", displayName: "", type: "clsS" },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { key, displayName } = values;
+    const { key, displayName, type } = values;
     const res = await createLabelClass({
       key,
       displayName,
@@ -119,6 +123,32 @@ export const NewLabelClass = ({
                     `editable`.
                   </FormDescription>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent ref={field.ref}>
+                      {imageStoreTypeList.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />
