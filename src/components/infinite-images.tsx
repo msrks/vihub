@@ -11,6 +11,7 @@ import { useIntersection } from "@mantine/hooks";
 
 import { ImageItem } from "./image-item";
 import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -33,7 +34,6 @@ import {
 
 import type { RouterOutputs } from "@/server/api/root";
 import type { FormEvent } from "react";
-
 type SearchResult = RouterOutputs["ai"]["searchImages"][number];
 
 export function InfiniteImages({
@@ -104,15 +104,20 @@ export function InfiniteImages({
   const { mutateAsync: toggleIsLabeled } =
     api.image.toggleIsLabeled.useMutation();
   const [labelClass, setLabelClass] = useState<string | undefined>(undefined);
+  const [multiLabelIds, setItems] = useState<number[]>([]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!labelClass) return toast.error("Please select a class");
-
     toast.info("Setting as labeled...");
     await Promise.all(
       selectedImages.map((id) =>
-        updateImage({ id, humanLabelId: parseInt(labelClass) }),
+        updateImage({
+          id,
+          ...(imageStore?.type === "clsM" ? { multiLabelIds } : {}),
+          ...(imageStore?.type === "clsS" && labelClass
+            ? { humanLabelId: parseInt(labelClass) }
+            : {}),
+        }),
       ),
     );
     toast.success("Images labeled");
@@ -207,26 +212,50 @@ export function InfiniteImages({
         {selectedImages.length > 0 && (
           <>
             <form className="flex items-center gap-2" onSubmit={handleSubmit}>
-              <Label>SingleLabel</Label>
-              <Select
-                required
-                value={labelClass}
-                onValueChange={(value) => setLabelClass(value)}
-              >
-                <SelectTrigger className="h-8 w-[180px]">
-                  <SelectValue placeholder=" -- class -- " />
-                </SelectTrigger>
-                <SelectContent>
+              <Label>{imageStore?.type}</Label>
+              {imageStore?.type === "clsS" && (
+                <Select
+                  required
+                  value={labelClass}
+                  onValueChange={(value) => setLabelClass(value)}
+                >
+                  <SelectTrigger className="h-8 w-[180px]">
+                    <SelectValue placeholder=" -- class -- " />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {labelClasses
+                      ?.filter((lc) => lc.type === "clsS")
+                      .map((lc) => (
+                        <SelectItem key={lc.id} value={lc.id.toString()}>
+                          {lc.displayName}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {imageStore?.type === "clsM" && (
+                <div className="flex items-center justify-center gap-4">
                   {labelClasses
-                    ?.filter((lc) => lc.type === "clsS")
-                    .map((lc) => (
-                      <SelectItem key={lc.id} value={lc.id.toString()}>
-                        {lc.displayName}
-                      </SelectItem>
+                    ?.filter((l) => l.type === "clsM")
+                    .map(({ id, key, displayName }) => (
+                      <div key={id} className="flex items-center gap-1">
+                        <Checkbox
+                          id={key}
+                          checked={multiLabelIds.includes(id)}
+                          onCheckedChange={(checked) =>
+                            checked
+                              ? setItems([...multiLabelIds, id])
+                              : setItems(
+                                  multiLabelIds.filter((item) => item !== id),
+                                )
+                          }
+                        />
+                        <Label htmlFor={key}>{displayName ?? key}</Label>
+                      </div>
                     ))}
-                </SelectContent>
-              </Select>
-              <Button size="sm" disabled={!labelClass}>
+                </div>
+              )}
+              <Button size="sm">
                 <Save className="size-4" />
               </Button>
             </form>
