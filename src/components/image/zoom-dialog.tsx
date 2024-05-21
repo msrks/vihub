@@ -24,6 +24,8 @@ import { DrawCanvas } from "./draw-canvas";
 
 import type { RouterOutputs } from "@/server/api/root";
 
+const W_DEFAULT = 400;
+
 export function ZoomDialog({
   image,
   multiLabels,
@@ -79,20 +81,13 @@ export function ZoomDialog({
           )}
 
           {imageStore?.type !== "det" && (
-            <div className="grow overflow-hidden">
-              <AspectRatio
-                ratio={ratio}
-                // TODO: need to refactor.. how to fix this?
-                className="h-[calc(100vh-200px)]  bg-muted"
-              >
-                <Image
-                  src={image.url}
-                  alt=""
-                  fill
-                  className="rounded-md object-contain"
-                />
-              </AspectRatio>
-            </div>
+            <Image
+              src={image.url}
+              width={W_DEFAULT}
+              height={(W_DEFAULT * image.height) / image.width}
+              alt=""
+              className="mx-auto"
+            />
           )}
 
           <div className="grid w-full grid-cols-2">
