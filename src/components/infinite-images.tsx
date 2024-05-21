@@ -106,8 +106,7 @@ export function InfiniteImages({
   const [labelClass, setLabelClass] = useState<string | undefined>(undefined);
   const [multiLabelIds, setItems] = useState<number[]>([]);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     toast.info("Setting as labeled...");
     await Promise.all(
       selectedImages.map((id) =>
@@ -123,6 +122,26 @@ export function InfiniteImages({
     toast.success("Images labeled");
     setSelectedImages([]);
     setLabelClass(undefined);
+    await utils.image.invalidate();
+  };
+
+  const handleSubmitThenMoveToDataset = async () => {
+    toast.info("Setting as labeled...");
+    await Promise.all(
+      selectedImages.map((id) =>
+        updateImage({
+          id,
+          ...(imageStore?.type === "clsM" ? { multiLabelIds } : {}),
+          ...(imageStore?.type === "clsS" && labelClass
+            ? { humanLabelId: parseInt(labelClass) }
+            : {}),
+        }),
+      ),
+    );
+    await Promise.all(selectedImages.map((id) => toggleIsLabeled({ id })));
+    toast.success("Images labeled");
+    setLabelClass(undefined);
+    setSelectedImages([]);
     await utils.image.invalidate();
   };
 
@@ -211,7 +230,7 @@ export function InfiniteImages({
       <div className="mr-12 flex w-full items-center justify-end gap-4 ">
         {selectedImages.length > 0 && (
           <>
-            <form className="flex items-center gap-2" onSubmit={handleSubmit}>
+            <div className="flex items-center gap-2">
               <Label>{imageStore?.type}</Label>
               {imageStore?.type === "clsS" && (
                 <Select
@@ -255,10 +274,15 @@ export function InfiniteImages({
                     ))}
                 </div>
               )}
-              <Button size="sm">
+              <Button size="sm" onClick={handleSubmit}>
                 <Save className="size-4" />
               </Button>
-            </form>
+              {onlyUnlabeled && (
+                <Button size="sm" onClick={handleSubmitThenMoveToDataset}>
+                  <Save className="mr-1 size-4" /> & Move to dataset
+                </Button>
+              )}
+            </div>
 
             {onlyLabeled && (
               <Button size="sm" variant="secondary" onClick={toggleAll}>
