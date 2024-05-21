@@ -358,14 +358,12 @@ export function InfiniteImages({
             <RadioGroupItem value="all" id="r1" />
             <Label htmlFor="r1">All</Label>
           </div>
-          {labelClasses
-            ?.filter((lc) => lc.type === "clsS")
-            .map((lc) => (
-              <div key={lc.id} className="flex items-center gap-1">
-                <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
-                <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
-              </div>
-            ))}
+          {labelClasses?.map((lc) => (
+            <div key={lc.id} className="flex items-center gap-1">
+              <RadioGroupItem value={lc.id.toString()} id={`r${lc.id}`} />
+              <Label htmlFor={`r${lc.id}`}>{lc.displayName}</Label>
+            </div>
+          ))}
         </RadioGroup>
       </div>
 
