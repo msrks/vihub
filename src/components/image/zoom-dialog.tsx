@@ -7,7 +7,6 @@ import { toast } from "sonner";
 
 import { api } from "@/trpc/react";
 
-import { AspectRatio } from "../ui/aspect-ratio";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import {
@@ -29,11 +28,9 @@ const W_DEFAULT = 400;
 export function ZoomDialog({
   image,
   multiLabels,
-  ratio,
 }: {
   image: RouterOutputs["image"]["getInfiniteByImageStoreId"]["items"][number];
   multiLabels?: RouterOutputs["image"]["getMultiLabels"];
-  ratio: number;
 }) {
   const utils = api.useUtils();
   const [open, setOpen] = useState(false);

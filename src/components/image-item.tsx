@@ -168,11 +168,7 @@ export function ImageItem({
                 Score: {score.toFixed(2)}
               </Badge>
             )}
-            <ZoomDialog
-              image={image}
-              ratio={image.width / image.height}
-              multiLabels={multiLabels}
-            />
+            <ZoomDialog image={image} multiLabels={multiLabels} />
             {!resultLabel && image.selectedForExperiment && (
               <Badge className="absolute bottom-0 left-0">
                 <Bot className="mr-1 size-3" /> Test
