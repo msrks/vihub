@@ -38,9 +38,27 @@ export const columns: ColumnDef<TrainingJob>[] = [
   { header: "nTest", accessorKey: "numTest" },
   { header: "nValid", accessorKey: "numValid" },
   { header: "mAP", cell: (v) => <>{v.row.original.auPrc?.toFixed(3)}</> },
-  { header: "tflite", cell: (v) => <L l={v.row.original.urlTFlite} /> },
-  { header: "tfjs", cell: (v) => <L l={v.row.original.urlTFJS} /> },
-  { header: "savedModel", cell: (v) => <L l={v.row.original.urlSavedModel} /> },
+  {
+    header: "tflite",
+    cell: (v) =>
+      v.row.original.urlTFlite ? (
+        <L l={v.row.original.urlTFlite + "/model.tflite"} />
+      ) : null,
+  },
+  {
+    header: "tfjs",
+    cell: (v) =>
+      v.row.original.urlTFJS ? (
+        <L l={v.row.original.urlTFJS + "/model.json"} />
+      ) : null,
+  },
+  {
+    header: "savedModel",
+    cell: (v) =>
+      v.row.original.urlSavedModel ? (
+        <L l={v.row.original.urlSavedModel + "/saved_model.pb"} />
+      ) : null,
+  },
   // { header: "dateRange", accessorKey: "dateRange" },
   { header: "source", cell: (v) => <L l={v.row.original.importFilePath} /> },
   { header: "loss", cell: (v) => <>{v.row.original.logLoss?.toFixed(3)}</> },
