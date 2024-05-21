@@ -45,13 +45,13 @@ export const columns: ColumnDef<TrainingJob>[] = [
         <L l={v.row.original.urlTFlite + "/model.tflite"} />
       ) : null,
   },
-  {
-    header: "tfjs",
-    cell: (v) =>
-      v.row.original.urlTFJS ? (
-        <L l={v.row.original.urlTFJS + "/model.json"} />
-      ) : null,
-  },
+  // {
+  //   header: "tfjs",
+  //   cell: (v) =>
+  //     v.row.original.urlTFJS ? (
+  //       <L l={v.row.original.urlTFJS + "/model.json"} />
+  //     ) : null,
+  // },
   {
     header: "savedModel",
     cell: (v) =>
