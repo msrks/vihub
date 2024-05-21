@@ -196,7 +196,7 @@ export const trainingJobRouter = createTRPCRouter({
         numImages = dataset.length;
         csvString = dataset
           .map((d) =>
-            d.labelKeys.length > 0
+            d.labelKeys[0] !== "NULL"
               ? `${d.url},${d.labelKeys.join(",")}`
               : d.url,
           )
