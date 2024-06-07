@@ -46,6 +46,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - root path (/)
      */
-    "/((?!api|opengraph-image|trpc|_next/static|_next/image|favicon.ico|$).*)",
+    "/((?!api|opengraph-image|trpc|_next/static|_next/image|favicon.ico|icon.png|$).*)",
   ],
 };
